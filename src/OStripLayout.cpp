@@ -33,10 +33,31 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_Pan.set_max(254);
 	m_Pan.set_default(127);
 	m_Pan.set_label("L Pan R");
+	m_Pan.set_knob_background_color(.8, .6, .0, .4);
 	m_panbox.pack_start(m_Pan, false, false );
 	
+	Gdk::Color mute_color;
+	mute_color.set_rgb_p(.8,1,.8);
+	m_MuteEnable.modify_bg(Gtk::STATE_PRELIGHT, mute_color);
+	Gdk::Color mute_color_a;
+	mute_color_a.set_rgb_p(.7,1,.7);
+	m_MuteEnable.modify_bg(Gtk::STATE_ACTIVE, mute_color_a);
 	m_MuteEnable.set_label("Mute");
+
+	Gdk::Color solo_color;
+	solo_color.set_rgb_p(1,1,.8);
+	m_SoloEnable.modify_bg(Gtk::STATE_PRELIGHT, solo_color);
+	Gdk::Color solo_color_a;
+	solo_color_a.set_rgb_p(1,1,.7);
+	m_SoloEnable.modify_bg(Gtk::STATE_ACTIVE, solo_color_a);
 	m_SoloEnable.set_label("Solo");
+
+	Gdk::Color phase_color;
+	phase_color.set_rgb_p(.8,1,1);
+	m_PhaseEnable.modify_bg(Gtk::STATE_PRELIGHT, phase_color);
+	Gdk::Color phase_color_a;
+	phase_color_a.set_rgb_p(.7,1,1);
+	m_PhaseEnable.modify_bg(Gtk::STATE_ACTIVE, phase_color_a);
 	m_PhaseEnable.set_label("Phase");
 	
 	m_pan_button_box.pack_start(m_MuteEnable, false, false);
@@ -45,7 +66,7 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_panbox.pack_start(m_pan_button_box, false, false);
 	m_box.pack_start(m_panbox, false, false);
 	
-	m_meter.set_size_request(20, 160);
+	m_meter.set_size_request(10, 160);
 	m_fader_box.pack_start(m_meter, true, false);
 
 	m_fader.set_range(0, 133);

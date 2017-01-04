@@ -44,32 +44,44 @@ OComp::OComp() : Gtk::VBox() {
 	m_CompEnable.set_size_request(-1, 32);
 	m_CompEnable.set_label("Comp");
 	
+	Gdk::Color color;
+	color.set_rgb_p(1,.8,1);
+	m_CompEnable.modify_bg(Gtk::STATE_PRELIGHT, color);
+	Gdk::Color color_a;
+	color_a.set_rgb_p(1,.7,1);
+	m_CompEnable.modify_bg(Gtk::STATE_ACTIVE, color_a);
+
 	m_threshold.set_params(0,32,32,1);
 	m_threshold.set_label("Thresh");
 	m_threshold.set_value_callback(cp_threshold_text);
+	m_threshold.set_knob_background_color(1,0,1,.3);
 	m_tg_box.pack_start(m_threshold, false, false);
 	
 	m_gain.set_params(0,20,0,1);
 	m_gain.set_label("Gain");
 	m_gain.set_value_callback(cp_gain_text);
+	m_gain.set_knob_background_color(1,0,1,.3);
 	m_tg_box.pack_start(m_gain, false, false);
 	
 	m_attack.set_params(0,198,0,5);
 	m_attack.set_label("Attack");
 	m_attack.set_value_callback(cp_attack_text);
+	m_attack.set_knob_background_color(1,0,1,.1);
 	m_ar_box.pack_start(m_attack, false, false);
 	
 	m_release.set_params(0,99,1,1);
 	m_release.set_label("Release");
 	m_release.set_value_callback(cp_release_text);
+	m_release.set_knob_background_color(1,0,1,.1);
 	m_ar_box.pack_start(m_release, false, false);
 	
 	m_ratio.set_params(0,14,0,1);
 	m_ratio.set_label("Ratio");
 	m_ratio.set_map(cp_ration_map);
+	m_ratio.set_knob_background_color(1,0,1,.3);
 	m_re_box.pack_start(m_ratio, false, false);
 
-	m_re_box.pack_start(m_CompEnable, true, false);
+	m_re_box.pack_start(m_CompEnable, false, false);
 	m_box.pack_start(m_tg_box, false, false);
 	m_box.pack_start(m_ar_box, false, false);
 	m_box.pack_start(m_re_box, false, false);

@@ -47,8 +47,10 @@ public:
     virtual void set_label(const char* label);
     virtual char* get_label() { return m_label; }
 
-    void set_map(const char* map[]);
-    void set_value_callback(value_callback func) { m_value_callback = func; }
+    virtual void set_map(const char* map[]);
+    virtual void set_value_callback(value_callback func) { m_value_callback = func; }
+    
+    virtual void set_knob_background_color(double red, double green, double blue, double alpha );
     
     sigc::signal<void> signal_value_changed;
 
@@ -88,6 +90,8 @@ private:
     gint m_max;
 
     gint m_scroll_step;
+    
+    double m_b_red, m_b_green, m_b_blue, m_b_alpha;
 };
 
 #endif /* ODIAL_H */

@@ -34,6 +34,7 @@ Gtk::Widget() {
 	m_max = 1;
 	m_scroll_step = 5;
 	set_size_request(40, 60);
+	set_knob_background_color(0.0, 0.0, 0.8, 0.6);
 }
 
 ODial::~ODial() {
@@ -176,10 +177,11 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 		gint inner_radius = outer_radius - tick_length;
 
 		Cairo::RefPtr<Cairo::Context> cr = m_refGdkWindow->create_cairo_context();
+		
+		cr->set_source_rgba(0.0, 0.0, 0.0, 1.0);
 		if (m_label)
 			draw_text(cr, width, 0, m_label);
 
-		Gdk::Cairo::set_source_color(cr, m_value != m_default ? Gdk::Color("darkred") : Gdk::Color("black"));
 		if (m_map) {
 			draw_text(cr, width, height - 10, (char*) m_map[m_value]);
 		}
@@ -218,12 +220,17 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 		cr->set_line_width(.5);
 		cr->save();
 		cr->arc(center_x, center_y, inner_radius  , 0.0, 2.0 * M_PI); // full circle
-	    cr->set_source_rgba(0.0, 0.0, 0.8, 0.6);    // partially translucent
+	    cr->set_source_rgba(m_b_red, m_b_green, m_b_blue, m_b_alpha);    
 		cr->fill_preserve();
 		cr->restore();  // back to opaque black
 		cr->stroke();
 
-		Gdk::Cairo::set_source_color(cr, Gdk::Color("white"));
+		if( m_value != m_default ) 
+			cr->set_source_rgba(1.0, 0.3, 0.3, 1.0);
+		else
+			cr->set_source_rgba(1.0, 1.0, 1.0, 1.0);
+		
+//		Gdk::Cairo::set_source_color(cr, m_value != m_default ? Gdk::Color("lightred") : Gdk::Color("white"));
 		gdouble alpha_value = (gdouble) (m_value / (gdouble) m_max * 270.) - 45;
 		c = cos(deg2rad(alpha_value));
 		s = sin(deg2rad(alpha_value));
@@ -232,6 +239,9 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 		cr->set_line_width(2);
 		cr->move_to(center_x, center_y);
 		cr->line_to(center_x - dx, center_y - dy);
+		cr->move_to(center_x, center_y);
+		cr->arc(center_x, center_y, 2  , 0.0, 2.0 * M_PI); // full circle
+		cr->fill_preserve();
 		cr->stroke();
 
 
@@ -242,14 +252,12 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 
 void ODial::draw_text(const Cairo::RefPtr<Cairo::Context>& cr,
 		int rectangle_width, int rectangle_height, char* text) {
-	// http://developer.gnome.org/pangomm/unstable/classPango_1_1FontDescription.html
 	Pango::FontDescription font;
 
 	font.set_size(7 * Pango::SCALE);
 	font.set_family("Sans");
 	font.set_weight(Pango::WEIGHT_NORMAL);
 
-	// http://developer.gnome.org/pangomm/unstable/classPango_1_1Layout.html
 	auto layout = create_pango_layout(text);
 
 	layout->set_font_description(font);
@@ -305,4 +313,11 @@ void ODial::set_params(int mi, int ma, int def, int scroll_step) {
 	set_max(ma);
 	set_default(def);
 	set_scroll_step(scroll_step);
+}
+
+void ODial::set_knob_background_color(double red, double green, double blue, double alpha ) {
+	m_b_red = red;
+	m_b_green = green;
+	m_b_blue = blue;
+	m_b_alpha = alpha;
 }
