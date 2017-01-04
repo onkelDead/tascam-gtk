@@ -27,6 +27,7 @@ public:
 private:
     Gtk::VBox m_box;
 
+    Gtk::VBox l_eeb;
     Gtk::ToggleButton m_EqEnable;
 
     Gtk::HBox m_high_box;

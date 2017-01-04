@@ -38,6 +38,7 @@ private:
     Gtk::HBox m_re_box;
     ODial m_ratio;
     
+    Gtk::VBox l_evb;
     Gtk::ToggleButton m_CompEnable;
 
 };

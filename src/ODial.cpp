@@ -180,7 +180,7 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 		
 		cr->set_source_rgba(0.0, 0.0, 0.0, 1.0);
 		if (m_label)
-			draw_text(cr, width, 0, m_label);
+			draw_text(cr, width, center_y - outer_radius - 8, m_label);
 
 		if (m_map) {
 			draw_text(cr, width, height - 10, (char*) m_map[m_value]);

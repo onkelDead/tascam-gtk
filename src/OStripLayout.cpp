@@ -33,24 +33,26 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_Pan.set_max(254);
 	m_Pan.set_default(127);
 	m_Pan.set_label("L Pan R");
-	m_Pan.set_knob_background_color(.8, .6, .0, .4);
+	m_Pan.set_knob_background_color(1., .8, .3, 1.);
 	m_panbox.pack_start(m_Pan, false, false );
 	
 	Gdk::Color mute_color;
-	mute_color.set_rgb_p(.8,1,.8);
-	m_MuteEnable.modify_bg(Gtk::STATE_PRELIGHT, mute_color);
-	Gdk::Color mute_color_a;
-	mute_color_a.set_rgb_p(.7,1,.7);
-	m_MuteEnable.modify_bg(Gtk::STATE_ACTIVE, mute_color_a);
-	m_MuteEnable.set_label("Mute");
-
 	Gdk::Color solo_color;
-	solo_color.set_rgb_p(1,1,.8);
-	m_SoloEnable.modify_bg(Gtk::STATE_PRELIGHT, solo_color);
+	Gdk::Color mute_color_a;
 	Gdk::Color solo_color_a;
-	solo_color_a.set_rgb_p(1,1,.7);
+	solo_color.set_rgb_p(.8,1,.8);
+	solo_color_a.set_rgb_p(.7,1,.7);
+	mute_color_a.set_rgb_p(1,1,.7);
+	mute_color.set_rgb_p(1,1,.8);
+	m_MuteEnable.modify_bg(Gtk::STATE_PRELIGHT, mute_color);
+	m_MuteEnable.modify_bg(Gtk::STATE_ACTIVE, mute_color_a);
+	m_SoloEnable.modify_bg(Gtk::STATE_PRELIGHT, solo_color);
 	m_SoloEnable.modify_bg(Gtk::STATE_ACTIVE, solo_color_a);
+
+	m_MuteEnable.set_label("Mute");
+	m_MuteEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	m_SoloEnable.set_label("Solo");
+	m_SoloEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 
 	Gdk::Color phase_color;
 	phase_color.set_rgb_p(.8,1,1);
@@ -59,6 +61,7 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	phase_color_a.set_rgb_p(.7,1,1);
 	m_PhaseEnable.modify_bg(Gtk::STATE_ACTIVE, phase_color_a);
 	m_PhaseEnable.set_label("Phase");
+	m_PhaseEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	
 	m_pan_button_box.pack_start(m_MuteEnable, false, false);
 	m_pan_button_box.pack_start(m_SoloEnable, false, false);

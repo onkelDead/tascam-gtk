@@ -60,77 +60,84 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
 	return buf;
 }
 
+#define EBLUE_NORMAL .5, .55, 1., 1.
+#define EBLUE_LIGHT .78, .8, 1., 1.
+
 OEq::OEq() : Gtk::VBox() {
-	set_size_request(80, -1);
+	set_size_request(90, -1);
 	
 	m_EqEnable.set_label("EQ");
+//	m_EqEnable.set_size_request(45, 32);
+	m_EqEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	
 	Gdk::Color color;
-	color.set_rgb_p(.8,.8,1);
+	color.set_rgb_p(.78, .8, 1.);
 	m_EqEnable.modify_bg(Gtk::STATE_PRELIGHT, color);
 	Gdk::Color color_a;
-	color_a.set_rgb_p(.7,.7,1);
+	color_a.set_rgb_p(.5, .55, 1.);
 	m_EqEnable.modify_bg(Gtk::STATE_ACTIVE, color_a);
 	
 	m_high_freq_gain.set_label("High");
 	m_high_freq_gain.set_value_callback(eq_level_text);
 	m_high_freq_gain.set_params(0,24,12,1);
-	m_high_freq_gain.set_knob_background_color(0,0,1,.4);
+	m_high_freq_gain.set_knob_background_color(EBLUE_NORMAL);
 	m_high_box.pack_start(m_high_freq_gain, false, false);
 
 	m_high_freq_band.set_label("Freq");
 	m_high_freq_band.set_value_callback(eq_high_freq_text);
 	m_high_freq_band.set_params(0,31,15,1);
-	m_high_freq_band.set_knob_background_color(0,0,1,.2);
+	m_high_freq_band.set_knob_background_color(EBLUE_LIGHT);
 	m_high_box.pack_start(m_high_freq_band, false, false);
 	
 	m_mid_high_freq_gain.set_label("Mid H");
 	m_mid_high_freq_gain.set_params(0,24,12,1);
-	m_mid_high_freq_gain.set_value_callback(eq_high_freq_text);
+	m_mid_high_freq_gain.set_value_callback(eq_level_text);
 	m_mid_high_freq_gain.set_knob_background_color(0,0,1,.4);
 	m_mid_high_box.pack_start(m_mid_high_freq_gain, false, false);
 	
 	m_mid_high_freq_band.set_label("Freq");
 	m_mid_high_freq_band.set_params(0,31,27,1);
 	m_mid_high_freq_band.set_value_callback(eq_lowhigh_freq_text);
-	m_mid_high_freq_band.set_knob_background_color(0,0,1,.2);
+	m_mid_high_freq_band.set_knob_background_color(EBLUE_LIGHT);
 	m_mid_high_box.pack_start(m_mid_high_freq_band, false, false);
 	
 	m_mid_high_freq_width.set_label("Width");
 	m_mid_high_freq_width.set_value_callback(eq_width_text);
 	m_mid_high_freq_width.set_params(0,6,2,1);
-	m_mid_high_freq_width.set_knob_background_color(0,0,1,.2);
+	m_mid_high_freq_width.set_knob_background_color(EBLUE_LIGHT);
 	m_mid_high_box1.pack_start(m_mid_high_freq_width, false, false);
 	
 	m_mid_low_freq_gain.set_label("Mid L");
 	m_mid_low_freq_gain.set_params(0,24,12,1);
 	m_mid_low_freq_gain.set_value_callback(eq_level_text);
-	m_mid_low_freq_gain.set_knob_background_color(0,0,1,.4);
+	m_mid_low_freq_gain.set_knob_background_color(EBLUE_NORMAL);
 	m_mid_low_box.pack_start(m_mid_low_freq_gain, false, false);
 
 	m_mid_low_freq_band.set_label("Freq");
 	m_mid_low_freq_band.set_params(0,31,14,1);
 	m_mid_low_freq_band.set_value_callback(eq_lowhigh_freq_text);
-	m_mid_low_freq_band.set_knob_background_color(0,0,1,.2);
+	m_mid_low_freq_band.set_knob_background_color(EBLUE_LIGHT);
 	m_mid_low_box.pack_start(m_mid_low_freq_band, false, false);
 	
 	m_mid_low_freq_width.set_label("Width");
 	m_mid_low_freq_width.set_value_callback(eq_width_text);
 	m_mid_low_freq_width.set_params(0,6,2,1);
-	m_mid_low_freq_width.set_knob_background_color(0,0,1,.2);
+	m_mid_low_freq_width.set_knob_background_color(EBLUE_LIGHT);
 	m_mid_low_box1.pack_start(m_mid_low_freq_width, false, false);
-	m_mid_low_box1.pack_start(m_EqEnable, true, true);
+	
+	l_eeb.pack_start(m_EqEnable, true, false);
+	m_mid_low_box1.pack_start(l_eeb, true, false);
 	
 	m_low_freq_gain.set_label("Low");
 	m_low_freq_gain.set_params(0,24,12,1);
 	m_low_freq_gain.set_value_callback(eq_level_text);
-	m_low_freq_gain.set_knob_background_color(0,0,1,.4);
+	m_low_freq_gain.set_knob_background_color(EBLUE_NORMAL);
 	m_low_box.pack_start(m_low_freq_gain, false, false);
 
 	m_low_freq_band.set_label("Freq");
 	m_low_freq_band.set_params(0,31,5,1);
 	m_low_freq_band.set_value_callback(eq_low_freq_text);
-	m_low_freq_band.set_knob_background_color(0,0,1,.2);
+	m_low_freq_band.set_knob_background_color(EBLUE_LIGHT);
 	m_low_box.pack_start(m_low_freq_band, false, false);
 	
 	m_box.pack_start(m_high_box, false, false);
