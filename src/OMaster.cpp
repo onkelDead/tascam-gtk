@@ -89,6 +89,8 @@ void OMaster::init(int index, OAlsa* alsa) {
 	m_fader.set_value(val);
 	m_fader.signal_value_changed().connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_range_control_changed), index, CTL_MASTER, &m_fader));	
 	
+	m_true_bypass.set_active(alsa->getBoolean(CTL_NAME_BYPASS, index));
+	m_true_bypass.signal_toggled().connect(sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_toggle_button_control_changed), 0, CTL_NAME_BYPASS, &m_true_bypass));
 	
     for(int ri = 0; ri < 8; ri++ ) {
         val = alsa->getInteger(CTL_ROUTE, ri);

@@ -45,7 +45,7 @@
 #define CTL_NAME_CP_RELEASE                 "name='E Release'"
 #define CTL_NAME_CP_RATIO                   "name='C Ratio'"
 #define CTL_NAME_CP_ENABLE                  "name='A Comp'"
-
+#define CTL_NAME_BYPASS                     "name='Bypass'"
 
 class OAlsa {
 public:
