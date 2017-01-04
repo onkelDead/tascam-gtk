@@ -16,7 +16,7 @@
 
 #include <gtkmm/widget.h>
 
-typedef char* (*value_callback)(int val, char* buf);
+typedef char* (*value_callback)(int val, char* buf, size_t buf_size);
 
 class ODial : public Gtk::Widget {
 public:

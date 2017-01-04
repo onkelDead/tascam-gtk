@@ -28,36 +28,36 @@ static const char *eq_high_freq_map[] = { "1.7k", "1.8k", "1.9k", "2.0k", "2.2k"
                                             "4.5k", "5.0k", "5.5k", "6.0k", "6.5k", "7.0k", "7.5k", "8.0k", "8.5k",
                                             "9.0k", "10k", "11k", "12k", "13k", "14k", "15k", "16k", "17k", "18k" };
 
-char* eq_width_text(int val, char* buf) {
+char* eq_width_text(int val, char* buf, size_t buf_size) {
     int a = (1 << val);
     float b = a;
     float c =  b / 4;
-    sprintf(buf, "Q%2.2f", c );
+    snprintf(buf, buf_size, "Q%2.2f", c );
 	return buf;
 }
 
-char* eq_level_text(int val, char* buf) {
+char* eq_level_text(int val, char* buf, size_t buf_size) {
 	int v = val - 12;
-    sprintf(buf, v > 0 ? "+%ddB" : "%ddB", v );
+    snprintf(buf, buf_size, v > 0 ? "+%ddB" : "%ddB", v );
 	return buf;
 }
 
-char* eq_high_freq_text(int val, char* buf) {
-    sprintf(buf, "%sHz", eq_high_freq_map[val] );
+char* eq_high_freq_text(int val, char* buf, size_t buf_size) {
+    snprintf(buf, buf_size, "%sHz", eq_high_freq_map[val] );
 	return buf;
 }
 
-char* eq_lowhigh_freq_text(int val, char* buf) {
+char* eq_lowhigh_freq_text(int val, char* buf, size_t buf_size) {
 
     if( val < eq_low_freq_map_size )
-        sprintf(buf, "%sHz", eq_low_freq_map[val] );
+        snprintf(buf, buf_size, "%sHz", eq_low_freq_map[val] );
     else
-        sprintf(buf, "%sHz", eq_high_freq_map[val - eq_low_freq_map_size] );
+        snprintf(buf, buf_size, "%sHz", eq_high_freq_map[val - eq_low_freq_map_size] );
 	return buf;
 }
 
-char* eq_low_freq_text(int val, char* buf) {
-    sprintf(buf, "%sHz", eq_low_freq_map[val] );
+char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
+    snprintf(buf, buf_size, "%sHz", eq_low_freq_map[val] );
 	return buf;
 }
 

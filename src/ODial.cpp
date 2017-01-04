@@ -185,7 +185,7 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 		}
 		else if(m_value_callback) {
 			char vs[32];
-			draw_text(cr, width, height - 16, m_value_callback(m_value, vs));
+			draw_text(cr, width, height - 16, m_value_callback(m_value, vs, sizeof(vs)));
 		}
 
 		cr->set_line_width(.5);

@@ -18,23 +18,23 @@
 
 static const char *cp_ration_map[] = { "1.0:1", "1.1:1", "1.3:1", "1.5:1", "1.7:1", "2.0:1", "2.5:1", "3.0:1", "3.5:1", "4.0:1", "5.0:1", "6.0:1", "8.0:1", "16.0:1", "inf:1" };
 
-char* cp_threshold_text(int val, char* buf) {
-    sprintf(buf, "%ddb", val - 32);
+char* cp_threshold_text(int val, char* buf, size_t buf_size) {
+    snprintf(buf, buf_size, "%ddb", val - 32);
 	return buf;
 }
 
-char* cp_gain_text(int val, char* buf) {
-    sprintf(buf, val > 0 ? "+%ddb" : "%ddb", val );
+char* cp_gain_text(int val, char* buf, size_t buf_size) {
+    snprintf(buf, buf_size, val > 0 ? "+%ddb" : "%ddb", val );
 	return buf;
 }
 
-char* cp_attack_text(int val, char* buf) {
-    sprintf(buf, "%dms", val + 2);
+char* cp_attack_text(int val, char* buf, size_t buf_size) {
+    snprintf(buf, buf_size, "%dms", val + 2);
 	return buf;
 }
 
-char* cp_release_text(int val, char* buf) {
-    sprintf(buf, "%dms", val * 10 + 10);
+char* cp_release_text(int val, char* buf, size_t buf_size) {
+    snprintf(buf, buf_size, "%dms", val * 10 + 10);
 	return buf;
 }
 
