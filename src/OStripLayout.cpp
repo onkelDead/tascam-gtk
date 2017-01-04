@@ -43,24 +43,32 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	solo_color.set_rgb_p(.8,1,.8);
 	solo_color_a.set_rgb_p(.7,1,.7);
 	mute_color_a.set_rgb_p(1,1,.7);
-	mute_color.set_rgb_p(1,1,.8);
+	mute_color.set_rgb_p(.8,.8,.6);
 	m_MuteEnable.modify_bg(Gtk::STATE_PRELIGHT, mute_color);
 	m_MuteEnable.modify_bg(Gtk::STATE_ACTIVE, mute_color_a);
 	m_SoloEnable.modify_bg(Gtk::STATE_PRELIGHT, solo_color);
 	m_SoloEnable.modify_bg(Gtk::STATE_ACTIVE, solo_color_a);
 
+	Gdk::Color color;
+	color.set_rgb_p(.25,.25,.25);
 	m_MuteEnable.set_label("Mute");
 	m_MuteEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	m_SoloEnable.set_label("Solo");
+	m_MuteEnable.modify_bg(Gtk::STATE_NORMAL , color);
+	m_MuteEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, mute_color_a);
+	m_SoloEnable.modify_bg(Gtk::STATE_NORMAL , color);
 	m_SoloEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
+	m_SoloEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, solo_color_a);
 
 	Gdk::Color phase_color;
 	phase_color.set_rgb_p(.8,1,1);
+	m_PhaseEnable.set_label("Phase");
+	m_PhaseEnable.modify_bg(Gtk::STATE_NORMAL , color);
 	m_PhaseEnable.modify_bg(Gtk::STATE_PRELIGHT, phase_color);
 	Gdk::Color phase_color_a;
 	phase_color_a.set_rgb_p(.7,1,1);
 	m_PhaseEnable.modify_bg(Gtk::STATE_ACTIVE, phase_color_a);
-	m_PhaseEnable.set_label("Phase");
+	m_PhaseEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, phase_color);
 	m_PhaseEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	
 	m_pan_button_box.pack_start(m_MuteEnable, false, false);
@@ -77,7 +85,7 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_fader.set_size_request(-1, 160);
 	m_fader.set_draw_value(false);
 	m_fader.set_tooltip_text("channel fader");
-	m_fader_box.pack_start(m_fader, true, true);
+	m_fader_box.pack_start(m_fader, true, false);
 
 	m_box.pack_start(m_fader_box);
 	

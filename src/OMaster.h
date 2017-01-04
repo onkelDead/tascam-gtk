@@ -33,8 +33,8 @@ private:
     Gtk::VBox m_route_box;
     Gtk::ComboBoxText m_route[8];
     
-    Gtk::CheckButton m_true_bypass;
-    Gtk::CheckButton m_comp_to_stereo;
+    Gtk::ToggleButton m_true_bypass;
+    Gtk::ToggleButton m_comp_to_stereo;
     
     Gtk::HBox m_fader_box;
     Gtk::VScale m_fader;

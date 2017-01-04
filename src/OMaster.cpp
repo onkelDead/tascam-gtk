@@ -17,6 +17,10 @@
 
 OMaster::OMaster() : Gtk::VBox()  {
 	set_size_request(120, -1);
+	Gdk::Color color;
+	color.set_rgb_p(.25,.25,.25);
+	Gdk::Color fcolor;
+	fcolor.set_rgb_p(.85,.85,.85);
 	
 	for( int i = 0; i < 8 ; i++) {
 		
@@ -27,7 +31,8 @@ OMaster::OMaster() : Gtk::VBox()  {
 			snprintf(entry, 24, "Output %d", j+1);
             m_route[i].append(entry);
         }		
-		
+		m_route[i].modify_bg(Gtk::STATE_NORMAL, color);
+		m_route[i].get_child()->modify_bg(Gtk::STATE_NORMAL, color);
 		m_route_box.pack_start(m_route[i], true, true);
 	}
 	
@@ -53,6 +58,25 @@ OMaster::OMaster() : Gtk::VBox()  {
 	
 	m_fader_box.pack_start(m_fader);
 	pack_start(m_fader_box);
+
+	modify_bg(Gtk::STATE_NORMAL, color);
+	
+	fcolor.set_rgb_p(.85,.85,.85);
+	color.set_rgb_p(.95,.65,.65);
+	m_true_bypass.modify_bg(Gtk::STATE_NORMAL, color);	
+	m_comp_to_stereo.modify_bg(Gtk::STATE_NORMAL, color);	
+	m_true_bypass.modify_bg(Gtk::STATE_PRELIGHT, color);	
+	m_comp_to_stereo.modify_bg(Gtk::STATE_PRELIGHT, color);	
+	color.set_rgb_p(.25,.25,.25);
+	m_true_bypass.modify_bg(Gtk::STATE_ACTIVE, color);	
+	m_comp_to_stereo.modify_bg(Gtk::STATE_ACTIVE, color);	
+	m_true_bypass.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
+	m_true_bypass.get_child()->modify_fg(Gtk::STATE_PRELIGHT, color);
+	m_comp_to_stereo.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
+	m_comp_to_stereo.get_child()->modify_fg(Gtk::STATE_PRELIGHT, color);
+	m_true_bypass.get_child()->modify_fg(Gtk::STATE_ACTIVE, fcolor);
+	m_comp_to_stereo.get_child()->modify_fg(Gtk::STATE_ACTIVE, fcolor);
+//	modify_fg(Gtk::STATE_NORMAL, color);	
 }
 
 OMaster::~OMaster() {

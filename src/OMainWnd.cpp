@@ -51,6 +51,14 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 		}
 
 	}
+	Gdk::Color color;
+	color.set_rgb_p(0.2, 0.2, 0.2);
+//	modify_bg(Gtk::STATE_ACTIVE , color);
+	modify_bg(Gtk::STATE_NORMAL, color);
+//	modify_bg(Gtk::STATE_SELECTED, color);
+//	Gdk::Color fcolor;
+//	fcolor.set_rgb(240,240,240);
+//	modify_fg(Gtk::STATE_NORMAL, fcolor);
 }
 
 OMainWnd::~OMainWnd() {

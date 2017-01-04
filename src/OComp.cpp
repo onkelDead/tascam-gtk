@@ -49,12 +49,16 @@ OComp::OComp() : Gtk::VBox() {
 	m_CompEnable.set_label("Cmp");
 	m_CompEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	
+	Gdk::Color color_b;
+	color_b.set_rgb_p(.25,.25,.25);		
 	Gdk::Color color;
 	color.set_rgb_p(1., .8, .8);
 	m_CompEnable.modify_bg(Gtk::STATE_PRELIGHT, color);
 	Gdk::Color color_a;
 	color_a.set_rgb_p(1., .6, .6);
 	m_CompEnable.modify_bg(Gtk::STATE_ACTIVE, color_a);
+	m_CompEnable.modify_bg(Gtk::STATE_NORMAL, color_b);
+	m_CompEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
 
 	m_threshold.set_params(0,32,32,1);
 	m_threshold.set_label("Thresh");
@@ -74,7 +78,7 @@ OComp::OComp() : Gtk::VBox() {
 	m_attack.set_knob_background_color(CREAD_LIGHT);
 	m_ar_box.pack_start(m_attack, false, false);
 	
-	m_release.set_params(0,99,1,1);
+	m_release.set_params(0,99,0,1);
 	m_release.set_label("Release");
 	m_release.set_value_callback(cp_release_text);
 	m_release.set_knob_background_color(CREAD_LIGHT);

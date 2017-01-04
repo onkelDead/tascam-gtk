@@ -70,12 +70,16 @@ OEq::OEq() : Gtk::VBox() {
 //	m_EqEnable.set_size_request(45, 32);
 	m_EqEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	
+	Gdk::Color color_b;
+	color_b.set_rgb_p(.25,.25,.25);	
 	Gdk::Color color;
 	color.set_rgb_p(.78, .8, 1.);
-	m_EqEnable.modify_bg(Gtk::STATE_PRELIGHT, color);
 	Gdk::Color color_a;
 	color_a.set_rgb_p(.5, .55, 1.);
 	m_EqEnable.modify_bg(Gtk::STATE_ACTIVE, color_a);
+	m_EqEnable.modify_bg(Gtk::STATE_NORMAL, color_b);
+	m_EqEnable.modify_bg(Gtk::STATE_PRELIGHT, color);
+	m_EqEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
 	
 	m_high_freq_gain.set_label("High");
 	m_high_freq_gain.set_value_callback(eq_level_text);
@@ -92,7 +96,7 @@ OEq::OEq() : Gtk::VBox() {
 	m_mid_high_freq_gain.set_label("Mid H");
 	m_mid_high_freq_gain.set_params(0,24,12,1);
 	m_mid_high_freq_gain.set_value_callback(eq_level_text);
-	m_mid_high_freq_gain.set_knob_background_color(0,0,1,.4);
+	m_mid_high_freq_gain.set_knob_background_color(EBLUE_NORMAL);
 	m_mid_high_box.pack_start(m_mid_high_freq_gain, false, false);
 	
 	m_mid_high_freq_band.set_label("Freq");

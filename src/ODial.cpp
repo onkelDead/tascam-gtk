@@ -35,6 +35,13 @@ Gtk::Widget() {
 	m_scroll_step = 5;
 	set_size_request(40, 60);
 	set_knob_background_color(0.0, 0.0, 0.8, 0.6);
+	Gdk::Color color;
+	color.set_rgb_p(.2,.2,.2);
+	modify_bg(Gtk::STATE_NORMAL, color);
+	
+	Gdk::Color fcolor;
+	fcolor.set_rgb(240,240,240);
+	modify_fg(Gtk::STATE_NORMAL, fcolor);		
 }
 
 ODial::~ODial() {
@@ -178,7 +185,7 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 
 		Cairo::RefPtr<Cairo::Context> cr = m_refGdkWindow->create_cairo_context();
 		
-		cr->set_source_rgba(0.0, 0.0, 0.0, 1.0);
+		cr->set_source_rgba(0.8, 0.8, 0.8, 1.0);
 		if (m_label)
 			draw_text(cr, width, center_y - outer_radius - 8, m_label);
 
