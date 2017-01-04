@@ -54,9 +54,11 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 }
 
 OMainWnd::~OMainWnd() {
+	m_Worker.stop_work();
+	while( !m_Worker.has_stopped() )
+		sleep(1);
 	if (alsa)
 		delete alsa;
-	m_Worker.stop_work();
 }
 
 void OMainWnd::notify()
