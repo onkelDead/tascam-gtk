@@ -33,6 +33,13 @@ OMaster::OMaster() : Gtk::VBox()  {
 	
 	pack_start(m_route_box, false, false);
 	
+	m_true_bypass.set_label("Mixer True\nBypass");
+	m_true_bypass.set_size_request(-1, 48);
+	pack_start(m_true_bypass, false, true);
+	m_comp_to_stereo.set_label("Computer out\nto Stereo BUS");
+	m_comp_to_stereo.set_size_request(-1, 48);
+	pack_start(m_comp_to_stereo, false, true);
+	
 	m_meter_left.set_size_request(20, 160);
 	m_meter_right.set_size_request(20, 160);
 	m_fader_box.pack_start(m_meter_left, true, false);
