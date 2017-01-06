@@ -53,6 +53,7 @@ public:
     virtual void set_knob_background_color(double red, double green, double blue, double alpha );
     
     sigc::signal<void> signal_value_changed;
+    
 
 protected:
 

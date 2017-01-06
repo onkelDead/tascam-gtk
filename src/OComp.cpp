@@ -46,7 +46,7 @@ char* cp_release_text(int val, char* buf, size_t buf_size) {
 OComp::OComp() : Gtk::VBox() {
 	set_size_request(90, -1);
 //	m_CompEnable.set_size_request(40, 32);
-	m_CompEnable.set_label("Cmp");
+	m_CompEnable.set_label("Comp");
 	m_CompEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
 	
 	Gdk::Color color_b;

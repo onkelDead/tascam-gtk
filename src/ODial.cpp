@@ -180,7 +180,7 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 		gint center_y = (height) / 2;
 
 		gint outer_radius = width / 2 - 4; // 4 is padding
-		gint tick_length = 3;
+		gint tick_length = 4;
 		gint inner_radius = outer_radius - tick_length;
 
 		Cairo::RefPtr<Cairo::Context> cr = m_refGdkWindow->create_cairo_context();

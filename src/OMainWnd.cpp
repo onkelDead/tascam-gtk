@@ -53,12 +53,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 	}
 	Gdk::Color color;
 	color.set_rgb_p(0.2, 0.2, 0.2);
-//	modify_bg(Gtk::STATE_ACTIVE , color);
 	modify_bg(Gtk::STATE_NORMAL, color);
-//	modify_bg(Gtk::STATE_SELECTED, color);
-//	Gdk::Color fcolor;
-//	fcolor.set_rgb(240,240,240);
-//	modify_fg(Gtk::STATE_NORMAL, fcolor);
 }
 
 OMainWnd::~OMainWnd() {
@@ -84,9 +79,10 @@ void OMainWnd::on_notification_from_worker_thread()
     m_WorkerThread = nullptr;
   }
  	for( int i = 0; i < NUM_CHANNELS; i++) {
-		m_stripLayouts[i].m_meter.setLevel(alsa->meters[i]);
+		m_stripLayouts[i].m_meter.setLevel(alsa->sliderTodB(alsa->meters[i]/ 32768. * 133.) /133. * 32768);
 	} 
-  m_master.m_meter_left.setLevel(alsa->meters[16]);
-  m_master.m_meter_right.setLevel(alsa->meters[17]);
+//  printf("meter: %d, %d\n", (int)(alsa->meters[16]/ 32768. * 133), alsa->sliderTodB(alsa->meters[16] / 133. * 32768.));
+  m_master.m_meter_left.setLevel(alsa->sliderTodB(alsa->meters[16]/ 32768. * 133.) /133. * 32768);
+  m_master.m_meter_right.setLevel(alsa->sliderTodB(alsa->meters[17]/ 32768. * 133.) /133. * 32768);
 }
 

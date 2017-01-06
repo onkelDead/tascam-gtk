@@ -28,6 +28,7 @@ public:
     void init(int index, OAlsa* alsa);
 
     OMeter m_meter;
+    Gtk::Label m_title;
     
 private:
     Gtk::HBox m_hbox;
@@ -36,28 +37,25 @@ private:
     Gtk::HBox m_fader_box;
     Gtk::VScale m_fader;
     
+    Gtk::VBox m_pvbox;
+    Gtk::Label m_dB;
+    
     ODial m_Pan;
     Gtk::ToggleButton m_MuteEnable;
     Gtk::ToggleButton m_SoloEnable;
     Gtk::ToggleButton m_PhaseEnable;    
     Gtk::VSeparator m_sep;
 
-
-    Gtk::Label m_title;
     Gtk::HSeparator m_title_sep;
-
 
     Gtk::HBox m_panbox;
     Gtk::VBox m_pan_button_box;
-
     
     OComp m_comp;
     Gtk::HSeparator m_comp_sep;
 
     OEq m_eq;
     Gtk::HSeparator m_eq_sep;
-
-    
 
 };
 

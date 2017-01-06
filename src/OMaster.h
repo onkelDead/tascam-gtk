@@ -25,7 +25,6 @@ public:
     
     void init(int index, OAlsa* alsa);    
     
-
     OMeter m_meter_left;
     OMeter m_meter_right;
 private:
@@ -35,6 +34,8 @@ private:
     
     Gtk::ToggleButton m_true_bypass;
     Gtk::ToggleButton m_comp_to_stereo;
+    
+    Gtk::ToggleButton m_mute;
     
     Gtk::HBox m_fader_box;
     Gtk::VScale m_fader;

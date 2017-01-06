@@ -19,8 +19,11 @@
 // number of input channels
 #define NUM_CHANNELS 16
 
-#define CTL_MASTER                          "name='Master'"
 #define CTL_ROUTE                           "name='Route'"
+#define CTL_NAME_BYPASS                     "name='Bypass'"
+#define CTL_NAME_BUS_OUT                    "name='Buss out'"
+#define CTL_NAME_MASTER_MUTE                "name='Master Mute'"
+#define CTL_MASTER                          "name='Master'"
 
 #define CTL_NAME_FADER                      "name='Fader'"
 #define CTL_NAME_PAN                        "name='4 Pan'"
@@ -45,7 +48,6 @@
 #define CTL_NAME_CP_RELEASE                 "name='E Release'"
 #define CTL_NAME_CP_RATIO                   "name='C Ratio'"
 #define CTL_NAME_CP_ENABLE                  "name='A Comp'"
-#define CTL_NAME_BYPASS                     "name='Bypass'"
 
 class OAlsa {
 public:
@@ -74,7 +76,7 @@ public:
     int getIntegers(const char* name, int vals[], int count);
     
     // VScale value change slot
-    void on_range_control_changed (int n, const char* control_name, Gtk::VScale* control);
+    void on_range_control_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
     
 //    ODial value change slot
     void on_dial_control_changed (int n, const char* control_name, ODial* control);
@@ -84,6 +86,10 @@ public:
     
 //    Slot for comboBox change event
     void on_combo_control_changed (int n, const char* control_name, Gtk::ComboBoxText* control);
+    
+    int sliderTodB(int pos);
+    int dBToSlider(int dB);
+    
     
 //* HCTL handle of the Tascam card 
     snd_hctl_t *hctl;    

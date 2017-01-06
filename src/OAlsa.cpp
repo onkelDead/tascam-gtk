@@ -294,16 +294,6 @@ int OAlsa::getIntegers(const char* name, int vals[], int count) {
 }
 
 
-void OAlsa::on_range_control_changed (int n, const char* control_name, Gtk::VScale* control) {
-	char l_title[64];
-	int val = control->get_value();
-	printf("change event  %d, %s\n", n, control_name);
-	
-	setInteger(control_name, n, val);
-	snprintf(l_title, sizeof(l_title), "%d", val);
-	control->set_tooltip_text(l_title);	
-}
-
 void OAlsa::on_combo_control_changed (int n, const char* control_name, Gtk::ComboBoxText* control) {
 	
 	
@@ -327,3 +317,26 @@ void OAlsa::on_toggle_button_control_changed (int n, const char* control_name, G
 	
 }
 
+void OAlsa::on_range_control_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label) {
+	char l_title[64];
+	int val = control->get_value();
+	int dB = sliderTodB(control->get_value());
+	
+	setInteger(control_name, n, dB);
+	
+	printf("change event  %d, %d, %d\n", n, val, dB - 127);
+	
+	snprintf(l_title, sizeof(l_title), "%d dB", dB - 127);
+	control->set_tooltip_text(l_title);	
+	if( label )
+		label->set_label(l_title);
+}
+
+
+int OAlsa::sliderTodB(int pos) {
+	return 146.2 - 146.3 / ( pow(10, pos / 127.) );
+}
+
+int OAlsa::dBToSlider(int dB) {
+	return 127 * log10( 146.3 / (146.2 - dB));
+}
