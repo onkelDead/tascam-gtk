@@ -2,6 +2,8 @@
 
 This application is based on GTK+ and relies on the custom kernel driver https://github.com/onkelDead/tascam-driver-patch.
 
+![screenshot.png](/screenshot.png?raw=true)
+
 As I bought my Tascam audio interface I was surprised, that the manufacturer do not support linux. 
 After some investigation of USB traffic with wireshark, I could determine the needs of an alsa based mixer quirk. The mentioned kernel driver is the result.
 
