@@ -87,7 +87,7 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	
 	
 	m_meter.set_size_request(10, 160);
-
+	m_meter.set_level_color(0, .7, 0, 1);
 	m_fader.set_range(0, 133);
 	m_fader.set_inverted (true);
 	m_fader.set_size_request(-1, 160);

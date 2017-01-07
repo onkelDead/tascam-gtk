@@ -90,7 +90,9 @@ OMaster::OMaster() : Gtk::VBox()  {
 	m_fader_box.pack_start(m_fader);
 	
 	m_meter_left.set_size_request(10, 160);
+	m_meter_left.set_level_color(0, .7, 0, 1);
 	m_meter_right.set_size_request(10, 160);
+	m_meter_right.set_level_color(0, .7, 0, 1);
 	m_fader_box.pack_start(m_meter_left, true, false);
 	m_fader_box.pack_start(m_meter_right, true, false);
 

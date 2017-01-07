@@ -16,6 +16,8 @@
 
 #include "OMeter.h"
 
+//#define MIN(a,b) a < b ? a : b
+
 OMeter::OMeter() :
 Glib::ObjectBase("OMeter"),
 Gtk::Widget() {
@@ -122,7 +124,10 @@ bool OMeter::on_expose_event(GdkEventExpose * event) {
 		double scale = (double) level / 0x7fff;
 		double pscale = (double) peak / 0x7fff;
 
-		double hight = height * (direction == 1 ? 1 - scale : scale);
+		double hight = height * (direction == 1 ? 1 - scale : MIN(scale, .6));
+		double hight1 = height * (direction == 1 ? 1 - scale : MIN(scale, .8));
+		double hight2 = height * (direction == 1 ? 1 - scale : MIN(scale, .9));
+		double hight3 = height * (direction == 1 ? 1 - scale : scale);
 		gint center_x = width / 2;
 
 		Cairo::RefPtr<Cairo::Context> cr = m_refGdkWindow->create_cairo_context();
@@ -131,9 +136,48 @@ bool OMeter::on_expose_event(GdkEventExpose * event) {
 		cr->set_source_rgba(m_b_red, m_b_green, m_b_blue, m_b_alpha);
 		cr->set_line_width(width);
 
-		cr->move_to(center_x, direction == 1 ? hight : height - hight);
-		cr->line_to(center_x, direction == 1 ? 0 : height);
-		cr->stroke();
+		//		painter.fillRect(left, myheight - 1, width, -myheight * min(scale, .6f), QColor(133, 177, 30, 255));
+		//		if (scale > .6f)
+		//			painter.fillRect(left, myheight * .4f, width, -myheight * min(scale - .6f, .2f), QColor(255, 255, 0, 255));
+		//		if (scale > .8f)
+		//			painter.fillRect(left, myheight * .2f, width, -myheight * min(scale - .8f, .2f), QColor(255, 128, 0, 255));
+		//		if (scale > .9f)
+		//			painter.fillRect(left, myheight * .1f, width, -myheight * min(scale - .9f, .1f), QColor(255, 0, 0, 255));
+		//
+		
+		double l1 = .55;
+		double l2 = .75;
+		double l3 = .83;
+		
+		if (direction == 1) {
+			cr->move_to(center_x, hight);
+			cr->line_to(center_x, 0);
+			cr->stroke();
+		} else {
+			cr->move_to(center_x, height);
+			cr->line_to(center_x, height - height * MIN(scale, l1));
+			cr->stroke();
+
+			if (scale > l1) {
+				cr->set_source_rgba(0, 1, 0, m_b_alpha);
+				cr->move_to(center_x, height - height * l1);
+				cr->line_to(center_x, height - height * MIN(scale, l2));
+				cr->stroke();
+			}
+			if (scale > l2) {
+				cr->set_source_rgba(1, 1, 0, m_b_alpha);
+				cr->move_to(center_x, height - height * l2);
+				cr->line_to(center_x, height - height * MIN(scale, l3));
+				cr->stroke();
+			}
+			if (scale > l3) {
+				cr->set_source_rgba(1, 0, 0, m_b_alpha);
+				cr->move_to(center_x, height - height * l3);
+				cr->line_to(center_x, height - height * scale);
+				cr->stroke();
+			}
+
+		}
 
 	}
 	return true;
@@ -149,8 +193,7 @@ void OMeter::setLevel(int val) {
 			level = level - (level - val) / 20;
 			peak_count = peak_count ? peak_count - 1 : 0;
 		}
-	}
-	else {
+	} else {
 		if (val <= level) {
 			level = val;
 			peak_count = 50;
