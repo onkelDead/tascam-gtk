@@ -37,7 +37,7 @@ void OMeter::on_size_request(Gtk::Requisition* requisition) {
 	//Let's make this simple example widget always need 50 by 50:
 	requisition->height = 50;
 	requisition->width = 50;
-	
+
 }
 
 void OMeter::on_size_allocate(Gtk::Allocation& allocation) {
@@ -97,8 +97,8 @@ void OMeter::on_realize() {
 		style_attach();
 
 		//set colors
-//		modify_bg(Gtk::STATE_NORMAL, Gdk::Color("black"));
-//		modify_fg(Gtk::STATE_NORMAL, Gdk::Color("green"));
+		//		modify_bg(Gtk::STATE_NORMAL, Gdk::Color("black"));
+		//		modify_fg(Gtk::STATE_NORMAL, Gdk::Color("green"));
 
 		//make the widget receive expose events
 		m_refGdkWindow->set_user_data(gobj());
@@ -124,29 +124,41 @@ bool OMeter::on_expose_event(GdkEventExpose * event) {
 
 		double hight = height * (direction == 1 ? 1 - scale : scale);
 		gint center_x = width / 2;
-		
+
 		Cairo::RefPtr<Cairo::Context> cr = m_refGdkWindow->create_cairo_context();
-//		Gdk::Cairo::set_source_color(cr, Gdk::Color("green") );
-		
+		//		Gdk::Cairo::set_source_color(cr, Gdk::Color("green") );
+
 		cr->set_source_rgba(m_b_red, m_b_green, m_b_blue, m_b_alpha);
 		cr->set_line_width(width);
 
-		cr->move_to(center_x , direction == 1 ? hight : height - hight);
-		cr->line_to(center_x , direction == 1 ? 0 :height);
-		cr->stroke();		
-		
+		cr->move_to(center_x, direction == 1 ? hight : height - hight);
+		cr->line_to(center_x, direction == 1 ? 0 : height);
+		cr->stroke();
+
 	}
 	return true;
 }
 
 void OMeter::setLevel(int val) {
-	if (val >= level || direction == 1) {
-		level = val;
-		peak_count = 50;
-		peak = val;
-	} else {
-		level = level - (level - val) / 20;
-		peak_count = peak_count ? peak_count - 1 : 0;
+	if (direction == 0) {
+		if (val >= level) {
+			level = val;
+			peak_count = 50;
+			peak = val;
+		} else {
+			level = level - (level - val) / 20;
+			peak_count = peak_count ? peak_count - 1 : 0;
+		}
+	}
+	else {
+		if (val <= level) {
+			level = val;
+			peak_count = 50;
+			peak = val;
+		} else {
+			level = level + (val - level) / 20;
+			peak_count = peak_count ? peak_count - 1 : 0;
+		}
 	}
 	queue_draw();
 }
@@ -154,7 +166,8 @@ void OMeter::setLevel(int val) {
 void OMeter::set_level_direction(int direct) {
 	direction = direct;
 }
-void OMeter::set_level_color(double red, double green, double blue, double alpha ) {
+
+void OMeter::set_level_color(double red, double green, double blue, double alpha) {
 	m_b_red = red;
 	m_b_green = green;
 	m_b_blue = blue;

@@ -96,6 +96,7 @@ OComp::OComp() : Gtk::VBox() {
 	m_re_box.pack_start(l_evb, true, false);
 	m_r_box.pack_start(m_re_box, true, false);
 	
+	m_reduction.setLevel(32768);
 	m_reduction.set_size_request(10,-1);
 	m_reduction.set_level_direction(1);
 	m_reduction.set_level_color(1, .6, .6, 1);
