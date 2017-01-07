@@ -94,7 +94,7 @@ public:
 //* HCTL handle of the Tascam card 
     snd_hctl_t *hctl;    
 
-    int meters[19];
+    int meters[34];
 private:
 
 //    * Id of the Tascam US-16x08 alsa card 

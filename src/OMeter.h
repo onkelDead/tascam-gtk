@@ -21,6 +21,8 @@ public:
     OMeter();
     virtual ~OMeter();
     
+    void set_level_direction(int direct); 
+    void set_level_color(double red, double green, double blue, double alpha );
     void setLevel(int val);
 
 protected:
@@ -37,9 +39,11 @@ protected:
     Glib::RefPtr<Gdk::Window> m_refGdkWindow;
     
 private:
+    int direction;
     int level;
     int peak;
     int peak_count;
+    double m_b_red, m_b_green, m_b_blue, m_b_alpha;
 };
 
 #endif /* OMETER_H */

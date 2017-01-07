@@ -85,49 +85,49 @@ OEq::OEq() : Gtk::VBox() {
 	m_high_freq_gain.set_value_callback(eq_level_text);
 	m_high_freq_gain.set_params(0,24,12,1);
 	m_high_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_high_box.pack_start(m_high_freq_gain, false, false);
+	m_high_box.pack_start(m_high_freq_gain, true, false);
 
 	m_high_freq_band.set_label("Freq");
 	m_high_freq_band.set_value_callback(eq_high_freq_text);
 	m_high_freq_band.set_params(0,31,15,1);
 	m_high_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_high_box.pack_start(m_high_freq_band, false, false);
+	m_high_box.pack_start(m_high_freq_band, true, false);
 	
 	m_mid_high_freq_gain.set_label("Mid H");
 	m_mid_high_freq_gain.set_params(0,24,12,1);
 	m_mid_high_freq_gain.set_value_callback(eq_level_text);
 	m_mid_high_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_mid_high_box.pack_start(m_mid_high_freq_gain, false, false);
+	m_mid_high_box.pack_start(m_mid_high_freq_gain, true, false);
 	
 	m_mid_high_freq_band.set_label("Freq");
 	m_mid_high_freq_band.set_params(0,31,27,1);
 	m_mid_high_freq_band.set_value_callback(eq_lowhigh_freq_text);
 	m_mid_high_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_high_box.pack_start(m_mid_high_freq_band, false, false);
+	m_mid_high_box.pack_start(m_mid_high_freq_band, true, false);
 	
 	m_mid_high_freq_width.set_label("Width");
 	m_mid_high_freq_width.set_value_callback(eq_width_text);
 	m_mid_high_freq_width.set_params(0,6,2,1);
 	m_mid_high_freq_width.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_high_box1.pack_start(m_mid_high_freq_width, false, false);
+	m_mid_high_box1.pack_start(m_mid_high_freq_width, true, false);
 	
 	m_mid_low_freq_gain.set_label("Mid L");
 	m_mid_low_freq_gain.set_params(0,24,12,1);
 	m_mid_low_freq_gain.set_value_callback(eq_level_text);
 	m_mid_low_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_mid_low_box.pack_start(m_mid_low_freq_gain, false, false);
+	m_mid_low_box.pack_start(m_mid_low_freq_gain, true, false);
 
 	m_mid_low_freq_band.set_label("Freq");
 	m_mid_low_freq_band.set_params(0,31,14,1);
 	m_mid_low_freq_band.set_value_callback(eq_lowhigh_freq_text);
 	m_mid_low_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_low_box.pack_start(m_mid_low_freq_band, false, false);
+	m_mid_low_box.pack_start(m_mid_low_freq_band, true, false);
 	
 	m_mid_low_freq_width.set_label("Width");
 	m_mid_low_freq_width.set_value_callback(eq_width_text);
 	m_mid_low_freq_width.set_params(0,6,2,1);
 	m_mid_low_freq_width.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_low_box1.pack_start(m_mid_low_freq_width, false, false);
+	m_mid_low_box1.pack_start(m_mid_low_freq_width, true, false);
 	
 	l_eeb.pack_start(m_EqEnable, true, false);
 	m_mid_low_box1.pack_start(l_eeb, true, false);
@@ -136,20 +136,20 @@ OEq::OEq() : Gtk::VBox() {
 	m_low_freq_gain.set_params(0,24,12,1);
 	m_low_freq_gain.set_value_callback(eq_level_text);
 	m_low_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_low_box.pack_start(m_low_freq_gain, false, false);
+	m_low_box.pack_start(m_low_freq_gain, true, false);
 
 	m_low_freq_band.set_label("Freq");
 	m_low_freq_band.set_params(0,31,5,1);
 	m_low_freq_band.set_value_callback(eq_low_freq_text);
 	m_low_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_low_box.pack_start(m_low_freq_band, false, false);
+	m_low_box.pack_start(m_low_freq_band, true, false);
 	
-	m_box.pack_start(m_high_box, false, false);
-	m_box.pack_start(m_mid_high_box, false, false);
-	m_box.pack_start(m_mid_high_box1, false, false);
-	m_box.pack_start(m_mid_low_box, false, false);
-	m_box.pack_start(m_mid_low_box1, false, false);
-	m_box.pack_start(m_low_box, false, false);
+	m_box.pack_start(m_high_box);
+	m_box.pack_start(m_mid_high_box);
+	m_box.pack_start(m_mid_high_box1);
+	m_box.pack_start(m_mid_low_box);
+	m_box.pack_start(m_mid_low_box1);
+	m_box.pack_start(m_low_box);
 	
 	add(m_box);
 }

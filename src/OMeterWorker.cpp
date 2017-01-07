@@ -89,7 +89,7 @@ void OMeterWorker::do_work(OMainWnd* caller)
         m_message += "Stopped";
         break;
       }
-		caller->alsa->getIntegers("name='Z Meter'", caller->alsa->meters, 19);
+		caller->alsa->getIntegers("name='Z Meter'", caller->alsa->meters, 34);
     }
 
     caller->notify();

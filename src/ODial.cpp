@@ -33,7 +33,7 @@ Gtk::Widget() {
 	m_default = 0;
 	m_max = 1;
 	m_scroll_step = 5;
-	set_size_request(40, 60);
+	set_size_request(40, 54);
 	set_knob_background_color(0.0, 0.0, 0.8, 0.6);
 	Gdk::Color color;
 	color.set_rgb_p(.2,.2,.2);
@@ -185,16 +185,18 @@ bool ODial::on_expose_event(GdkEventExpose * event) {
 
 		Cairo::RefPtr<Cairo::Context> cr = m_refGdkWindow->create_cairo_context();
 		
+// draw knob title		
 		cr->set_source_rgba(0.8, 0.8, 0.8, 1.0);
 		if (m_label)
 			draw_text(cr, width, center_y - outer_radius - 8, m_label);
 
+// draw value below		
 		if (m_map) {
-			draw_text(cr, width, height - 10, (char*) m_map[m_value]);
+			draw_text(cr, width, center_y + outer_radius, (char*) m_map[m_value]);
 		}
 		else if(m_value_callback) {
 			char vs[32];
-			draw_text(cr, width, height - 16, m_value_callback(m_value, vs, sizeof(vs)));
+			draw_text(cr, width, center_y + outer_radius, m_value_callback(m_value, vs, sizeof(vs)));
 		}
 
 		cr->set_line_width(.5);

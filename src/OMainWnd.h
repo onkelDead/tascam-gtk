@@ -38,7 +38,6 @@ public:
     
 private:
 
-    
 
     OMaster m_master;
 

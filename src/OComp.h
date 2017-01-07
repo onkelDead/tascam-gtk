@@ -15,6 +15,7 @@
 #define OCOMP_H
 
 #include "ODial.h"
+#include "OMeter.h"
 #include "OAlsa.h"
 
 class OComp : public Gtk::VBox {
@@ -23,6 +24,10 @@ public:
     virtual ~OComp();
     
     void init(int index, OAlsa* alsa);
+    
+    OMeter m_reduction;
+    
+    bool is_active() { return m_CompEnable.get_active(); }
     
 private:
     Gtk::VBox m_box;
@@ -35,11 +40,15 @@ private:
     ODial m_attack;
     ODial m_release;
     
-    Gtk::HBox m_re_box;
+    Gtk::HBox m_r_box;
+    
+    Gtk::VBox m_re_box;
     ODial m_ratio;
     
     Gtk::VBox l_evb;
     Gtk::ToggleButton m_CompEnable;
+    
+    Gtk::HBox m_red_box;
 
 };
 

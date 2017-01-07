@@ -64,40 +64,47 @@ OComp::OComp() : Gtk::VBox() {
 	m_threshold.set_label("Thresh");
 	m_threshold.set_value_callback(cp_threshold_text);
 	m_threshold.set_knob_background_color(CREAD_NORMAL);
-	m_tg_box.pack_start(m_threshold, false, false);
+	m_tg_box.pack_start(m_threshold, true, false);
 	
 	m_gain.set_params(0,20,0,1);
 	m_gain.set_label("Gain");
 	m_gain.set_value_callback(cp_gain_text);
 	m_gain.set_knob_background_color(CREAD_NORMAL);
-	m_tg_box.pack_start(m_gain, false, false);
+	m_tg_box.pack_start(m_gain, true, false);
 	
 	m_attack.set_params(0,198,0,5);
 	m_attack.set_label("Attack");
 	m_attack.set_value_callback(cp_attack_text);
 	m_attack.set_knob_background_color(CREAD_LIGHT);
-	m_ar_box.pack_start(m_attack, false, false);
+	m_ar_box.pack_start(m_attack, true, false);
 	
 	m_release.set_params(0,99,0,1);
 	m_release.set_label("Release");
 	m_release.set_value_callback(cp_release_text);
 	m_release.set_knob_background_color(CREAD_LIGHT);
-	m_ar_box.pack_start(m_release, false, false);
+	m_ar_box.pack_start(m_release, true, false);
 	
 	m_ratio.set_params(0,14,0,1);
 	m_ratio.set_label("Ratio");
 	m_ratio.set_map(cp_ration_map);
 	m_ratio.set_knob_background_color(CREAD_NORMAL);
-	m_re_box.pack_start(m_ratio, false, false);
+	m_re_box.pack_start(m_ratio, true, false);
 
 	
 	l_evb.pack_start(m_CompEnable, true, false);
 	
-	m_re_box.pack_start(l_evb, false, false);
+	m_re_box.pack_start(l_evb, true, false);
+	m_r_box.pack_start(m_re_box, true, false);
 	
-	m_box.pack_start(m_tg_box, false, false);
-	m_box.pack_start(m_ar_box, false, false);
-	m_box.pack_start(m_re_box, false, false);
+	m_reduction.set_size_request(10,-1);
+	m_reduction.set_level_direction(1);
+	m_reduction.set_level_color(1, .6, .6, 1);
+	m_red_box.pack_start(m_reduction, true, false);
+	m_r_box.pack_start(m_red_box);
+	
+	m_box.pack_start(m_tg_box);
+	m_box.pack_start(m_ar_box);
+	m_box.pack_start(m_r_box);
 	
 	add(m_box);
 }

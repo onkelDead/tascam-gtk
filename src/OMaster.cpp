@@ -68,7 +68,7 @@ OMaster::OMaster() : Gtk::VBox()  {
 	m_mute.modify_bg(Gtk::STATE_PRELIGHT, mcolor);	
 	m_mute.modify_bg(Gtk::STATE_ACTIVE, mcolor);	
 	m_mute.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
-	m_mute.get_child()->modify_fg(Gtk::STATE_PRELIGHT, color);
+	m_mute.get_child()->modify_fg(Gtk::STATE_PRELIGHT, bcolor);
 	m_mute.get_child()->modify_fg(Gtk::STATE_ACTIVE, bcolor);
 	
 	m_fader.set_range(0, 133);

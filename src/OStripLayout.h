@@ -29,7 +29,8 @@ public:
 
     OMeter m_meter;
     Gtk::Label m_title;
-    
+    OComp m_comp;
+   
 private:
     Gtk::HBox m_hbox;
     Gtk::VBox m_box;
@@ -51,7 +52,6 @@ private:
     Gtk::HBox m_panbox;
     Gtk::VBox m_pan_button_box;
     
-    OComp m_comp;
     Gtk::HSeparator m_comp_sep;
 
     OEq m_eq;
