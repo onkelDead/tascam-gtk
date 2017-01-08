@@ -25,6 +25,8 @@ public:
     
     void init(int index, OAlsa* alsa);    
     
+    void reset(OAlsa* alsa);
+    
     OMeter m_meter_left;
     OMeter m_meter_right;
 private:

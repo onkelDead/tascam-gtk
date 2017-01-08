@@ -36,15 +36,24 @@ public:
     
     OAlsa *alsa;
     
+    void on_menu_file_reset(int i);
+    void on_menu_file_exit(int i);
+    
 private:
 
-
+    
     OMaster m_master;
 
-
+    Gtk::VBox m_vbox;
+    Gtk::HBox m_menubox;
     Gtk::HBox m_hbox;
     Gtk::VSeparator m_sep;
 
+    Gtk::MenuItem menuitem_file;
+    Gtk::Menu menu_file;
+    Gtk::MenuItem menuitem_file_reset;
+    Gtk::MenuItem menuitem_file_exit;
+    
     gint open_channels;
     gint last_channel;
     gint cardnum;

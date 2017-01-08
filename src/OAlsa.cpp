@@ -298,20 +298,20 @@ void OAlsa::on_combo_control_changed (int n, const char* control_name, Gtk::Comb
 	
 	
 	int val = control->get_active_row_number();
-	printf("change event  %d, %s, '%s'\n", n, control_name, control->get_active_text().c_str());
+//	printf("change event  %d, %s, '%s'\n", n, control_name, control->get_active_text().c_str());
 	
 	setInteger(control_name, n, val);
 
 }
 
 void OAlsa::on_dial_control_changed (int n, const char* control_name, ODial* control) {
-	printf("change event  %d, %s\n", n, control_name);
+//	printf("change event  %d, %s\n", n, control_name);
 	
 	setInteger(control_name, n, control->get_value());
 	
 }
 void OAlsa::on_toggle_button_control_changed (int n, const char* control_name, Gtk::ToggleButton* control) {
-	printf("change event  %d, %s\n", n, control_name);
+//	printf("change event  %d, %s\n", n, control_name);
 	
 	setBoolean(control_name, n, control->get_active());
 	
@@ -324,7 +324,7 @@ void OAlsa::on_range_control_changed (int n, const char* control_name, Gtk::VSca
 	
 	setInteger(control_name, n, dB);
 	
-	printf("change event  %d, %d, %d\n", n, val, dB - 127);
+//	printf("change event  %d, %d, %d\n", n, val, dB - 127);
 	
 	snprintf(l_title, sizeof(l_title), "%d dB", dB - 127);
 	control->set_tooltip_text(l_title);	

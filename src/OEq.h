@@ -24,6 +24,8 @@ public:
     
     void init(int index, OAlsa* alsa);
     
+    void reset(OAlsa* alsa, int index);
+    
 private:
     Gtk::VBox m_box;
 

@@ -31,6 +31,8 @@ public:
     Gtk::Label m_title;
     OComp m_comp;
    
+    void reset(OAlsa* alsa, int index);
+    
 private:
     Gtk::HBox m_hbox;
     Gtk::VBox m_box;

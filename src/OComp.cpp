@@ -134,3 +134,26 @@ void OComp::init(int index, OAlsa* alsa) {
 	m_ratio.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_CP_RATIO, &m_ratio));
 	
 }
+
+void OComp::reset(OAlsa* alsa, int index) {
+	
+	alsa->setBoolean(CTL_NAME_CP_ENABLE, 0, 0);
+	m_CompEnable.set_active(alsa->getBoolean(CTL_NAME_CP_ENABLE, 0));
+	usleep(RESET_VALUE_DELAY);
+
+	m_threshold.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_gain.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_attack.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_release.reset();
+	usleep(RESET_VALUE_DELAY);
+
+	m_ratio.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+}

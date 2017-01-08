@@ -330,3 +330,7 @@ void ODial::set_knob_background_color(double red, double green, double blue, dou
 	m_b_blue = blue;
 	m_b_alpha = alpha;
 }
+
+void ODial::reset() {
+	set_value(get_default());
+}

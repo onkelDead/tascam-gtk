@@ -49,6 +49,8 @@
 #define CTL_NAME_CP_RATIO                   "name='C Ratio'"
 #define CTL_NAME_CP_ENABLE                  "name='A Comp'"
 
+#define RESET_VALUE_DELAY                   1000
+
 class OAlsa {
 public:
     OAlsa();

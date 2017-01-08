@@ -38,7 +38,8 @@ public:
     }
     virtual void set_value(gint new_val);
     virtual void set_default(gint new_val);
-
+    virtual gint get_default() { return m_default;}
+    
     virtual gint get_scroll_step() {
         return m_scroll_step;
     }
@@ -54,6 +55,7 @@ public:
     
     sigc::signal<void> signal_value_changed;
     
+    virtual void reset();
 
 protected:
 

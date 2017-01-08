@@ -193,3 +193,42 @@ void OEq::init(int index, OAlsa* alsa) {
 	m_low_freq_band.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_LOW_FREQ, &m_low_freq_band));
 
 }
+
+void OEq::reset(OAlsa* alsa, int index) {
+	
+	alsa->setBoolean(CTL_NAME_EQ_ENABLE, 0, 0);
+	m_EqEnable.set_active(alsa->getBoolean(CTL_NAME_MUTE, 0));
+	usleep(RESET_VALUE_DELAY);
+
+	m_high_freq_gain.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_high_freq_band.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_mid_high_freq_gain.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_mid_high_freq_band.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_mid_high_freq_width.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_mid_low_freq_gain.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_mid_low_freq_band.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_mid_low_freq_width.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_low_freq_gain.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	m_low_freq_band.reset();
+	usleep(RESET_VALUE_DELAY);
+	
+	
+}

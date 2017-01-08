@@ -21,7 +21,29 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 
 	alsa = new OAlsa();
 
-	add(m_hbox);
+
+	Gdk::Color color;
+	color.set_rgb_p(0.2, 0.2, 0.2);
+	modify_bg(Gtk::STATE_NORMAL, color);
+	
+	Gtk::MenuBar* menubar = Gtk::manage(new Gtk::MenuBar);
+	
+	menuitem_file.set_label("File");
+	menubar->append(menuitem_file);
+	menuitem_file.set_submenu(menu_file);
+	m_menubox.add(*menubar);
+	menuitem_file_reset.set_label("Reset all");
+	menu_file.append(menuitem_file_reset);
+	menuitem_file_exit.set_label("Exit");
+	menu_file.append(menuitem_file_exit);
+	
+	menuitem_file_reset.signal_activate().connect(sigc::bind<>(sigc::mem_fun (this, &OMainWnd::on_menu_file_reset), 0));
+	menuitem_file_exit.signal_activate().connect(sigc::bind<>(sigc::mem_fun (this, &OMainWnd::on_menu_file_exit), 0));
+	
+//	m_menubox.set_size_request(-1, 32);
+	m_vbox.pack_start(m_menubox, true, false);
+	m_vbox.pack_start(m_hbox);
+	add(m_vbox);
 
 	if (!alsa->open_device()) {
 		for (int i = 0; i < NUM_CHANNELS; i++) {
@@ -48,9 +70,6 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 		}
 
 	}
-	Gdk::Color color;
-	color.set_rgb_p(0.2, 0.2, 0.2);
-	modify_bg(Gtk::STATE_NORMAL, color);
 }
 
 OMainWnd::~OMainWnd() {
@@ -86,3 +105,14 @@ void OMainWnd::on_notification_from_worker_thread() {
 
 }
 
+void OMainWnd::on_menu_file_exit(int i) {
+	this->hide();
+}
+
+void OMainWnd::on_menu_file_reset(int i) {
+	m_master.reset(alsa);
+	
+	for (int i = 0; i < NUM_CHANNELS; i++) {
+		m_stripLayouts[i].reset(alsa, i);
+	}
+}

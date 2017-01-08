@@ -28,7 +28,9 @@ public:
     OMeter m_reduction;
     
     bool is_active() { return m_CompEnable.get_active(); }
-    
+
+    void reset(OAlsa* alsa, int index);
+
 private:
     Gtk::VBox m_box;
 
