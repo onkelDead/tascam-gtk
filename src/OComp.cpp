@@ -11,8 +11,12 @@
  * Created on January 2, 2017, 12:20 PM
  */
 
+#include <iostream>
+
 #include <gtkmm.h>
 #include <stdbool.h>
+#include <libxml++-2.6/libxml++/libxml++.h>
+#include <libxml++-2.6/libxml++/parsers/textreader.h>
 
 #include "OComp.h"
 
@@ -157,3 +161,76 @@ void OComp::reset(OAlsa* alsa, int index) {
 	usleep(RESET_VALUE_DELAY);
 	
 }
+
+void OComp::save_values(FILE* file) {
+	
+	fprintf(file, "\t\t\t<enable>");
+	fprintf(file, "%d", (int) m_CompEnable.get_active());
+	fprintf(file, "</enable>\n");
+	
+	fprintf(file, "\t\t\t<threshold>");
+	fprintf(file, "%d", (int) m_threshold.get_value());
+	fprintf(file, "</threshold>\n");
+	
+	fprintf(file, "\t\t\t<gain>");
+	fprintf(file, "%d", (int) m_gain.get_value());
+	fprintf(file, "</gain>\n");
+	
+	fprintf(file, "\t\t\t<attack>");
+	fprintf(file, "%d", (int) m_attack.get_value());
+	fprintf(file, "</attack>\n");
+	
+	fprintf(file, "\t\t\t<release>");
+	fprintf(file, "%d", (int) m_release.get_value());
+	fprintf(file, "</release>\n");
+	
+	fprintf(file, "\t\t\t<ratio>");
+	fprintf(file, "%d", (int) m_ratio.get_value());
+	fprintf(file, "</ratio>\n");
+	
+}
+
+void OComp::load_values(Glib::ustring xml) {
+	
+	try {
+		xmlpp::TextReader reader((const unsigned char*)xml.c_str(), xml.size());
+		
+		while (reader.read()) {
+			if( !strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_CompEnable.set_active(atoi(reader.get_value().c_str()) == 1);
+				m_CompEnable.toggled();
+				usleep(RESET_VALUE_DELAY);
+			}				
+			if( !strcmp(reader.get_name().c_str(), "threshold") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_threshold.set_value(atoi(reader.get_value().c_str()));
+				usleep(RESET_VALUE_DELAY);
+			}
+			if( !strcmp(reader.get_name().c_str(), "gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_gain.set_value(atoi(reader.get_value().c_str()));
+				usleep(RESET_VALUE_DELAY);
+			}
+			if( !strcmp(reader.get_name().c_str(), "attack") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_attack.set_value(atoi(reader.get_value().c_str()));
+				usleep(RESET_VALUE_DELAY);
+			}
+			if( !strcmp(reader.get_name().c_str(), "release") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_release.set_value(atoi(reader.get_value().c_str()));
+				usleep(RESET_VALUE_DELAY);
+			}
+			if( !strcmp(reader.get_name().c_str(), "ratio") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_ratio.set_value(atoi(reader.get_value().c_str()));
+				usleep(RESET_VALUE_DELAY);
+			}
+		}		
+	} catch (const std::exception& e) {
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+		return;
+	}		
+}
+		

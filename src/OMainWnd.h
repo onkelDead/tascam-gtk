@@ -19,7 +19,6 @@
 #include "OAlsa.h"
 #include "OMeterWorker.h"
 
-
 class OMainWnd : public Gtk::Window {
 public:
     OMainWnd();
@@ -33,15 +32,17 @@ public:
 
     void notify();
     void on_notification_from_worker_thread();
-    
+
     OAlsa *alsa;
-    
+
     void on_menu_file_reset(int i);
     void on_menu_file_exit(int i);
-    
+    void on_menu_file_load(int i);
+    void on_menu_file_save(int i);
+
 private:
 
-    
+
     OMaster m_master;
 
     Gtk::VBox m_vbox;
@@ -51,19 +52,23 @@ private:
 
     Gtk::MenuItem menuitem_file;
     Gtk::Menu menu_file;
+    Gtk::MenuItem menuitem_file_load;
+    Gtk::MenuItem menuitem_file_save;
     Gtk::MenuItem menuitem_file_reset;
     Gtk::MenuItem menuitem_file_exit;
-    
+
     gint open_channels;
     gint last_channel;
     gint cardnum;
     snd_hctl_t *hctl;
 
+    void save_values(Glib::ustring);
+    void load_values(Glib::ustring);
 
-  Glib::Dispatcher m_Dispatcher;
-  OMeterWorker m_Worker;
-  std::thread* m_WorkerThread;
-  
+    Glib::Dispatcher m_Dispatcher;
+    OMeterWorker m_Worker;
+    std::thread* m_WorkerThread;
+
 };
 
 #endif /* OMAINWND_H */

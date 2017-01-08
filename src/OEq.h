@@ -25,7 +25,10 @@ public:
     void init(int index, OAlsa* alsa);
     
     void reset(OAlsa* alsa, int index);
-    
+ 
+    void save_values(FILE* file);    
+    void load_values(Glib::ustring xml);
+
 private:
     Gtk::VBox m_box;
 

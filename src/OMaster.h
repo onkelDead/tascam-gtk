@@ -29,18 +29,18 @@ public:
     
     OMeter m_meter_left;
     OMeter m_meter_right;
+    
+    Gtk::VScale m_fader;
+    Gtk::ToggleButton m_mute;
+    Gtk::ToggleButton m_true_bypass;
+    Gtk::ToggleButton m_comp_to_stereo;
+    Gtk::ComboBoxText m_route[8];
+    
 private:
     
     Gtk::VBox m_route_box;
-    Gtk::ComboBoxText m_route[8];
-    
-    Gtk::ToggleButton m_true_bypass;
-    Gtk::ToggleButton m_comp_to_stereo;
-    
-    Gtk::ToggleButton m_mute;
     
     Gtk::HBox m_fader_box;
-    Gtk::VScale m_fader;
     
 };
 

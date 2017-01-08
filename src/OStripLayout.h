@@ -33,6 +33,11 @@ public:
    
     void reset(OAlsa* alsa, int index);
     
+    void save_values(FILE* file);
+    
+    void load_values(Glib::ustring xml);
+    
+    
 private:
     Gtk::HBox m_hbox;
     Gtk::VBox m_box;

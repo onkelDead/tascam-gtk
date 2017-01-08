@@ -112,7 +112,8 @@ am_tascamgtk_OBJECTS = src/tascamgtk-main.$(OBJEXT) \
 	src/tascamgtk-OStripLayout.$(OBJEXT)
 tascamgtk_OBJECTS = $(am_tascamgtk_OBJECTS)
 am__DEPENDENCIES_1 =
-tascamgtk_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+tascamgtk_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -249,6 +250,8 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
 VERSION = @VERSION@
+XML2_CFLAGS = @XML2_CFLAGS@
+XML2_LIBS = @XML2_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -294,8 +297,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 tascamgtk_SOURCES = src/main.cpp  src/OAlsa.cpp  src/OComp.cpp  src/ODial.cpp  src/OEq.cpp  src/OMainWnd.cpp  src/OMaster.cpp  src/OMeter.cpp  src/OMeterWorker.cpp  src/OStripLayout.cpp
-tascamgtk_CPPFLAGS = -O2 -std=c++11 ${GTK2_CFLAGS} ${GTKMM2_CFLAGS} ${ALSA_CFLAGS}
-tascamgtk_LDADD = ${GTK2_LIBS} ${GTKMM2_LIBS} ${ALSA_LIBS} -lpthread
+tascamgtk_CPPFLAGS = -O2 -std=c++11 ${GTK2_CFLAGS} ${GTKMM2_CFLAGS} ${ALSA_CFLAGS} ${XML2_CFLAGS}
+tascamgtk_LDADD = ${GTK2_LIBS} ${GTKMM2_LIBS} ${ALSA_LIBS} ${XML2_LIBS} -lpthread
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

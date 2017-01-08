@@ -113,7 +113,7 @@ void OMaster::init(int index, OAlsa* alsa) {
 	int val;
 
 	val = alsa->getInteger(CTL_MASTER, index);
-	m_fader.set_value(alsa->dBToSlider(val));
+	m_fader.set_value(alsa->dBToSlider(val)+1);
 	m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_range_control_changed), index, CTL_MASTER, &m_fader, (Gtk::Label*) NULL));
 	snprintf(l_title, sizeof (l_title), "%d dB", val - 127);
 	m_fader.set_tooltip_text(l_title);
@@ -137,7 +137,6 @@ void OMaster::init(int index, OAlsa* alsa) {
 
 void OMaster::reset(OAlsa* alsa) {
 
-	alsa->setInteger(CTL_MASTER, 0, 127);
 	m_fader.set_value(alsa->dBToSlider(127) + 1);
 	usleep(RESET_VALUE_DELAY);
 
@@ -154,7 +153,6 @@ void OMaster::reset(OAlsa* alsa) {
 	usleep(RESET_VALUE_DELAY);
 
 	for (int ri = 0; ri < 8; ri++) {
-		alsa->setInteger(CTL_ROUTE, ri, ri + (ri < 2 ? 0 : 2));
 		m_route[ri].set_active(ri + (ri < 2 ? 0 : 2));
 		usleep(RESET_VALUE_DELAY);
 	}

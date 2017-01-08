@@ -628,6 +628,8 @@ LIBOBJS
 EGREP
 GREP
 CPP
+XML2_LIBS
+XML2_CFLAGS
 ALSA_LIBS
 ALSA_CFLAGS
 GTKMM2_LIBS
@@ -748,6 +750,8 @@ GTKMM2_CFLAGS
 GTKMM2_LIBS
 ALSA_CFLAGS
 ALSA_LIBS
+XML2_CFLAGS
+XML2_LIBS
 CPP'
 
 
@@ -1401,6 +1405,8 @@ Some influential environment variables:
   GTKMM2_LIBS linker flags for GTKMM2, overriding pkg-config
   ALSA_CFLAGS C compiler flags for ALSA, overriding pkg-config
   ALSA_LIBS   linker flags for ALSA, overriding pkg-config
+  XML2_CFLAGS C compiler flags for XML2, overriding pkg-config
+  XML2_LIBS   linker flags for XML2, overriding pkg-config
   CPP         C preprocessor
 
 Use these variables to override the choices made by `configure' or to help
@@ -4221,7 +4227,6 @@ fi
 
 
 
-# PKG_CHECK_MODULES([GTK2], [gtk+-2.0])
 
 
 
@@ -4520,6 +4525,97 @@ See \`config.log' for more details" "$LINENO" 5; }
 else
 	ALSA_CFLAGS=$pkg_cv_ALSA_CFLAGS
 	ALSA_LIBS=$pkg_cv_ALSA_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+
+fi
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for XML2" >&5
+$as_echo_n "checking for XML2... " >&6; }
+
+if test -n "$XML2_CFLAGS"; then
+    pkg_cv_XML2_CFLAGS="$XML2_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML2_CFLAGS=`$PKG_CONFIG --cflags "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML2_LIBS"; then
+    pkg_cv_XML2_LIBS="$XML2_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML2_LIBS=`$PKG_CONFIG --libs "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        XML2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        else
+	        XML2_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$XML2_PKG_ERRORS" >&5
+
+	as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+
+$XML2_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XML2_CFLAGS
+and XML2_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables XML2_CFLAGS
+and XML2_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+	XML2_CFLAGS=$pkg_cv_XML2_CFLAGS
+	XML2_LIBS=$pkg_cv_XML2_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 
