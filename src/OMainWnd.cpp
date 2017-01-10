@@ -30,25 +30,96 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 
 	Gtk::MenuBar* menubar = Gtk::manage(new Gtk::MenuBar);
 
-	menuitem_file.set_label("File");
-	menubar->append(menuitem_file);
+	/*
+	menuitem_file.set_label("_File");
+	menuitem_file.set_use_underline(true);
+
 	menuitem_file.set_submenu(menu_file);
-	m_menubox.add(*menubar);
-	menuitem_file_load.set_label("Load values file");
+
+	menuitem_file_load.set_label("_Load values file");
+	Gtk::Widget *open_image = new Gtk::Image(Gtk::Stock::OPEN, Gtk::ICON_SIZE_MENU);
+	menuitem_file_load.set_image(*open_image);
+	menuitem_file_load.set_use_underline(true);
 	menu_file.append(menuitem_file_load);
-	menuitem_file_save.set_label("Save values file");
+
+	menuitem_file_save.set_label("_Save values file");
+	Gtk::Widget *save_image = new Gtk::Image(Gtk::Stock::SAVE, Gtk::ICON_SIZE_MENU);
+	menuitem_file_save.set_image(*save_image);
+	menuitem_file_save.set_use_underline(true);
 	menu_file.append(menuitem_file_save);
-	menuitem_file_reset.set_label("Reset all");
+
+	menuitem_file_reset.set_label("_Reset all");
+	Gtk::Widget *reset_image = new Gtk::Image(Gtk::Stock::REVERT_TO_SAVED, Gtk::ICON_SIZE_MENU);
+	menuitem_file_reset.set_image(*reset_image);
+	menuitem_file_reset.set_use_underline(true);
 	menu_file.append(menuitem_file_reset);
-	menuitem_file_exit.set_label("Exit");
+
+	menu_file.append(m_menu_sep);
+
+	menuitem_file_exit.set_label("_Exit");
+	Gtk::Widget *exit_image = new Gtk::Image(Gtk::Stock::QUIT, Gtk::ICON_SIZE_MENU);
+	menuitem_file_exit.set_image(*exit_image);
+	menuitem_file_exit.set_use_underline(true);
 	menu_file.append(menuitem_file_exit);
+
+	menubar->append(menuitem_file);
+	m_menubox.add(*menubar);
 
 	menuitem_file_load.signal_activate().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_menu_file_load), 0));
 	menuitem_file_save.signal_activate().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_menu_file_save), 0));
 	menuitem_file_reset.signal_activate().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_menu_file_reset), 0));
 	menuitem_file_exit.signal_activate().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_menu_file_exit), 0));
+	
+	 */
 
-	//	m_menubox.set_size_request(-1, 32);
+	m_refActionGroup = Gtk::ActionGroup::create();
+	m_refActionGroup->add(Gtk::Action::create("File", "_File"));
+	m_refActionGroup->add(Gtk::Action::create("load", Gtk::Stock::OPEN, "_Load values..."),
+			sigc::mem_fun(this, &OMainWnd::on_menu_file_load));
+	m_refActionGroup->add(Gtk::Action::create("save", Gtk::Stock::SAVE, "_Save values..."),
+			sigc::mem_fun(this, &OMainWnd::on_menu_file_save));
+	m_refActionGroup->add(Gtk::Action::create("reset", Gtk::Stock::REVERT_TO_SAVED, "_Reset all"),
+			sigc::mem_fun(this, &OMainWnd::on_menu_file_reset));
+	m_refActionGroup->add(Gtk::Action::create("exit", Gtk::Stock::QUIT ),
+			sigc::mem_fun(this, &OMainWnd::on_menu_file_exit));
+	
+	m_refUIManager = Gtk::UIManager::create();
+	m_refUIManager->insert_action_group(m_refActionGroup);
+
+	//Layout the actions in a menubar and toolbar:
+	Glib::ustring ui_info =
+			"<ui>"
+			"  <menubar name='MenuBar'>"
+			"    <menu action='File'>"
+			"        <menuitem action='load'/>"
+			"        <menuitem action='save'/>"
+			"        <menuitem action='reset'/>"
+			"        <separator />"
+			"        <menuitem action='exit' />"
+			"    </menu>"
+			"  </menubar>"
+			"</ui>";
+
+	try {
+		m_refUIManager->add_ui_from_string(ui_info);
+	} catch (const Glib::Error& ex) {
+		std::cerr << "building menus failed: " << ex.what();
+	}
+
+	Gtk::Widget* pMenubar = m_refUIManager->get_widget("/MenuBar");
+	if (!(pMenubar)) {
+		g_warning("GMenu or AppMenu not found");
+	} else {
+		m_menubox.pack_start(*pMenubar, Gtk::PACK_SHRINK);
+	}
+
+	menu_popup_load.set_label("Load channel values");
+	menu_popup.append(menu_popup_load);
+	menu_popup_save.set_label("Save channel values");
+	menu_popup.append(menu_popup_save);
+	menu_popup_reset.set_label("Reset channel values");
+	menu_popup.append(menu_popup_reset);
+
 	m_vbox.pack_start(m_menubox, true, false);
 	m_vbox.pack_start(m_hbox);
 	add(m_vbox);
@@ -56,6 +127,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 	if (!alsa->open_device()) {
 		for (int i = 0; i < NUM_CHANNELS; i++) {
 			m_stripLayouts[i].init(i, alsa);
+			m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_title_context), i));
 			m_hbox.pack_start(m_stripLayouts[i]);
 
 		}
@@ -88,6 +160,26 @@ OMainWnd::~OMainWnd() {
 		delete alsa;
 }
 
+bool OMainWnd::on_title_context(GdkEventButton* event, int channel_index) {
+	if (event->button == 3) {
+
+		if (!m_popup_load_connection.empty())
+			m_popup_load_connection.disconnect();
+		if (!m_popup_save_connection.empty())
+			m_popup_save_connection.disconnect();
+		if (!m_popup_reset_connection.empty())
+			m_popup_reset_connection.disconnect();
+
+		m_popup_load_connection = menu_popup_load.signal_activate().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_menu_popup_load), channel_index));
+		m_popup_save_connection = menu_popup_save.signal_activate().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_menu_popup_save), channel_index));
+		m_popup_reset_connection = menu_popup_reset.signal_activate().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_menu_popup_reset), channel_index));
+
+
+		menu_popup.show_all();
+		menu_popup.popup(3, event->time);
+	}
+}
+
 void OMainWnd::notify() {
 	m_Dispatcher.emit();
 }
@@ -112,11 +204,11 @@ void OMainWnd::on_notification_from_worker_thread() {
 
 }
 
-void OMainWnd::on_menu_file_exit(int i) {
+void OMainWnd::on_menu_file_exit() {
 	this->hide();
 }
 
-void OMainWnd::on_menu_file_reset(int i) {
+void OMainWnd::on_menu_file_reset() {
 	m_master.reset(alsa);
 
 	for (int i = 0; i < NUM_CHANNELS; i++) {
@@ -124,7 +216,7 @@ void OMainWnd::on_menu_file_reset(int i) {
 	}
 }
 
-void OMainWnd::on_menu_file_save(int i) {
+void OMainWnd::on_menu_file_save() {
 
 	Gtk::FileChooserDialog dialog("Please choose a file",
 			Gtk::FILE_CHOOSER_ACTION_SAVE);
@@ -150,11 +242,12 @@ void OMainWnd::on_menu_file_save(int i) {
 
 }
 
-void OMainWnd::on_menu_file_load(int i) {
+void OMainWnd::on_menu_file_load() {
 
 	Gtk::FileChooserDialog dialog("Please choose a file",
 			Gtk::FILE_CHOOSER_ACTION_OPEN);
 
+	dialog.set_current_folder("./");
 	dialog.set_transient_for(*this);
 
 	Gtk::FileFilter filter_text;
@@ -167,84 +260,107 @@ void OMainWnd::on_menu_file_load(int i) {
 
 	int result = dialog.run();
 
+	dialog.hide();
 	switch (result) {
 		case(Gtk::RESPONSE_OK):
 			load_values(dialog.get_filename());
 			break;
 	}
-	/*
-		Glib::ustring = QFileDialog::getSaveFileName(this,
-											   tr("Save values to file"), ".",
-											   tr("Xml files (*.xml)"));
+}
 
+void OMainWnd::on_menu_popup_load(int channel_index) {
+	char l_title[256];
 
-		if( filename.isEmpty())
-			return;
-		if( !filename.endsWith(".xml"))
-			filename.append(".xml");
-		QFile file(filename);
-		file.open(QIODevice::WriteOnly);
+	snprintf(l_title, sizeof (l_title), "Select Mixer file to load in %s", m_stripLayouts[channel_index].m_title.get_label().c_str());
 
-		QXmlStreamWriter xmlWriter(&file);
-		xmlWriter.setAutoFormatting(true);
-		xmlWriter.writeStartDocument();
+	Gtk::FileChooserDialog dialog(l_title, Gtk::FILE_CHOOSER_ACTION_OPEN);
 
-		xmlWriter.writeStartElement("Settings");
+	dialog.set_current_folder("./");
+	dialog.set_transient_for(*this);
 
-		xmlWriter.writeStartElement("Routes");
-		for( int i = 0; i < 8; i++) {
-		   xmlWriter.writeStartElement("Route");
-		   xmlWriter.writeAttribute("index", QString::number(i) );
-		   xmlWriter.writeCharacters(QString::number(master->route[i]->currentIndex()) );
-		   xmlWriter.writeEndElement();
+	Gtk::FileFilter filter_text;
+	filter_text.set_name("Tascam values files");
+	filter_text.add_mime_type("text/xml");
+	dialog.add_filter(filter_text);
+
+	dialog.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
+	dialog.add_button("Select", Gtk::RESPONSE_OK);
+
+	int result = dialog.run();
+
+	dialog.hide();
+	switch (result) {
+		case(Gtk::RESPONSE_OK):
+			load_channel_values(dialog.get_filename(), channel_index);
+			break;
+	}
+
+}
+
+void OMainWnd::on_menu_popup_save(int channel_index) {
+	printf("save %d\n", channel_index);
+
+	Gtk::FileChooserDialog dialog("Please choose a file",
+			Gtk::FILE_CHOOSER_ACTION_SAVE);
+
+	dialog.set_current_folder("./");
+	dialog.set_transient_for(*this);
+
+	Gtk::FileFilter filter_text;
+	filter_text.set_name("Tascam channel values files");
+	filter_text.add_mime_type("text/xml");
+	dialog.add_filter(filter_text);
+
+	dialog.add_button("_Cancel", Gtk::RESPONSE_CANCEL);
+	dialog.add_button("Select", Gtk::RESPONSE_OK);
+
+	int result = dialog.run();
+
+	switch (result) {
+		case(Gtk::RESPONSE_OK):
+			save_channel_values(dialog.get_filename(), channel_index);
+			break;
+	}
+
+}
+
+void OMainWnd::on_menu_popup_reset(int i) {
+	m_stripLayouts[i].reset(alsa, i);
+}
+
+void OMainWnd::save_channel_values(Glib::ustring filename, int channel_index) {
+	if (!strstr(filename.c_str(), ".xml"))
+		filename.append(".xml");
+
+	FILE* file = fopen(filename.c_str(), "w");
+	if (file) {
+		fprintf(file, "<channel>\n");
+		m_stripLayouts[channel_index].save_values(file, 1);
+		fprintf(file, "</channel>\n");
+		fclose(file);
+	}
+}
+
+void OMainWnd::load_channel_values(Glib::ustring filename, int channel_index) {
+
+	try {
+		xmlpp::TextReader reader(filename);
+
+		while (reader.read()) {
+			if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				m_stripLayouts[channel_index].load_values(reader.read_outer_xml());
+			}
 		}
-		xmlWriter.writeEndElement();
+	} catch (const std::exception& e) {
+		std::cerr << "Exception caught: " << e.what() << std::endl;
+		return;
+	}
 
-		xmlWriter.writeStartElement("Master");
-		xmlWriter.writeTextElement("Level", QString::number(master->master_left->value()) );
-		xmlWriter.writeEndElement();
-
-		xmlWriter.writeStartElement("Inputs");
-		for( int i = 0; i < 16; i++) {
-			xmlWriter.writeStartElement("Input");
-			xmlWriter.writeAttribute("index", QString::number(i) );
-			xmlWriter.writeTextElement("Level", QString::number(ch[i]->fader->value()) );
-			xmlWriter.writeTextElement("Mute", QString::number(ch[i]->mute->isChecked()) );
-			xmlWriter.writeTextElement("Solo", QString::number(ch[i]->solo->isChecked()) );
-			xmlWriter.writeTextElement("Phase", QString::number(ch[i]->phase->isChecked()) );
-			xmlWriter.writeTextElement("Pan", QString::number(ch[i]->pan->value()) );
-			xmlWriter.writeTextElement("EQ", QString::number(ch[i]->eq_enable->isChecked()) );
-			xmlWriter.writeTextElement("EQLowLevel", QString::number(ch[i]->eq_low_level->value()) );
-			xmlWriter.writeTextElement("EQLowFrequence", QString::number(ch[i]->eq_low_freq->value()) );
-			xmlWriter.writeTextElement("EQMidLowLevel", QString::number(ch[i]->eq_midlow_level->value()) );
-			xmlWriter.writeTextElement("EQMidLowFrequence", QString::number(ch[i]->eq_midlow_freq->value()) );
-			xmlWriter.writeTextElement("EQMidLowWidth", QString::number(ch[i]->eq_midlow_width->value()) );
-			xmlWriter.writeTextElement("EQMidHighLevel", QString::number(ch[i]->eq_midhigh_level->value()) );
-			xmlWriter.writeTextElement("EQMidHighFrequence", QString::number(ch[i]->eq_midhigh_freq->value()) );
-			xmlWriter.writeTextElement("EQMidHighWidth", QString::number(ch[i]->eq_midhigh_width->value()) );
-			xmlWriter.writeTextElement("EQHighLevel", QString::number(ch[i]->eq_high_level->value()) );
-			xmlWriter.writeTextElement("EQHighFrequence", QString::number(ch[i]->eq_high_freq->value()) );
-
-			xmlWriter.writeTextElement("Comp", QString::number(ch[i]->cp_enable->isChecked()) );
-			xmlWriter.writeTextElement("CompGain", QString::number(ch[i]->cp_gain->value()) );
-			xmlWriter.writeTextElement("CompAttack", QString::number(ch[i]->cp_attack->value()) );
-			xmlWriter.writeTextElement("CompRelease", QString::number(ch[i]->cp_release->value()) );
-			xmlWriter.writeTextElement("CompRatio", QString::number(ch[i]->cp_ratio->value()) );
-			xmlWriter.writeTextElement("CompThreshold", QString::number(ch[i]->cp_threshold->value()) );
-
-
-			xmlWriter.writeEndElement();
-		}
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-
-		file.close();
-	 */
 }
 
 void OMainWnd::save_values(Glib::ustring filename) {
 
-	if (!filename.find(".xml", 0))
+	if (!strstr(filename.c_str(), ".xml"))
 		filename.append(".xml");
 
 	printf("save: %s\n", filename.c_str());
@@ -295,32 +411,31 @@ void OMainWnd::load_values(Glib::ustring filename) {
 		xmlpp::TextReader reader(filename);
 
 		while (reader.read()) {
-			if( !strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
 				m_master.m_fader.set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
 				m_master.m_mute.set_active(atoi(reader.get_value().c_str()) == 1);
 				m_master.m_mute.toggled();
 				usleep(RESET_VALUE_DELAY);
-			}			
-			if( !strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			}
+			if (!strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
 				m_master.m_true_bypass.set_active(atoi(reader.get_value().c_str()) == 1);
 				m_master.m_true_bypass.toggled();
 				usleep(RESET_VALUE_DELAY);
-			}			
-			if( !strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			}
+			if (!strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
 				m_master.m_comp_to_stereo.set_active(atoi(reader.get_value().c_str()) == 1);
 				m_master.m_comp_to_stereo.toggled();
 				usleep(RESET_VALUE_DELAY);
-			}			
-			
-			if( !strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-				if(reader.has_attributes()) {
+			}
+			if (!strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				if (reader.has_attributes()) {
 					reader.move_to_first_attribute();
 					int index = atoi(reader.get_value().c_str());
 					reader.read();
@@ -328,15 +443,13 @@ void OMainWnd::load_values(Glib::ustring filename) {
 					usleep(RESET_VALUE_DELAY);
 				}
 			}
-			
-			if( !strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-				if(reader.has_attributes()) {
+			if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				if (reader.has_attributes()) {
 					reader.move_to_first_attribute();
 					int index = atoi(reader.get_value().c_str());
 					m_stripLayouts[index].load_values(reader.read_outer_xml());
 				}
 			}
-			
 		}
 	} catch (const std::exception& e) {
 		std::cerr << "Exception caught: " << e.what() << std::endl;

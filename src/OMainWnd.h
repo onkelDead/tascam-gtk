@@ -35,28 +35,48 @@ public:
 
     OAlsa *alsa;
 
-    void on_menu_file_reset(int i);
-    void on_menu_file_exit(int i);
-    void on_menu_file_load(int i);
-    void on_menu_file_save(int i);
+    
+    void on_menu_file_load();
+    void on_menu_file_save();
+    void on_menu_file_reset();
+    void on_menu_file_exit();
 
+    void on_menu_popup_load(int i);
+    void on_menu_popup_save(int i);
+    void on_menu_popup_reset(int i);
+    virtual bool on_title_context(GdkEventButton* event, int channel_index);
+    
 private:
 
-
+    
     OMaster m_master;
 
     Gtk::VBox m_vbox;
-    Gtk::HBox m_menubox;
+    Gtk::VBox m_menubox;
     Gtk::HBox m_hbox;
     Gtk::VSeparator m_sep;
 
-    Gtk::MenuItem menuitem_file;
-    Gtk::Menu menu_file;
-    Gtk::MenuItem menuitem_file_load;
-    Gtk::MenuItem menuitem_file_save;
-    Gtk::MenuItem menuitem_file_reset;
-    Gtk::MenuItem menuitem_file_exit;
+    Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
+    Glib::RefPtr<Gtk::UIManager> m_refUIManager;
+    
+    Gtk::Menu* appMenu;
+//    Gtk::MenuItem menuitem_file;
+//    Gtk::Menu menu_file;
+//    Gtk::ImageMenuItem menuitem_file_load;
+//    Gtk::ImageMenuItem menuitem_file_save;
+//    Gtk::ImageMenuItem menuitem_file_reset;
+//    Gtk::SeparatorMenuItem m_menu_sep;
+//    Gtk::ImageMenuItem menuitem_file_exit;
 
+    Gtk::Menu menu_popup;
+    Gtk::MenuItem menu_popup_load;
+    sigc::connection m_popup_load_connection;
+    Gtk::MenuItem menu_popup_save;
+    sigc::connection m_popup_save_connection;
+    Gtk::MenuItem menu_popup_reset;
+    sigc::connection m_popup_reset_connection;
+
+    
     gint open_channels;
     gint last_channel;
     gint cardnum;
@@ -65,6 +85,9 @@ private:
     void save_values(Glib::ustring);
     void load_values(Glib::ustring);
 
+    void save_channel_values(Glib::ustring filename, int channel_index);
+    void load_channel_values(Glib::ustring, int channel_index);
+    
     Glib::Dispatcher m_Dispatcher;
     OMeterWorker m_Worker;
     std::thread* m_WorkerThread;

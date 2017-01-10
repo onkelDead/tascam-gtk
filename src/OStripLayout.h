@@ -20,6 +20,7 @@
 #include "OMeter.h"
 #include "OAlsa.h"
 
+
 class OStripLayout : public Gtk::VBox {
 public:
     OStripLayout();
@@ -30,10 +31,11 @@ public:
     OMeter m_meter;
     Gtk::Label m_title;
     OComp m_comp;
-   
+    Gtk::EventBox m_event_box;
+
     void reset(OAlsa* alsa, int index);
     
-    void save_values(FILE* file);
+    void save_values(FILE* file, int indexnt = 0);
     
     void load_values(Glib::ustring xml);
     
