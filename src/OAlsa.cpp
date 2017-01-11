@@ -1,15 +1,19 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+  Copyright 2017 Detlef Urban <onkel@paraair.de>
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* 
- * File:   OAlsa.cpp
- * Author: onkel
- * 
- * Created on January 2, 2017, 7:21 PM
- */
 
 #include <gtkmm-2.4/gtkmm/scale.h>
 #include <gtkmm-2.4/gtkmm/togglebutton.h>
@@ -173,7 +177,6 @@ int OAlsa::getInteger(const char* name, int channel_index) {
 	char elem_name[32];
 	
 	sprintf(elem_name, "%s,index=%d", name, channel_index);
-//    create_ctrl_elem_name(name, channel_index, (char**)&elem_name, 32);
 	
     int err = snd_ctl_ascii_elem_id_parse(id, elem_name);
     if (err) {
@@ -295,26 +298,15 @@ int OAlsa::getIntegers(const char* name, int vals[], int count) {
 
 
 void OAlsa::on_combo_control_changed (int n, const char* control_name, Gtk::ComboBoxText* control) {
-	
-	
 	int val = control->get_active_row_number();
-//	printf("change event  %d, %s, '%s'\n", n, control_name, control->get_active_text().c_str());
-	
 	setInteger(control_name, n, val);
-
 }
 
 void OAlsa::on_dial_control_changed (int n, const char* control_name, ODial* control) {
-//	printf("change event  %d, %s\n", n, control_name);
-	
 	setInteger(control_name, n, control->get_value());
-	
 }
 void OAlsa::on_toggle_button_control_changed (int n, const char* control_name, Gtk::ToggleButton* control) {
-//	printf("change event  %d, %s\n", n, control_name);
-	
 	setBoolean(control_name, n, control->get_active());
-	
 }
 
 void OAlsa::on_range_control_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label) {
@@ -323,8 +315,6 @@ void OAlsa::on_range_control_changed (int n, const char* control_name, Gtk::VSca
 	int dB = sliderTodB(control->get_value());
 	
 	setInteger(control_name, n, dB);
-	
-//	printf("change event  %d, %d, %d\n", n, val, dB - 127);
 	
 	snprintf(l_title, sizeof(l_title), "%d dB", dB - 127);
 	control->set_tooltip_text(l_title);	

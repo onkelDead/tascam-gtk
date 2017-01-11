@@ -1,14 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+  Copyright 2017 Detlef Urban <onkel@paraair.de>
 
-/* 
- * File:   OMaster.cpp
- * Author: onkel
- * 
- * Created on January 3, 2017, 12:27 PM
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <gtkmm.h>
@@ -18,19 +21,8 @@
 OMaster::OMaster() : Gtk::VBox() {
 	set_size_request(120, -1);
 
-	Gdk::Color color;
-	color.set_rgb_p(.9, .9, .9);
-	Gdk::Color fcolor;
-	fcolor.set_rgb_p(.85, .85, .85);
-	Gdk::Color bcolor;
-	bcolor.set_rgb_p(.25, .25, .25);
-	Gdk::Color acolor;
-	acolor.set_rgb_p(.85, .25, .25);
-	Gdk::Color mcolor;
-	mcolor.set_rgb_p(.85, .85, .25);
-
 	for (int i = 0; i < 8; i++) {
-
+		m_route[i].set_name("route");
 		m_route[i].append("Master Left");
 		m_route[i].append("Master Right");
 		for (int j = 0; j < 8; j++) {
@@ -38,39 +30,24 @@ OMaster::OMaster() : Gtk::VBox() {
 			snprintf(entry, 24, "Output %d", j + 1);
 			m_route[i].append(entry);
 		}
-		m_route[i].modify_bg(Gtk::STATE_NORMAL, color);
-		m_route[i].get_child()->modify_bg(Gtk::STATE_NORMAL, color);
 		m_route_box.pack_start(m_route[i], true, true);
 	}
 
 
 	m_true_bypass.set_label("Mixer True\nBypass");
 	m_true_bypass.set_size_request(-1, 48);
-	m_true_bypass.modify_bg(Gtk::STATE_NORMAL, bcolor);
-	m_true_bypass.modify_bg(Gtk::STATE_PRELIGHT, acolor);
-	m_true_bypass.modify_bg(Gtk::STATE_ACTIVE, acolor);
-	m_true_bypass.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
-	m_true_bypass.get_child()->modify_fg(Gtk::STATE_ACTIVE, color);
-	m_true_bypass.get_child()->modify_fg(Gtk::STATE_PRELIGHT, color);
+	m_true_bypass.set_name("comp-button");
 
 	m_comp_to_stereo.set_label("Computer out\nto Stereo BUS");
 	m_comp_to_stereo.set_size_request(-1, 48);
-	m_comp_to_stereo.modify_bg(Gtk::STATE_NORMAL, bcolor);
-	m_comp_to_stereo.modify_bg(Gtk::STATE_PRELIGHT, acolor);
-	m_comp_to_stereo.modify_bg(Gtk::STATE_ACTIVE, acolor);
-	m_comp_to_stereo.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
-	m_comp_to_stereo.get_child()->modify_fg(Gtk::STATE_PRELIGHT, color);
-	m_comp_to_stereo.get_child()->modify_fg(Gtk::STATE_ACTIVE, color);
+	m_comp_to_stereo.set_name("comp-button");
 
 	m_mute.set_label("Mute");
+	m_mute.set_name("mute-button");
+	
 	m_mute.set_size_request(-1, 48);
-	m_mute.modify_bg(Gtk::STATE_NORMAL, bcolor);
-	m_mute.modify_bg(Gtk::STATE_PRELIGHT, mcolor);
-	m_mute.modify_bg(Gtk::STATE_ACTIVE, mcolor);
-	m_mute.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
-	m_mute.get_child()->modify_fg(Gtk::STATE_PRELIGHT, bcolor);
-	m_mute.get_child()->modify_fg(Gtk::STATE_ACTIVE, bcolor);
 
+	m_fader.set_name("fader");
 	m_fader.set_range(0, 133);
 	m_fader.set_inverted(true);
 	m_fader.set_size_request(-1, 160);
@@ -85,8 +62,6 @@ OMaster::OMaster() : Gtk::VBox() {
 	m_fader.add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
 	m_fader.add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
 	m_fader.add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
-	m_fader.modify_font(Pango::FontDescription("System 6"));
-	m_fader.modify_fg(Gtk::STATE_NORMAL, color);
 	m_fader_box.pack_start(m_fader);
 
 	m_meter_left.set_size_request(10, 160);
@@ -95,8 +70,6 @@ OMaster::OMaster() : Gtk::VBox() {
 	m_meter_right.set_level_color(0, .7, 0, 1);
 	m_fader_box.pack_start(m_meter_left, true, false);
 	m_fader_box.pack_start(m_meter_right, true, false);
-
-	modify_bg(Gtk::STATE_NORMAL, color);
 
 	pack_start(m_route_box, false, false);
 	pack_start(m_true_bypass, false, true);

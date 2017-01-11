@@ -1,15 +1,19 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+  Copyright 2017 Detlef Urban <onkel@paraair.de>
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* 
- * File:   OStripLayout.cpp
- * Author: onkel
- * 
- * Created on January 1, 2017, 2:35 PM
- */
 
 #include <iostream>
 
@@ -20,16 +24,6 @@
 
 OStripLayout::OStripLayout() : Gtk::VBox() {
 
-	Gdk::Color tcolor;
-	tcolor.set_rgb_p(.8, .8, .8);
-	Gdk::Color dbcolor;
-	dbcolor.set_rgb_p(0, .9, 0);
-	Gdk::Color color;
-	color.set_rgb_p(.25, .25, .25);
-
-	// strip title	
-	m_title.modify_fg(Gtk::STATE_NORMAL, tcolor);
-	m_event_box.modify_bg(Gtk::STATE_NORMAL, color);
 	m_event_box.add(m_title);
 	m_event_box.add_events(Gdk::EventMask::BUTTON_PRESS_MASK);
 	m_box.pack_start(m_event_box, false, false);
@@ -47,38 +41,14 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_eq_sep.set_size_request(-1, 1);
 	m_box.pack_start(m_eq_sep, false, false);
 
-	Gdk::Color mute_color;
-	Gdk::Color solo_color;
-	Gdk::Color mute_color_a;
-	Gdk::Color solo_color_a;
-	solo_color.set_rgb_p(.8, 1, .8);
-	solo_color_a.set_rgb_p(.7, 1, .7);
-	mute_color_a.set_rgb_p(1, 1, .7);
-	mute_color.set_rgb_p(.8, .8, .6);
-	m_MuteEnable.modify_bg(Gtk::STATE_PRELIGHT, mute_color);
-	m_MuteEnable.modify_bg(Gtk::STATE_ACTIVE, mute_color_a);
-	m_SoloEnable.modify_bg(Gtk::STATE_PRELIGHT, solo_color);
-	m_SoloEnable.modify_bg(Gtk::STATE_ACTIVE, solo_color_a);
-
 	m_MuteEnable.set_label("Mute");
-	m_MuteEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
+	m_MuteEnable.set_name("mute-button");
+	m_MuteEnable.set_size_request(-1, 10);
 	m_SoloEnable.set_label("Solo");
-	m_MuteEnable.modify_bg(Gtk::STATE_NORMAL, color);
-	m_MuteEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, mute_color_a);
-	m_SoloEnable.modify_bg(Gtk::STATE_NORMAL, color);
-	m_SoloEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
-	m_SoloEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, solo_color_a);
+	m_SoloEnable.set_name("solo-button");
 
-	Gdk::Color phase_color;
-	phase_color.set_rgb_p(.8, 1, 1);
 	m_PhaseEnable.set_label("Phase");
-	m_PhaseEnable.modify_bg(Gtk::STATE_NORMAL, color);
-	m_PhaseEnable.modify_bg(Gtk::STATE_PRELIGHT, phase_color);
-	Gdk::Color phase_color_a;
-	phase_color_a.set_rgb_p(.7, 1, 1);
-	m_PhaseEnable.modify_bg(Gtk::STATE_ACTIVE, phase_color_a);
-	m_PhaseEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, phase_color);
-	m_PhaseEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
+	m_PhaseEnable.set_name("phase-button");
 
 	m_pan_button_box.pack_start(m_MuteEnable, false, false);
 	m_pan_button_box.pack_start(m_SoloEnable, false, false);
@@ -88,13 +58,12 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_Pan.set_label("L Pan R");
 	m_Pan.set_knob_background_color(1., .8, .3, 1.);
 
-	m_dB.modify_font(Pango::FontDescription("System 6"));
-	m_dB.modify_fg(Gtk::STATE_NORMAL, dbcolor);
-
+	m_dB.set_name("db-label");
 
 	m_meter.set_size_request(10, 160);
 	m_meter.set_level_color(0, .7, 0, 1);
 	m_fader.set_range(0, 133);
+	m_fader.set_name("fader");
 	m_fader.set_inverted(true);
 	m_fader.set_size_request(-1, 160);
 	m_fader.set_draw_value(false);
@@ -108,8 +77,6 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_fader.add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
 	m_fader.add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
 	m_fader.add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
-	m_fader.modify_font(Pango::FontDescription("System 6"));
-	m_fader.modify_fg(Gtk::STATE_NORMAL, tcolor);
 	m_fader.set_tooltip_text("channel fader");
 
 	m_panbox.pack_start(m_pan_button_box, false, false);
@@ -167,8 +134,6 @@ void OStripLayout::init(int index, OAlsa* alsa) {
 
 void OStripLayout::reset(OAlsa* alsa, int index) {
 
-
-	//	alsa->setInteger(CTL_NAME_FADER, index, 127);
 	m_fader.set_value(alsa->dBToSlider(127) + 1);
 	usleep(RESET_VALUE_DELAY);
 

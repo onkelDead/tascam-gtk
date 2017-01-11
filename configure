@@ -632,8 +632,8 @@ XML2_LIBS
 XML2_CFLAGS
 ALSA_LIBS
 ALSA_CFLAGS
-GTKMM2_LIBS
-GTKMM2_CFLAGS
+GTKMM3_LIBS
+GTKMM3_CFLAGS
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
@@ -746,8 +746,8 @@ CCC
 PKG_CONFIG
 PKG_CONFIG_PATH
 PKG_CONFIG_LIBDIR
-GTKMM2_CFLAGS
-GTKMM2_LIBS
+GTKMM3_CFLAGS
+GTKMM3_LIBS
 ALSA_CFLAGS
 ALSA_LIBS
 XML2_CFLAGS
@@ -1400,9 +1400,9 @@ Some influential environment variables:
               directories to add to pkg-config's search path
   PKG_CONFIG_LIBDIR
               path overriding pkg-config's built-in search path
-  GTKMM2_CFLAGS
-              C compiler flags for GTKMM2, overriding pkg-config
-  GTKMM2_LIBS linker flags for GTKMM2, overriding pkg-config
+  GTKMM3_CFLAGS
+              C compiler flags for GTKMM3, overriding pkg-config
+  GTKMM3_LIBS linker flags for GTKMM3, overriding pkg-config
   ALSA_CFLAGS C compiler flags for ALSA, overriding pkg-config
   ALSA_LIBS   linker flags for ALSA, overriding pkg-config
   XML2_CFLAGS C compiler flags for XML2, overriding pkg-config
@@ -4349,19 +4349,19 @@ $as_echo "no" >&6; }
 fi
 
 pkg_failed=no
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for GTKMM2" >&5
-$as_echo_n "checking for GTKMM2... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for GTKMM3" >&5
+$as_echo_n "checking for GTKMM3... " >&6; }
 
-if test -n "$GTKMM2_CFLAGS"; then
-    pkg_cv_GTKMM2_CFLAGS="$GTKMM2_CFLAGS"
+if test -n "$GTKMM3_CFLAGS"; then
+    pkg_cv_GTKMM3_CFLAGS="$GTKMM3_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtkmm-2.4\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "gtkmm-2.4") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtkmm-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "gtkmm-3.0") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_GTKMM2_CFLAGS=`$PKG_CONFIG --cflags "gtkmm-2.4" 2>/dev/null`
+  pkg_cv_GTKMM3_CFLAGS=`$PKG_CONFIG --cflags "gtkmm-3.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -4369,16 +4369,16 @@ fi
  else
     pkg_failed=untried
 fi
-if test -n "$GTKMM2_LIBS"; then
-    pkg_cv_GTKMM2_LIBS="$GTKMM2_LIBS"
+if test -n "$GTKMM3_LIBS"; then
+    pkg_cv_GTKMM3_LIBS="$GTKMM3_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtkmm-2.4\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "gtkmm-2.4") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtkmm-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "gtkmm-3.0") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_GTKMM2_LIBS=`$PKG_CONFIG --libs "gtkmm-2.4" 2>/dev/null`
+  pkg_cv_GTKMM3_LIBS=`$PKG_CONFIG --libs "gtkmm-3.0" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -4399,22 +4399,22 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GTKMM2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "gtkmm-2.4" 2>&1`
+	        GTKMM3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "gtkmm-3.0" 2>&1`
         else
-	        GTKMM2_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "gtkmm-2.4" 2>&1`
+	        GTKMM3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "gtkmm-3.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
-	echo "$GTKMM2_PKG_ERRORS" >&5
+	echo "$GTKMM3_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (gtkmm-2.4) were not met:
+	as_fn_error $? "Package requirements (gtkmm-3.0) were not met:
 
-$GTKMM2_PKG_ERRORS
+$GTKMM3_PKG_ERRORS
 
 Consider adjusting the PKG_CONFIG_PATH environment variable if you
 installed software in a non-standard prefix.
 
-Alternatively, you may set the environment variables GTKMM2_CFLAGS
-and GTKMM2_LIBS to avoid the need to call pkg-config.
+Alternatively, you may set the environment variables GTKMM3_CFLAGS
+and GTKMM3_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
      	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
@@ -4425,15 +4425,15 @@ as_fn_error $? "The pkg-config script could not be found or is too old.  Make su
 is in your PATH or set the PKG_CONFIG environment variable to the full
 path to pkg-config.
 
-Alternatively, you may set the environment variables GTKMM2_CFLAGS
-and GTKMM2_LIBS to avoid the need to call pkg-config.
+Alternatively, you may set the environment variables GTKMM3_CFLAGS
+and GTKMM3_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details.
 
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	GTKMM2_CFLAGS=$pkg_cv_GTKMM2_CFLAGS
-	GTKMM2_LIBS=$pkg_cv_GTKMM2_LIBS
+	GTKMM3_CFLAGS=$pkg_cv_GTKMM3_CFLAGS
+	GTKMM3_LIBS=$pkg_cv_GTKMM3_LIBS
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 

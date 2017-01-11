@@ -1,14 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+  Copyright 2017 Detlef Urban <onkel@paraair.de>
 
-/* 
- * File:   OEq.cpp
- * Author: onkel
- * 
- * Created on January 2, 2017, 12:58 PM
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <iostream>
@@ -68,22 +71,9 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
 #define EBLUE_LIGHT .78, .8, 1., 1.
 
 OEq::OEq() : Gtk::VBox() {
-	set_size_request(90, -1);
 	
 	m_EqEnable.set_label("EQ");
-//	m_EqEnable.set_size_request(45, 32);
-	m_EqEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
-	
-	Gdk::Color color_b;
-	color_b.set_rgb_p(.25,.25,.25);	
-	Gdk::Color color;
-	color.set_rgb_p(.78, .8, 1.);
-	Gdk::Color color_a;
-	color_a.set_rgb_p(.5, .55, 1.);
-	m_EqEnable.modify_bg(Gtk::STATE_ACTIVE, color_a);
-	m_EqEnable.modify_bg(Gtk::STATE_NORMAL, color_b);
-	m_EqEnable.modify_bg(Gtk::STATE_PRELIGHT, color);
-	m_EqEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
+	m_EqEnable.set_name("eq-button");
 	
 	m_high_freq_gain.set_label("High");
 	m_high_freq_gain.set_value_callback(eq_level_text);

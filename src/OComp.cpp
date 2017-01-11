@@ -1,14 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+  Copyright 2017 Detlef Urban <onkel@paraair.de>
 
-/* 
- * File:   OComp.cpp
- * Author: onkel
- * 
- * Created on January 2, 2017, 12:20 PM
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 #include <iostream>
@@ -48,21 +51,16 @@ char* cp_release_text(int val, char* buf, size_t buf_size) {
 
 
 OComp::OComp() : Gtk::VBox() {
-	set_size_request(90, -1);
-//	m_CompEnable.set_size_request(40, 32);
+	m_CompEnable.set_size_request(40, -1);
 	m_CompEnable.set_label("Comp");
-	m_CompEnable.get_child()->modify_font(Pango::FontDescription("System 8"));
+	m_CompEnable.set_name("comp-button");
 	
 	Gdk::Color color_b;
 	color_b.set_rgb_p(.25,.25,.25);		
 	Gdk::Color color;
 	color.set_rgb_p(1., .8, .8);
-	m_CompEnable.modify_bg(Gtk::STATE_PRELIGHT, color);
 	Gdk::Color color_a;
 	color_a.set_rgb_p(1., .6, .6);
-	m_CompEnable.modify_bg(Gtk::STATE_ACTIVE, color_a);
-	m_CompEnable.modify_bg(Gtk::STATE_NORMAL, color_b);
-	m_CompEnable.get_child()->modify_fg(Gtk::STATE_NORMAL, color);
 
 	m_threshold.set_params(0,32,32,1);
 	m_threshold.set_label("Thresh");

@@ -1,0 +1,109 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Jan 11, 2017, 10:24:32 AM
+    Author     : onkel
+*/
+
+#o-dial {
+    background-color: rgb(255,0,0);
+    color:            rgb(0,0,255);
+}
+
+#OMainWnd {
+    background-color: rgb(50,50,50);
+    color: rgb(228,228,228);
+}
+#mute-button, #solo-button, #phase-button, #comp-button, #eq-button {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(55,55,55)),
+        color-stop (0.5, darker (rgb(75,75,75))),
+        to (rgb(75,75,75)));
+    /*background-color: rgb(55,55,55);*/
+    color: rgb(228,228,228);
+    border-top-width: 0;
+    border-color: rgb(55,55,55);
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 0;
+    font-size: 90%;
+}
+#mute-button:checked {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(255,255,80)),
+        color-stop (.5, lighter (rgb(255,255,255))),
+        to (rgb(255,255,80)));
+    color: rgb(55,55,55);
+}
+#solo-button:checked {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(0,255,80)),
+        color-stop (0.5, lighter (rgb(80,255,160))),
+        to (rgb(0,255,80)));
+    color: rgb(55,55,55);
+}
+#phase-button:checked {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(160,255,255)),
+        color-stop (0.5, lighter (rgb(255,255,255))),
+        to (rgb(160,255,255)));
+    color: rgb(55,55,55);
+}
+#comp-button:checked {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(255,153,153)),
+        color-stop (0.5, lighter (rgb(255,213,213))),
+        to (rgb(255,153,153)));
+    color: rgb(55,55,55);
+}
+#eq-button:checked {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(128,145,255)),
+        color-stop (0.5, lighter (rgb(145,175,255))),
+        to (rgb(128,145,255)));
+    color: rgb(55,55,55);
+}
+#fader {
+    font-size: 70%;
+}
+#db-label {
+    font-size: 80%;
+    color: rgb(0,255,0);
+}
+#route * {
+    background-color: rgb(55,55,55);
+    color: rgb(228,228,228);
+    color: rgb(228,228,228);
+    border-color: rgb(55,55,55);
+    border-width: 0px;
+    border-style: solid;
+    border-radius: 0;
+    outline-offset: 0px;
+}
+/*
+#menu  {       
+    background-color: white;
+    color: green;
+    font-weight:bold;
+}
+
+#menu :hover {
+    background-color: red;
+    color: blue;
+    font-weight:bold;
+}*/
