@@ -27,7 +27,7 @@ public:
     OMaster();
     virtual ~OMaster();
     
-    void init(int index, OAlsa* alsa);    
+    void init(OAlsa* alsa, Gtk::Window* wnd);    
     
     void reset(OAlsa* alsa);
     

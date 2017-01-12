@@ -18,6 +18,8 @@
 #ifndef OEQ_H
 #define OEQ_H
 
+#include <lo/lo.h>
+
 #include "ODial.h"
 #include "OAlsa.h"
 
@@ -33,31 +35,30 @@ public:
     void save_values(FILE* file);    
     void load_values(Glib::ustring xml);
 
-private:
-    Gtk::VBox m_box;
-
-    Gtk::VBox l_eeb;
+    int get_parameter_count() { return 10; }
+    void get_parameter_decriptor(int parameter_index, lo_message reply);
+    
     Gtk::ToggleButton m_EqEnable;
-
-    Gtk::HBox m_high_box;
     ODial m_high_freq_gain;
     ODial m_high_freq_band;
-    
-    Gtk::HBox m_mid_high_box;
     ODial m_mid_high_freq_gain;
     ODial m_mid_high_freq_band;
-    Gtk::HBox m_mid_high_box1;
     ODial m_mid_high_freq_width;
-    
-    Gtk::HBox m_mid_low_box;
     ODial m_mid_low_freq_gain;
     ODial m_mid_low_freq_band;
-    Gtk::HBox m_mid_low_box1;
     ODial m_mid_low_freq_width;
-    
-    Gtk::HBox m_low_box;
     ODial m_low_freq_gain;
     ODial m_low_freq_band;
+    
+private:
+    Gtk::VBox m_box;
+    Gtk::VBox l_eeb;
+    Gtk::HBox m_high_box;
+    Gtk::HBox m_mid_high_box;
+    Gtk::HBox m_mid_high_box1;
+    Gtk::HBox m_mid_low_box;
+    Gtk::HBox m_mid_low_box1;
+    Gtk::HBox m_low_box;
     
 };
 

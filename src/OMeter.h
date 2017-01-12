@@ -30,6 +30,7 @@ public:
     void set_level_direction(int direct); 
     void set_level_color(double red, double green, double blue, double alpha );
     void setLevel(int val);
+    int get_level() {return level;}
 
 protected:
 

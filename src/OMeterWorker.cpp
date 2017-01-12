@@ -19,10 +19,56 @@
 #include <sstream>
 #include <chrono>
 
+
+
+void osc_err_handler(int num, const char *msg, const char *where) {
+    fprintf(stderr, "ARDMIX_ERROR %d: %s at %s\n", num, msg, where);
+}
+
+int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, lo_message data, void *user_data) {
+    int ret;
+	int client_index = -1;
+
+	OMeterWorker* worker = (OMeterWorker*) user_data;
+
+//	worker->dump_message(path, types, argv, argc);
+
+	client_index = worker->osc_client_exists(data);
+    if (client_index == -1) {
+        char* new_client_url = lo_address_get_url(lo_message_get_source(data));
+        fprintf(stdout, "new client: %s\n", new_client_url);
+        fflush (stdout);
+        client_index = worker->new_osc_client(data);
+        free(new_client_url);
+    }
+
+	OMainWnd* wnd = ((OMainWnd*)(worker->m_caller));
+	
+	osc_message* msg = new osc_message;
+	msg->path = strdup(path);
+	msg->data = lo_message_clone(data);
+	msg->client_index = client_index;
+	
+	wnd->oscMutex.lock();
+	
+//	printf("send: %p\n", data);
+	g_async_queue_push (wnd->gqueue, msg);
+	wnd->notify_osc();
+
+	wnd->oscMutex.unlock();
+	
+    return 0;
+}
+
+
+
 OMeterWorker::OMeterWorker() :
 m_Mutex(),
 m_shall_stop(false),
 m_has_stopped(false) {
+    for( int i = 0; i < MAX_OSC_CLIENTS; i++ ) {
+        osc_client[i] = NULL;
+    }	
 }
 
 
@@ -36,9 +82,20 @@ bool OMeterWorker::has_stopped() const {
 	return m_has_stopped;
 }
 
+
 void OMeterWorker::do_work(OMainWnd* caller) {
 	m_has_stopped = false;
 
+	m_caller = caller;
+	
+    osc_server = lo_server_thread_new_with_proto("3135", LO_TCP, osc_err_handler);
+    if( !osc_server ) {
+        fprintf(stderr, "ERROR: unable to create client port.\n");
+        return;
+    }
+    lo_server_thread_add_method(osc_server, NULL, NULL, osc_handler, this);
+    lo_server_thread_start(osc_server);
+	
 	// Simulate a long calculation.
 	for (;;) // do until break
 	{
@@ -55,5 +112,66 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 	m_shall_stop = false;
 	m_has_stopped = true;
 
-	caller->notify();
+    lo_server_thread_free(osc_server);
+	
+//	caller->notify();
+}
+
+const int OMeterWorker::new_osc_client(lo_address client) {
+    int i;
+    for(i = 0; i < MAX_OSC_CLIENTS; i++) {
+        if( osc_client[i] == NULL) {
+           osc_client[i] = lo_message_get_source(client); 
+           return i;
+        }
+    }
+	return -1;
+}
+
+
+const int OMeterWorker::osc_client_exists(lo_address client) {
+    int i;
+    int ret = -1;
+    char* new_client_url = lo_address_get_url(lo_message_get_source(client));
+    for( i = 0; i < MAX_OSC_CLIENTS; i++ ) {
+        if( osc_client[i] ) {
+            char* client_url = lo_address_get_url(osc_client[i]);
+
+            if( osc_client[i] && !strcmp(new_client_url, client_url) ){
+                ret = i;
+            }
+            free(client_url);
+        }
+        if( ret != -1 )
+            break;
+    }
+    free(new_client_url);
+    return ret;
+}
+
+void OMeterWorker::dump_message(const char* path, const char *types, lo_arg ** argv, int argc ) {
+    int i;
+    
+    fprintf(stdout, "ardour path: <%s> - ", path);
+    for (i = 0; i < argc; i++) {
+        fprintf(stdout, " '%c':", types[i]);
+        lo_arg_pp((lo_type) types[i], argv[i]);
+    }
+    fprintf(stdout, "\n");
+    fflush(stdout);
+    
+}
+
+void OMeterWorker::send_osc(int client_index, const char* path, lo_message msg)  {
+	
+	lo_send_message_from(osc_client[client_index], osc_server, path, msg);
+	
+}
+void OMeterWorker::send_osc_all(const char* path, lo_message msg)  {
+	
+	for( int i = 0; i < MAX_OSC_CLIENTS; i++) {
+		if( osc_client[i] )
+			lo_send_message_from(osc_client[i], osc_server, path, msg);
+	}
+	
 }

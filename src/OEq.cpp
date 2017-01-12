@@ -33,6 +33,7 @@ static const int eq_low_freq_map_size = 32;
 static const char *eq_high_freq_map[] = { "1.7k", "1.8k", "1.9k", "2.0k", "2.2k", "2.4k", "2.6k", "2.8k", "3.0k", "3.2k", "3.4k", "3.6k", "3.8k", "4.0k",
                                             "4.5k", "5.0k", "5.5k", "6.0k", "6.5k", "7.0k", "7.5k", "8.0k", "8.5k",
                                             "9.0k", "10k", "11k", "12k", "13k", "14k", "15k", "16k", "17k", "18k" };
+static const int eq_high_freq_map_size = 33;
 
 char* eq_width_text(int val, char* buf, size_t buf_size) {
     int a = (1 << val);
@@ -94,7 +95,7 @@ OEq::OEq() : Gtk::VBox() {
 	m_mid_high_box.pack_start(m_mid_high_freq_gain, true, false);
 	
 	m_mid_high_freq_band.set_label("Freq");
-	m_mid_high_freq_band.set_params(0,31,27,1);
+	m_mid_high_freq_band.set_params(0,64,27,1);
 	m_mid_high_freq_band.set_value_callback(eq_lowhigh_freq_text);
 	m_mid_high_freq_band.set_knob_background_color(EBLUE_LIGHT);
 	m_mid_high_box.pack_start(m_mid_high_freq_band, true, false);
@@ -112,7 +113,7 @@ OEq::OEq() : Gtk::VBox() {
 	m_mid_low_box.pack_start(m_mid_low_freq_gain, true, false);
 
 	m_mid_low_freq_band.set_label("Freq");
-	m_mid_low_freq_band.set_params(0,31,14,1);
+	m_mid_low_freq_band.set_params(0,64,14,1);
 	m_mid_low_freq_band.set_value_callback(eq_lowhigh_freq_text);
 	m_mid_low_freq_band.set_knob_background_color(EBLUE_LIGHT);
 	m_mid_low_box.pack_start(m_mid_low_freq_band, true, false);
@@ -345,3 +346,151 @@ void OEq::load_values(Glib::ustring xml) {
 	}		
 }
 		
+void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
+	if (parameter_index == 0) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "High gain"); // plugin parameter name
+		int flags = 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, -12.); // lower
+		lo_message_add_float(reply, 12.); // upper
+		lo_message_add_string(reply, "%.0f dB"); // format string
+		lo_message_add_int32(reply, 0); // scale points
+		lo_message_add_double(reply, (double) m_high_freq_gain.get_value()-12);
+	}
+	if (parameter_index == 1) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "High Freq"); // plugin parameter name
+		int flags = 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, 0.); // lower
+		lo_message_add_float(reply, 31.); // upper
+		lo_message_add_string(reply, ""); // format string
+		lo_message_add_int32(reply, eq_high_freq_map_size); // scale points
+		for( int i = 0; i < eq_high_freq_map_size; i++ ) {
+			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_string(reply, eq_high_freq_map[i]); // format string
+		}		
+		lo_message_add_double(reply, (double) m_high_freq_band.get_value());
+	}
+	if (parameter_index == 2) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Mid High gain"); // plugin parameter name
+		int flags = 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, -12.); // lower
+		lo_message_add_float(reply, 12.); // upper
+		lo_message_add_string(reply, "%.0f dB"); // format string
+		lo_message_add_int32(reply, 0); // scale points
+		lo_message_add_double(reply, (double) m_mid_high_freq_gain.get_value()-12);
+	}
+	if (parameter_index == 3) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Mid High Freq"); // plugin parameter name
+		int flags = 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, 0.); // lower
+		lo_message_add_float(reply, 64.); // upper
+		lo_message_add_string(reply, ""); // format string
+		lo_message_add_int32(reply, eq_high_freq_map_size + eq_low_freq_map_size); // scale points
+		for( int i = 0; i < eq_high_freq_map_size + eq_low_freq_map_size ; i++ ) {
+			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_string(reply, i < eq_low_freq_map_size ? eq_low_freq_map[i] : eq_high_freq_map[i-eq_low_freq_map_size]); // format string
+		}		
+		lo_message_add_double(reply, (double) m_mid_high_freq_band.get_value());
+	}
+	if (parameter_index == 4) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Mid High Q"); // plugin parameter name
+		int flags = 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, 0.); // lower
+		lo_message_add_float(reply, 6.); // upper
+		lo_message_add_string(reply, ""); // format string
+		lo_message_add_int32(reply, 7); // scale points
+		for( int i = 0; i < 7 ; i++ ) {
+			char sp[16];
+			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_string(reply, eq_width_text(i, sp, 16)); // format string
+		}		
+		lo_message_add_double(reply, (double) m_mid_high_freq_width.get_value());
+	}
+	if (parameter_index == 5) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Mid Low gain"); // plugin parameter name
+		int flags = 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, -12.); // lower
+		lo_message_add_float(reply, 12.); // upper
+		lo_message_add_string(reply, "%.0f dB"); // format string
+		lo_message_add_int32(reply, 0); // scale points
+		lo_message_add_double(reply, (double) m_mid_low_freq_gain.get_value()-12);
+	}
+	if (parameter_index == 6) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Mid Low Freq"); // plugin parameter name
+		int flags = 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, 0.); // lower
+		lo_message_add_float(reply, 64.); // upper
+		lo_message_add_string(reply, ""); // format string
+		lo_message_add_int32(reply, eq_high_freq_map_size + eq_low_freq_map_size); // scale points
+		for( int i = 0; i < eq_high_freq_map_size + eq_low_freq_map_size ; i++ ) {
+			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_string(reply, i < eq_low_freq_map_size ? eq_low_freq_map[i] : eq_high_freq_map[i-eq_low_freq_map_size]); // format string
+		}		
+		lo_message_add_double(reply, (double) m_mid_low_freq_band.get_value());
+	}
+	if (parameter_index == 7) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Mid Low Q"); // plugin parameter name
+		int flags = 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, 0.); // lower
+		lo_message_add_float(reply, 6.); // upper
+		lo_message_add_string(reply, ""); // format string
+		lo_message_add_int32(reply, 7); // scale points
+		for( int i = 0; i < 7 ; i++ ) {
+			char sp[16];
+			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_string(reply, eq_width_text(i, sp, 16)); // format string
+		}		
+		lo_message_add_double(reply, (double) m_mid_low_freq_width.get_value());
+	}
+	if (parameter_index == 8) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Low gain"); // plugin parameter name
+		int flags = 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, -12.); // lower
+		lo_message_add_float(reply, 12.); // upper
+		lo_message_add_string(reply, "%.0f dB"); // format string
+		lo_message_add_int32(reply, 0); // scale points
+		lo_message_add_double(reply, (double) m_low_freq_gain.get_value()-12);
+	}
+	if (parameter_index == 9) {
+		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
+		lo_message_add_string(reply, "Low Freq"); // plugin parameter name
+		int flags = 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0x80 | 0;
+		lo_message_add_int32(reply, flags); // plugin parameter flags
+		lo_message_add_string(reply, "INT"); // it's data type
+		lo_message_add_float(reply, 0.); // lower
+		lo_message_add_float(reply, 32.); // upper
+		lo_message_add_string(reply, ""); // format string
+		lo_message_add_int32(reply, eq_low_freq_map_size); // scale points
+		for( int i = 0; i < eq_low_freq_map_size; i++ ) {
+			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_string(reply, eq_low_freq_map[i]); // format string
+		}		
+		lo_message_add_double(reply, (double) m_low_freq_band.get_value());
+	}
+}

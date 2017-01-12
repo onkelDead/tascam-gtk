@@ -83,25 +83,28 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 
 	m_vbox.pack_start(m_menubox, false, false);
 	m_menubox.set_name("menu");
-	
-	
+
+
 	m_vbox.pack_start(m_hbox);
 	add(m_vbox);
 
 	if (!alsa->open_device()) {
 		for (int i = 0; i < NUM_CHANNELS; i++) {
-			m_stripLayouts[i].init(i, alsa);
+			m_stripLayouts[i].init(i, alsa, this);
 			m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_title_context), i));
 			m_hbox.pack_start(m_stripLayouts[i], false, false);
 			m_stripLayouts[i].set_size_request(80, -1);
 		}
-		m_master.init(0, alsa);
+		m_master.init(alsa, this);
 		m_hbox.pack_start(m_master, false, false);
 
 
 		show_all_children(true);
 
+		gqueue = g_async_queue_new();
+
 		m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
+		m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
 
 		if (m_WorkerThread) {
 			std::cout << "Can't start a worker thread while another one is running." << std::endl;
@@ -131,7 +134,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 				<< ex.what() << std::endl;
 	}
 
-//	auto refStyleContext = get_style_context();
+	//	auto refStyleContext = get_style_context();
 	auto screen = Gdk::Screen::get_default();
 	refStyleContext->add_provider_for_screen(
 			Gdk::Screen::get_default(),
@@ -147,6 +150,8 @@ OMainWnd::~OMainWnd() {
 		sleep(1);
 	if (alsa)
 		delete alsa;
+
+	g_async_queue_unref(gqueue);
 }
 
 bool OMainWnd::on_title_context(GdkEventButton* event, int channel_index) {
@@ -181,16 +186,59 @@ void OMainWnd::on_notification_from_worker_thread() {
 		m_WorkerThread = nullptr;
 	}
 	for (int i = 0; i < NUM_CHANNELS; i++) {
-		m_stripLayouts[i].m_meter.setLevel(alsa->sliderTodB(alsa->meters[i] / 32768. * 133.) / 133. * 32768);
+		int ch_meter = alsa->sliderTodB(alsa->meters[i] / 32768. * 133.) / 133. * 32768;
+		m_stripLayouts[i].m_meter.setLevel(ch_meter);
+
+		lo_message reply = lo_message_new();
+		int ch_leds = m_stripLayouts[i].m_meter.get_level() * 14 / 32768;
+		int ch_led_mask = 1 << ch_leds;
+		lo_message_add_int32(reply, i);
+		lo_message_add_int32(reply, ch_led_mask - 1);
+		m_Worker.send_osc_all("/strip/meter", reply);
+		lo_message_free(reply);
+
 		if (m_stripLayouts[i].m_comp.is_active()) {
 			m_stripLayouts[i].m_comp.m_reduction.setLevel(alsa->sliderTodB(alsa->meters[i + 18] / 32768. * 133.) / 133. * 32768);
 			//			  printf("meter: %d, %d\n", (int)(alsa->meters[i + 18]/ 32768. * 133), alsa->sliderTodB(alsa->meters[i + 18] / 133. * 32768.));
 		} else
 			m_stripLayouts[i].m_comp.m_reduction.setLevel(32767);
 	}
-	m_master.m_meter_left.setLevel(alsa->sliderTodB(alsa->meters[16] / 32768. * 133.) / 133. * 32768);
-	m_master.m_meter_right.setLevel(alsa->sliderTodB(alsa->meters[17] / 32768. * 133.) / 133. * 32768);
+	int left_level = alsa->sliderTodB(alsa->meters[16] / 32768. * 133.) / 133. * 32768;
+	int right_level = alsa->sliderTodB(alsa->meters[17] / 32768. * 133.) / 133. * 32768;
+	m_master.m_meter_left.setLevel(left_level);
+	m_master.m_meter_right.setLevel(right_level);
 
+	int master_leds = MAX(m_master.m_meter_left.get_level(), m_master.m_meter_right.get_level()) * 14 / 32768;
+	int led_mask = 1 << master_leds;
+
+	lo_message reply = lo_message_new();
+	lo_message_add_int32(reply, led_mask - 1);
+	m_Worker.send_osc_all("/master/meter", reply);
+	lo_message_free(reply);
+
+}
+
+void OMainWnd::notify_osc() {
+	m_Dispatcher_osc.emit();
+}
+
+void OMainWnd::on_notification_from_osc_thread() {
+
+	oscMutex.lock();
+
+	osc_message* data = (osc_message*) g_async_queue_pop(gqueue);
+
+	oscMutex.unlock();
+	if (data->path) {
+		printf("osc: %s\n", data->path);
+
+		on_osc_message(data->client_index, data->path, data->data);
+		//		m_Worker.dump_message(data->path, lo_message_get_types(data->data), lo_message_get_argv(data->data), lo_message_get_argc(data->data));
+
+		free(data->path);
+	}
+	lo_message_free(data->data);
+	delete data;
 }
 
 void OMainWnd::on_menu_file_exit() {
@@ -445,4 +493,294 @@ void OMainWnd::load_values(Glib::ustring filename) {
 		return;
 	}
 
+}
+
+void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg) {
+	lo_arg** argv = lo_message_get_argv(msg);
+	lo_message reply;
+
+	if (!strcmp(path, "/strip/list")) {
+		for (int i = 0; i < NUM_CHANNELS; i++) {
+			reply = lo_message_new();
+			lo_message_add_string(reply, "AT");
+			lo_message_add_string(reply, m_stripLayouts[i].m_title.get_label().c_str());
+			lo_message_add_int32(reply, 1);
+			lo_message_add_int32(reply, 1);
+			lo_message_add_int32(reply, m_stripLayouts[i].m_MuteEnable.get_active() ? 1 : 0);
+			lo_message_add_int32(reply, m_stripLayouts[i].m_SoloEnable.get_active() ? 1 : 0);
+			lo_message_add_int32(reply, i);
+			lo_message_add_int32(reply, (int32_t) 1);
+			m_Worker.send_osc(client_index, "#reply", reply);
+			lo_message_free(reply);
+		}
+
+		reply = lo_message_new();
+		lo_message_add_string(reply, "M");
+		lo_message_add_string(reply, "Master");
+		lo_message_add_int32(reply, 1);
+		lo_message_add_int32(reply, 1);
+		lo_message_add_int32(reply, m_master.m_mute.get_active() ? 1 : 0);
+		lo_message_add_int32(reply, 0);
+		lo_message_add_int32(reply, 17);
+		lo_message_add_int32(reply, 0);
+		m_Worker.send_osc(client_index, "#reply", reply);
+		lo_message_free(reply);
+
+		reply = lo_message_new();
+		lo_message_add_string(reply, "end_route_list");
+		lo_message_add_int64(reply, 0);
+		lo_message_add_int64(reply, 0);
+		m_Worker.send_osc(client_index, "#reply", reply);
+		lo_message_free(reply);
+
+		reply = lo_message_new();
+		lo_message_add_float(reply, m_master.m_fader.get_value() / 133.);
+		m_Worker.send_osc_all("/master/fader", reply);
+		lo_message_free(reply);
+		for (int i = 0; i < NUM_CHANNELS; i++) {
+			reply = lo_message_new();
+			lo_message_add_int32(reply, i);
+			lo_message_add_float(reply, m_stripLayouts[i].m_fader.get_value() / 133.);
+			m_Worker.send_osc_all("/strip/fader", reply);
+			lo_message_free(reply);
+
+			reply = lo_message_new();
+			lo_message_add_int32(reply, i);
+			lo_message_add_float(reply, m_stripLayouts[i].m_Pan.get_value() / 254.);
+			m_Worker.send_osc_all("/strip/pan_stereo_position", reply);
+			lo_message_free(reply);
+
+		}
+	}
+	if (!strcmp(path, "/strip/fader")) {
+		int channel_index = argv[0]->i;
+		float val = argv[1]->f;
+
+		m_stripLayouts[channel_index].m_fader.set_value(133. * val);
+	}
+	if (!strcmp(path, "/master/fader")) {
+		float val = argv[0]->f;
+
+		m_master.m_fader.set_value(133. * val);
+	}
+	if (!strcmp(path, "/strip/pan_stereo_position")) {
+		int channel_index = argv[0]->i;
+		float val = argv[1]->f;
+
+		m_stripLayouts[channel_index].m_Pan.set_value((int) (254 * val));
+	}
+	if (!strcmp(path, "/strip/mute")) {
+		int channel_index = argv[0]->i;
+		float val = argv[1]->f;
+		m_stripLayouts[channel_index].m_MuteEnable.set_active(val != 0);
+	}
+	if (!strcmp(path, "/master/mute")) {
+		float val = argv[0]->f;
+		m_master.m_mute.set_active(val != 0);
+	}
+	if (!strcmp(path, "/strip/solo")) {
+		int channel_index = argv[0]->i;
+		float val = argv[1]->f;
+		m_stripLayouts[channel_index].m_SoloEnable.set_active(val != 0);
+	}
+	if (!strcmp(path, "/strip/plugin/list")) {
+		int channel_index = argv[0]->i;
+		if (channel_index < NUM_CHANNELS) {
+
+			OStripLayout* sl = &m_stripLayouts[channel_index];
+
+			lo_message reply = lo_message_new();
+
+			lo_message_add_int32(reply, channel_index);
+			lo_message_add_int32(reply, 1);
+			lo_message_add_string(reply, "Compressor");
+			lo_message_add_int32(reply, sl->m_comp.m_CompEnable.get_active() ? 1 : 0);
+
+			lo_message_add_int32(reply, 2);
+			lo_message_add_string(reply, "Equalizer");
+			lo_message_add_int32(reply, sl->m_eq.m_EqEnable.get_active() ? 1 : 0);
+
+			m_Worker.send_osc(client_index, "/strip/plugin/list", reply);
+			lo_message_free(reply);
+		}
+	}
+	if (!strcmp(path, "/strip/plugin/descriptor")) {
+		int channel_index = argv[0]->i32;
+		int plugin_index = argv[1]->i32;
+		lo_message reply;
+		int flags;
+		if (channel_index < NUM_CHANNELS) {
+
+			OStripLayout* sl = &m_stripLayouts[channel_index];
+
+			if (plugin_index == 1) { // compressor
+				for (int i = 0; i < sl->m_comp.get_parameter_count(); i++) {
+					reply = lo_message_new();
+					lo_message_add_int32(reply, channel_index); // channel index
+					lo_message_add_int32(reply, plugin_index); // plugin index
+					sl->m_comp.get_parameter_decriptor(i, reply);
+					m_Worker.send_osc(client_index, "/strip/plugin/descriptor", reply);
+					lo_message_free(reply);
+				}
+			}
+			if (plugin_index == 2) { // equalizer
+				for (int i = 0; i < sl->m_eq.get_parameter_count(); i++) {
+					reply = lo_message_new();
+					lo_message_add_int32(reply, channel_index); // channel index
+					lo_message_add_int32(reply, plugin_index); // plugin index
+					sl->m_eq.get_parameter_decriptor(i, reply);
+					m_Worker.send_osc(client_index, "/strip/plugin/descriptor", reply);
+					lo_message_free(reply);
+				}
+			}
+
+			reply = lo_message_new();
+			lo_message_add_int32(reply, channel_index);
+			lo_message_add_int32(reply, plugin_index);
+			m_Worker.send_osc(client_index, "/strip/plugin/descriptor_end", reply);
+			lo_message_free(reply);
+
+		}
+	}
+	if (!strcmp(path, "/strip/plugin/reset")) {
+		int channel_index = argv[0]->i32;
+		int plugin_index = argv[1]->i32;
+		if (plugin_index == 1) { // compressor
+			m_stripLayouts[channel_index].m_comp.reset(alsa, channel_index);
+		}
+		if (plugin_index == 2) { // equalizer
+			m_stripLayouts[channel_index].m_eq.reset(alsa, channel_index);
+		}
+	}
+	if (!strcmp(path, "/strip/plugin/activate")) {
+		int channel_index = argv[0]->i32;
+		int plugin_index = argv[1]->i32;
+		if (plugin_index == 1) { // compressor
+			m_stripLayouts[channel_index].m_comp.m_CompEnable.set_active(true);
+		}
+		if (plugin_index == 2) { // equalizer
+			m_stripLayouts[channel_index].m_eq.m_EqEnable.set_active(true);
+		}
+	}
+	if (!strcmp(path, "/strip/plugin/deactivate")) {
+		int channel_index = argv[0]->i32;
+		int plugin_index = argv[1]->i32;
+		if (plugin_index == 1) { // compressor
+			m_stripLayouts[channel_index].m_comp.m_CompEnable.set_active(false);
+		}
+		if (plugin_index == 2) { // equalizer
+			m_stripLayouts[channel_index].m_eq.m_EqEnable.set_active(false);
+		}
+	}
+	if (!strcmp(path, "/strip/plugin/parameter")) {
+		int channel_index = argv[0]->i32;
+		int plugin_index = argv[1]->i32;
+		int parameter_index = argv[2]->i32;
+		if (plugin_index == 1) { // compressor
+			switch (parameter_index) {
+				case 1: // threshold
+					m_stripLayouts[channel_index].m_comp.m_threshold.set_value((int) argv[3]->f + 32);
+					break;
+				case 2: // gain
+					m_stripLayouts[channel_index].m_comp.m_gain.set_value((int) argv[3]->f);
+					break;
+				case 3: // attack
+					m_stripLayouts[channel_index].m_comp.m_attack.set_value((int) argv[3]->f - 2);
+					break;
+				case 4: // release
+					m_stripLayouts[channel_index].m_comp.m_release.set_value((int) argv[3]->f - 1);
+					break;
+				case 5: // ratio
+					m_stripLayouts[channel_index].m_comp.m_ratio.set_value((int) argv[3]->f);
+					break;
+			}
+		}
+		if (plugin_index == 2) { // equalizer
+			switch (parameter_index) {
+				case 1: // high gain
+					m_stripLayouts[channel_index].m_eq.m_high_freq_gain.set_value((int) argv[3]->f + 12);
+					break;
+				case 2: // high freq
+					m_stripLayouts[channel_index].m_eq.m_high_freq_band.set_value((int) argv[3]->f);
+					break;
+				case 3: // mid high gain
+					m_stripLayouts[channel_index].m_eq.m_mid_high_freq_gain.set_value((int) argv[3]->f + 12);
+					break;
+				case 4: // mid high freq
+					m_stripLayouts[channel_index].m_eq.m_mid_high_freq_band.set_value((int) argv[3]->f);
+					break;
+				case 5: // mid high Q
+					m_stripLayouts[channel_index].m_eq.m_mid_high_freq_width.set_value((int) argv[3]->f);
+					break;
+				case 6: // mid low gain
+					m_stripLayouts[channel_index].m_eq.m_mid_low_freq_gain.set_value((int) argv[3]->f + 12);
+					break;
+				case 7: // mid low freq
+					m_stripLayouts[channel_index].m_eq.m_mid_low_freq_band.set_value((int) argv[3]->f);
+					break;
+				case 8: // mid low Q
+					m_stripLayouts[channel_index].m_eq.m_mid_low_freq_width.set_value((int) argv[3]->f);
+					break;
+				case 9: // low gain
+					m_stripLayouts[channel_index].m_eq.m_low_freq_gain.set_value((int) argv[3]->f + 12);
+					break;
+				case 10: // low freq
+					m_stripLayouts[channel_index].m_eq.m_low_freq_band.set_value((int) argv[3]->f);
+					break;
+			}
+		}
+	}
+}
+
+void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label * label_) {
+
+	lo_message reply = lo_message_new();
+
+	if (!strcmp(control_name, CTL_NAME_FADER)) {
+		lo_message_add_int32(reply, n);
+		lo_message_add_float(reply, control->get_value() / 133.);
+		m_Worker.send_osc_all("/strip/fader", reply);
+	}
+	if (!strcmp(control_name, CTL_MASTER)) {
+		lo_message_add_float(reply, control->get_value() / 133.);
+		m_Worker.send_osc_all("/master/fader", reply);
+	}
+	lo_message_free(reply);
+
+	alsa->on_range_control_changed(n, control_name, control, label_);
+}
+
+void OMainWnd::on_ch_dial_changed(int n, const char* control_name, ODial * control) {
+
+	lo_message reply = lo_message_new();
+
+	lo_message_add_int32(reply, n);
+	if (!strcmp(control_name, CTL_NAME_PAN)) {
+		lo_message_add_float(reply, control->get_value() / 254.);
+		m_Worker.send_osc_all("/strip/pan_stereo_position", reply);
+	}
+	lo_message_free(reply);
+}
+
+void OMainWnd::on_ch_tb_changed(int n, const char* control_name, Gtk::ToggleButton * control) {
+
+	lo_message reply = lo_message_new();
+
+	if (!strcmp(control_name, CTL_NAME_MUTE)) {
+		lo_message_add_int32(reply, n);
+		lo_message_add_float(reply, control->get_active() ? 1. : 0.);
+		m_Worker.send_osc_all("/strip/mute", reply);
+	}
+	if (!strcmp(control_name, CTL_NAME_SOLO)) {
+		lo_message_add_int32(reply, n);
+		lo_message_add_float(reply, control->get_active() ? 1. : 0.);
+		m_Worker.send_osc_all("/strip/solo", reply);
+	}
+	if (!strcmp(control_name, CTL_NAME_MASTER_MUTE)) {
+		lo_message_add_float(reply, control->get_active() ? 1. : 0.);
+		m_Worker.send_osc_all("/master/mute", reply);
+	}
+	lo_message_free(reply);
+
+	alsa->on_toggle_button_control_changed(n, control_name, control);
 }

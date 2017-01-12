@@ -17,6 +17,8 @@
 #ifndef OCOMP_H
 #define OCOMP_H
 
+#include <lo/lo.h>
+
 #include "ODial.h"
 #include "OMeter.h"
 #include "OAlsa.h"
@@ -37,25 +39,23 @@ public:
     void save_values(FILE* file);   
     void load_values(Glib::ustring xml);
     
-private:
-    Gtk::VBox m_box;
-
-    Gtk::HBox m_tg_box;    
+    int get_parameter_count() { return 5; }
+    void get_parameter_decriptor(int parameter_index, lo_message reply);
+    
+    Gtk::ToggleButton m_CompEnable;
     ODial m_threshold;
     ODial m_gain;
-    
-    Gtk::HBox m_ar_box;
     ODial m_attack;
     ODial m_release;
-    
-    Gtk::HBox m_r_box;
-    
-    Gtk::VBox m_re_box;
     ODial m_ratio;
     
+private:
+    Gtk::VBox m_box;
+    Gtk::HBox m_tg_box;    
+    Gtk::HBox m_ar_box;
+    Gtk::HBox m_r_box;
+    Gtk::VBox m_re_box;
     Gtk::VBox l_evb;
-    Gtk::ToggleButton m_CompEnable;
-    
     Gtk::HBox m_red_box;
 
 };

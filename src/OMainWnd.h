@@ -18,6 +18,7 @@
 #ifndef OMAINWND_H
 #define OMAINWND_H
 
+#include <queue>
 #include "OStripLayout.h"
 #include "OMaster.h"
 #include "OAlsa.h"
@@ -37,6 +38,13 @@ public:
     void notify();
     void on_notification_from_worker_thread();
 
+    GAsyncQueue *gqueue;
+    
+    Glib::Mutex oscMutex; 
+    std::queue<char*> m_osc_queue;
+    void notify_osc();
+    void on_notification_from_osc_thread();
+
     OAlsa *alsa;
 
 
@@ -50,6 +58,11 @@ public:
     void on_menu_popup_reset(int i);
     virtual bool on_title_context(GdkEventButton* event, int channel_index);
 
+    void on_ch_fader_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
+    void on_ch_dial_changed (int n, const char* control_name, ODial* control);
+    void on_ch_tb_changed (int n, const char* control_name, Gtk::ToggleButton* control);
+    
+    
 protected:
 //    void on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error);
     Glib::RefPtr<Gtk::CssProvider> m_refCssProvider;
@@ -98,9 +111,12 @@ private:
     void load_channel_values(Glib::ustring, int channel_index);
 
     Glib::Dispatcher m_Dispatcher;
+    Glib::Dispatcher m_Dispatcher_osc;
     OMeterWorker m_Worker;
     std::thread* m_WorkerThread;
 
+    void on_osc_message(int client_index, const char* path, lo_message msg);
+    
 };
 
 #endif /* OMAINWND_H */

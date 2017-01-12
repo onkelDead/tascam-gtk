@@ -17,6 +17,7 @@
 #include <gtkmm.h>
 
 #include "OMaster.h"
+#include "OMainWnd.h"
 
 OMaster::OMaster() : Gtk::VBox() {
 	set_size_request(120, -1);
@@ -81,31 +82,32 @@ OMaster::OMaster() : Gtk::VBox() {
 OMaster::~OMaster() {
 }
 
-void OMaster::init(int index, OAlsa* alsa) {
+void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
 	char l_title[64];
 	int val;
 
-	val = alsa->getInteger(CTL_MASTER, index);
+	OMainWnd* wnd_ = (OMainWnd*) wnd;
+
+	val = alsa->getInteger(CTL_MASTER, 0);
 	m_fader.set_value(alsa->dBToSlider(val)+1);
-	m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_range_control_changed), index, CTL_MASTER, &m_fader, (Gtk::Label*) NULL));
+	m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_fader_changed), 0, CTL_MASTER, &m_fader, (Gtk::Label*) NULL));
 	snprintf(l_title, sizeof (l_title), "%d dB", val - 127);
 	m_fader.set_tooltip_text(l_title);
 
-	m_true_bypass.set_active(alsa->getBoolean(CTL_NAME_BYPASS, index));
-	m_true_bypass.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), 0, CTL_NAME_BYPASS, &m_true_bypass));
+	m_true_bypass.set_active(alsa->getBoolean(CTL_NAME_BYPASS, 0));
+	m_true_bypass.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BYPASS, &m_true_bypass));
 
-	m_comp_to_stereo.set_active(alsa->getBoolean(CTL_NAME_BUS_OUT, index));
-	m_comp_to_stereo.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), 0, CTL_NAME_BUS_OUT, &m_comp_to_stereo));
+	m_comp_to_stereo.set_active(alsa->getBoolean(CTL_NAME_BUS_OUT, 0));
+	m_comp_to_stereo.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BUS_OUT, &m_comp_to_stereo));
 
-	m_mute.set_active(alsa->getBoolean(CTL_NAME_MASTER_MUTE, index));
-	m_mute.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), 0, CTL_NAME_MASTER_MUTE, &m_mute));
+	m_mute.set_active(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0));
+	m_mute.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_MASTER_MUTE, &m_mute));
 
 	for (int ri = 0; ri < 8; ri++) {
 		val = alsa->getInteger(CTL_ROUTE, ri);
 		m_route[ri].set_active(val);
 		m_route[ri].signal_changed().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_combo_control_changed), ri, CTL_ROUTE, &m_route[ri]));
 	}
-
 }
 
 void OMaster::reset(OAlsa* alsa) {
@@ -129,5 +131,4 @@ void OMaster::reset(OAlsa* alsa) {
 		m_route[ri].set_active(ri + (ri < 2 ? 0 : 2));
 		usleep(RESET_VALUE_DELAY);
 	}
-
 }

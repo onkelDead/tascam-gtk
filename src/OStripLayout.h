@@ -30,11 +30,10 @@ public:
     OStripLayout();
     virtual ~OStripLayout();
 
-    void init(int index, OAlsa* alsa);
+    void init(int index, OAlsa* alsa, Gtk::Window* wnd);
 
     OMeter m_meter;
     Gtk::Label m_title;
-    OComp m_comp;
     Gtk::EventBox m_event_box;
 
     void reset(OAlsa* alsa, int index);
@@ -43,20 +42,23 @@ public:
     
     void load_values(Glib::ustring xml);
     
+    Gtk::ToggleButton m_MuteEnable;
+    Gtk::ToggleButton m_SoloEnable;
+    Gtk::VScale m_fader;
+    ODial m_Pan;
+    
+    OEq m_eq;
+    OComp m_comp;
     
 private:
     Gtk::HBox m_hbox;
     Gtk::VBox m_box;
 
     Gtk::HBox m_fader_box;
-    Gtk::VScale m_fader;
     
     Gtk::VBox m_pvbox;
     Gtk::Label m_dB;
     
-    ODial m_Pan;
-    Gtk::ToggleButton m_MuteEnable;
-    Gtk::ToggleButton m_SoloEnable;
     Gtk::ToggleButton m_PhaseEnable;    
     Gtk::VSeparator m_sep;
 
@@ -67,7 +69,6 @@ private:
     
     Gtk::HSeparator m_comp_sep;
 
-    OEq m_eq;
     Gtk::HSeparator m_eq_sep;
 
 };

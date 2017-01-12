@@ -21,6 +21,8 @@
 #include <libxml++-2.6/libxml++/libxml++.h>
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
 #include "OStripLayout.h"
+#include "OMainWnd.h"
+
 
 OStripLayout::OStripLayout() : Gtk::VBox() {
 
@@ -100,10 +102,12 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 OStripLayout::~OStripLayout() {
 }
 
-void OStripLayout::init(int index, OAlsa* alsa) {
+void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	char l_title[64];
 	int val;
 
+	OMainWnd* wnd_ = (OMainWnd*) wnd;
+	
 	snprintf(l_title, sizeof (l_title), "Ch %d", index + 1);
 	m_title.set_text(l_title);
 
@@ -114,19 +118,23 @@ void OStripLayout::init(int index, OAlsa* alsa) {
 	m_fader.set_tooltip_text(l_title);
 	m_dB.set_label(l_title);
 
-	m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_range_control_changed), index, CTL_NAME_FADER, &m_fader, &m_dB));
-
+	m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_fader_changed), index, CTL_NAME_FADER, &m_fader, &m_dB));
+	
 	m_Pan.set_value(alsa->getInteger(CTL_NAME_PAN, index));
 	m_Pan.signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_PAN, &m_Pan));
+	m_Pan.signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_PAN, &m_Pan));
 
 	m_MuteEnable.set_active(alsa->getBoolean(CTL_NAME_MUTE, index));
-	m_MuteEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), index, CTL_NAME_MUTE, &m_MuteEnable));
+//	m_MuteEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), index, CTL_NAME_MUTE, &m_MuteEnable));
+	m_MuteEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_MUTE, &m_MuteEnable));
 
 	m_SoloEnable.set_active(alsa->getBoolean(CTL_NAME_SOLO, index));
-	m_SoloEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), index, CTL_NAME_SOLO, &m_SoloEnable));
+//	m_SoloEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), index, CTL_NAME_SOLO, &m_SoloEnable));
+	m_SoloEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_SOLO, &m_SoloEnable));
 
 	m_PhaseEnable.set_active(alsa->getBoolean(CTL_NAME_PHASE, index));
-	m_PhaseEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), index, CTL_NAME_PHASE, &m_PhaseEnable));
+//	m_PhaseEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_toggle_button_control_changed), index, CTL_NAME_PHASE, &m_PhaseEnable));
+	m_PhaseEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_PHASE, &m_PhaseEnable));
 
 	m_comp.init(index, alsa);
 	m_eq.init(index, alsa);
