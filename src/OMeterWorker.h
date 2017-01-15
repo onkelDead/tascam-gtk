@@ -46,10 +46,11 @@ public:
 
     lo_address osc_client[MAX_OSC_CLIENTS];
     lo_server_thread osc_server;
+    lo_address osc_server_out;
     
     Gtk::Window* m_caller;
     
-    const int new_osc_client(lo_address client);
+    const int new_osc_client(lo_message client);
     const int osc_client_exists(lo_address client);
 
     void send_osc(int client_index, const char* path, lo_message msg);

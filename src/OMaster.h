@@ -41,10 +41,11 @@ public:
     Gtk::ComboBoxText m_route[8];
     
 private:
+    Gtk::Grid m_grid;
     
-    Gtk::VBox m_route_box;
-    
-    Gtk::HBox m_fader_box;
+//    Gtk::VBox m_route_box;
+//    
+//    Gtk::HBox m_fader_box;
     
 };
 

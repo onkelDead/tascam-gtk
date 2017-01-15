@@ -23,16 +23,30 @@
 #include "OMeter.h"
 #include "OAlsa.h"
 
+#define CREAD_LIGHT 1., .8, .8, 1.
+#define CREAD_NORMAL 1., .6, .6, 1.
+
+extern const char *cp_ration_map[];
+
+char* cp_threshold_text(int val, char* buf, size_t buf_size);
+
+char* cp_gain_text(int val, char* buf, size_t buf_size);
+
+char* cp_attack_text(int val, char* buf, size_t buf_size);
+
+char* cp_release_text(int val, char* buf, size_t buf_size);
+
 class OComp : public Gtk::VBox {
 public:
     OComp();
     virtual ~OComp();
     
-    void init(int index, OAlsa* alsa);
+    void init(int index, OAlsa* alsa, Gtk::Window* wnd);
     
-    OMeter m_reduction;
+    void pack(int layout);
+    void unpack();
     
-    bool is_active() { return m_CompEnable.get_active(); }
+    bool is_active() { return m_enable->get_active(); }
 
     void reset(OAlsa* alsa, int index);
 
@@ -42,22 +56,18 @@ public:
     int get_parameter_count() { return 5; }
     void get_parameter_decriptor(int parameter_index, lo_message reply);
     
-    Gtk::ToggleButton m_CompEnable;
-    ODial m_threshold;
-    ODial m_gain;
-    ODial m_attack;
-    ODial m_release;
-    ODial m_ratio;
+    Gtk::ToggleButton* m_enable;
+    ODial* m_threshold;
+    ODial* m_gain;
+    ODial* m_attack;
+    ODial* m_release;
+    ODial* m_ratio;
     
+    OMeter* m_reduction[2];
+    
+    int m_pack;
 private:
-    Gtk::VBox m_box;
-    Gtk::HBox m_tg_box;    
-    Gtk::HBox m_ar_box;
-    Gtk::HBox m_r_box;
-    Gtk::VBox m_re_box;
-    Gtk::VBox l_evb;
-    Gtk::HBox m_red_box;
-
+    Gtk::Grid m_grid;
 };
 
 #endif /* OCOMP_H */

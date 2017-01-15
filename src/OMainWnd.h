@@ -47,7 +47,34 @@ public:
 
     OAlsa *alsa;
 
-
+    Gtk::ToggleButton m_comp_enable[NUM_CHANNELS];
+    ODial m_threshold[NUM_CHANNELS];
+    ODial m_gain[NUM_CHANNELS];
+    ODial m_attack[NUM_CHANNELS];
+    ODial m_release[NUM_CHANNELS];
+    ODial m_ratio[NUM_CHANNELS];
+    OMeter m_reduction[NUM_CHANNELS];
+    
+    Gtk::ToggleButton m_eq_enable[NUM_CHANNELS];
+    ODial m_high_freq_gain[NUM_CHANNELS];
+    ODial m_high_freq_band[NUM_CHANNELS];
+    ODial m_mid_high_freq_gain[NUM_CHANNELS];
+    ODial m_mid_high_freq_band[NUM_CHANNELS];
+    ODial m_mid_high_freq_width[NUM_CHANNELS];
+    ODial m_mid_low_freq_gain[NUM_CHANNELS];
+    ODial m_mid_low_freq_band[NUM_CHANNELS];
+    ODial m_mid_low_freq_width[NUM_CHANNELS];
+    ODial m_low_freq_gain[NUM_CHANNELS];
+    ODial m_low_freq_band[NUM_CHANNELS];
+    
+    ODial m_Pan[NUM_CHANNELS];
+    Gtk::ToggleButton m_PhaseEnable[NUM_CHANNELS];    
+    Gtk::ToggleButton m_MuteEnable[NUM_CHANNELS];
+    Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS];
+    Gtk::VScale m_fader[NUM_CHANNELS];
+    
+    
+    
     void on_menu_file_load();
     void on_menu_file_save();
     void on_menu_file_reset();
@@ -59,9 +86,9 @@ public:
     virtual bool on_title_context(GdkEventButton* event, int channel_index);
 
     void on_ch_fader_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
-    void on_ch_dial_changed (int n, const char* control_name, ODial* control);
-    void on_ch_tb_changed (int n, const char* control_name, Gtk::ToggleButton* control);
-    
+    void on_ch_dial_changed (int n, const char* control_name);
+    void on_ch_tb_changed (int n, const char* control_name);
+    void on_ch_lb_changed(int n);
     
 protected:
 //    void on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error);
@@ -69,26 +96,19 @@ protected:
 
 
 private:
-
+    
+    Gtk::Grid m_grid;
 
     OMaster m_master;
 
-    Gtk::VBox m_vbox;
     Gtk::VBox m_menubox;
-    Gtk::HBox m_hbox;
-    Gtk::VSeparator m_sep;
+    
+    Gtk::ToggleButton m_link[8];
 
     Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
     Glib::RefPtr<Gtk::UIManager> m_refUIManager;
 
     Gtk::Menu* appMenu;
-    //    Gtk::MenuItem menuitem_file;
-    //    Gtk::Menu menu_file;
-    //    Gtk::ImageMenuItem menuitem_file_load;
-    //    Gtk::ImageMenuItem menuitem_file_save;
-    //    Gtk::ImageMenuItem menuitem_file_reset;
-    //    Gtk::SeparatorMenuItem m_menu_sep;
-    //    Gtk::ImageMenuItem menuitem_file_exit;
 
     Gtk::Menu menu_popup;
     Gtk::MenuItem menu_popup_load;
@@ -117,6 +137,7 @@ private:
 
     void on_osc_message(int client_index, const char* path, lo_message msg);
     
+    void create_menu();
 };
 
 #endif /* OMAINWND_H */

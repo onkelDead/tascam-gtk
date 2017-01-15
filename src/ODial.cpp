@@ -58,6 +58,8 @@ Gtk::Widget() {
 }
 
 ODial::~ODial() {
+	if (m_label)
+		free(m_label);	
 }
 
 void ODial::on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error) {

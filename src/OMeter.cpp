@@ -144,6 +144,10 @@ bool OMeter::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 		cr->move_to(center_x, hight);
 		cr->line_to(center_x, 0);
 		cr->stroke();
+		cr->set_source_rgba(0, 0, 0, 1);
+		cr->move_to(center_x, hight);
+		cr->line_to(center_x, height);
+		cr->stroke();		
 	} else {
 		cr->move_to(center_x, height);
 		cr->line_to(center_x, height - height * MIN(scale, l1));

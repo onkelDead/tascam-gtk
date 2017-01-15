@@ -23,48 +23,49 @@
 
 #include "OEq.h"
 #include "ODial.h"
+#include "OMainWnd.h"
 
-static const char *eq_low_freq_map[] = { "32", "40", "50", "60", "70", "80", "90", "100", "125", "150", "175", "200", "225", "250",
-                                   "300", "350", "400", "450", "500", "600", "700", "800", "850", "900", "950", "1.0k",
-                                   "1.1k", "1.2k", "1.3k", "1.4k", "1.5k", "1.6k"};
-static const int eq_low_freq_map_size = 32;
+const char *eq_low_freq_map[] = {"32", "40", "50", "60", "70", "80", "90", "100", "125", "150", "175", "200", "225", "250",
+	"300", "350", "400", "450", "500", "600", "700", "800", "850", "900", "950", "1.0k",
+	"1.1k", "1.2k", "1.3k", "1.4k", "1.5k", "1.6k"};
+const int eq_low_freq_map_size = 32;
 
 
-static const char *eq_high_freq_map[] = { "1.7k", "1.8k", "1.9k", "2.0k", "2.2k", "2.4k", "2.6k", "2.8k", "3.0k", "3.2k", "3.4k", "3.6k", "3.8k", "4.0k",
-                                            "4.5k", "5.0k", "5.5k", "6.0k", "6.5k", "7.0k", "7.5k", "8.0k", "8.5k",
-                                            "9.0k", "10k", "11k", "12k", "13k", "14k", "15k", "16k", "17k", "18k" };
-static const int eq_high_freq_map_size = 33;
+const char *eq_high_freq_map[] = {"1.7k", "1.8k", "1.9k", "2.0k", "2.2k", "2.4k", "2.6k", "2.8k", "3.0k", "3.2k", "3.4k", "3.6k", "3.8k", "4.0k",
+	"4.5k", "5.0k", "5.5k", "6.0k", "6.5k", "7.0k", "7.5k", "8.0k", "8.5k",
+	"9.0k", "10k", "11k", "12k", "13k", "14k", "15k", "16k", "17k", "18k"};
+const int eq_high_freq_map_size = 33;
 
 char* eq_width_text(int val, char* buf, size_t buf_size) {
-    int a = (1 << val);
-    float b = a;
-    float c =  b / 4;
-    snprintf(buf, buf_size, "Q%2.2f", c );
+	int a = (1 << val);
+	float b = a;
+	float c = b / 4;
+	snprintf(buf, buf_size, "Q%2.2f", c);
 	return buf;
 }
 
 char* eq_level_text(int val, char* buf, size_t buf_size) {
 	int v = val - 12;
-    snprintf(buf, buf_size, v > 0 ? "+%ddB" : "%ddB", v );
+	snprintf(buf, buf_size, v > 0 ? "+%ddB" : "%ddB", v);
 	return buf;
 }
 
 char* eq_high_freq_text(int val, char* buf, size_t buf_size) {
-    snprintf(buf, buf_size, "%sHz", eq_high_freq_map[val] );
+	snprintf(buf, buf_size, "%sHz", eq_high_freq_map[val]);
 	return buf;
 }
 
 char* eq_lowhigh_freq_text(int val, char* buf, size_t buf_size) {
 
-    if( val < eq_low_freq_map_size )
-        snprintf(buf, buf_size, "%sHz", eq_low_freq_map[val] );
-    else
-        snprintf(buf, buf_size, "%sHz", eq_high_freq_map[val - eq_low_freq_map_size] );
+	if (val < eq_low_freq_map_size)
+		snprintf(buf, buf_size, "%sHz", eq_low_freq_map[val]);
+	else
+		snprintf(buf, buf_size, "%sHz", eq_high_freq_map[val - eq_low_freq_map_size]);
 	return buf;
 }
 
 char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
-    snprintf(buf, buf_size, "%sHz", eq_low_freq_map[val] );
+	snprintf(buf, buf_size, "%sHz", eq_low_freq_map[val]);
 	return buf;
 }
 
@@ -72,280 +73,269 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
 #define EBLUE_LIGHT .78, .8, 1., 1.
 
 OEq::OEq() : Gtk::VBox() {
-	
-	m_EqEnable.set_label("EQ");
-	m_EqEnable.set_name("eq-button");
-	
-	m_high_freq_gain.set_label("High");
-	m_high_freq_gain.set_value_callback(eq_level_text);
-	m_high_freq_gain.set_params(0,24,12,1);
-	m_high_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_high_box.pack_start(m_high_freq_gain, true, false);
 
-	m_high_freq_band.set_label("Freq");
-	m_high_freq_band.set_value_callback(eq_high_freq_text);
-	m_high_freq_band.set_params(0,31,15,1);
-	m_high_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_high_box.pack_start(m_high_freq_band, true, false);
-	
-	m_mid_high_freq_gain.set_label("Mid H");
-	m_mid_high_freq_gain.set_params(0,24,12,1);
-	m_mid_high_freq_gain.set_value_callback(eq_level_text);
-	m_mid_high_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_mid_high_box.pack_start(m_mid_high_freq_gain, true, false);
-	
-	m_mid_high_freq_band.set_label("Freq");
-	m_mid_high_freq_band.set_params(0,64,27,1);
-	m_mid_high_freq_band.set_value_callback(eq_lowhigh_freq_text);
-	m_mid_high_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_high_box.pack_start(m_mid_high_freq_band, true, false);
-	
-	m_mid_high_freq_width.set_label("Width");
-	m_mid_high_freq_width.set_value_callback(eq_width_text);
-	m_mid_high_freq_width.set_params(0,6,2,1);
-	m_mid_high_freq_width.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_high_box1.pack_start(m_mid_high_freq_width, true, false);
-	
-	m_mid_low_freq_gain.set_label("Mid L");
-	m_mid_low_freq_gain.set_params(0,24,12,1);
-	m_mid_low_freq_gain.set_value_callback(eq_level_text);
-	m_mid_low_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_mid_low_box.pack_start(m_mid_low_freq_gain, true, false);
 
-	m_mid_low_freq_band.set_label("Freq");
-	m_mid_low_freq_band.set_params(0,64,14,1);
-	m_mid_low_freq_band.set_value_callback(eq_lowhigh_freq_text);
-	m_mid_low_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_low_box.pack_start(m_mid_low_freq_band, true, false);
-	
-	m_mid_low_freq_width.set_label("Width");
-	m_mid_low_freq_width.set_value_callback(eq_width_text);
-	m_mid_low_freq_width.set_params(0,6,2,1);
-	m_mid_low_freq_width.set_knob_background_color(EBLUE_LIGHT);
-	m_mid_low_box1.pack_start(m_mid_low_freq_width, true, false);
-	
-	l_eeb.pack_start(m_EqEnable, true, false);
-	m_mid_low_box1.pack_start(l_eeb, true, false);
-	
-	m_low_freq_gain.set_label("Low");
-	m_low_freq_gain.set_params(0,24,12,1);
-	m_low_freq_gain.set_value_callback(eq_level_text);
-	m_low_freq_gain.set_knob_background_color(EBLUE_NORMAL);
-	m_low_box.pack_start(m_low_freq_gain, true, false);
-
-	m_low_freq_band.set_label("Freq");
-	m_low_freq_band.set_params(0,31,5,1);
-	m_low_freq_band.set_value_callback(eq_low_freq_text);
-	m_low_freq_band.set_knob_background_color(EBLUE_LIGHT);
-	m_low_box.pack_start(m_low_freq_band, true, false);
-	
-	m_box.pack_start(m_high_box);
-	m_box.pack_start(m_mid_high_box);
-	m_box.pack_start(m_mid_high_box1);
-	m_box.pack_start(m_mid_low_box);
-	m_box.pack_start(m_mid_low_box1);
-	m_box.pack_start(m_low_box);
-	
-	add(m_box);
+	m_pack = 0;
+	add(m_grid);
 }
 
 OEq::~OEq() {
 }
 
-void OEq::init(int index, OAlsa* alsa) {
+void OEq::pack(int layout) {
 
-	m_EqEnable.set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, index));
-	m_EqEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_toggle_button_control_changed), index, CTL_NAME_EQ_ENABLE, &m_EqEnable));
+	if (m_pack) {
+		m_grid.remove(*m_high_freq_gain);
+		m_grid.remove(*m_high_freq_band);
+		m_grid.remove(*m_mid_high_freq_gain);
+		m_grid.remove(*m_mid_high_freq_band);
+		m_grid.remove(*m_mid_high_freq_width);
+		m_grid.remove(*m_mid_low_freq_gain);
+		m_grid.remove(*m_mid_low_freq_band);
+		m_grid.remove(*m_mid_low_freq_width);
+		m_grid.remove(*m_eq_enable);
+		m_grid.remove(*m_low_freq_gain);
+		m_grid.remove(*m_low_freq_band);
+	}
 
-	m_high_freq_gain.set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_LEVEL, index));
-	m_high_freq_gain.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_HIGH_LEVEL, &m_high_freq_gain));
+	if (layout == 1) {
+		m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
+		m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
+		m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
+		m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
+		m_grid.attach(*m_mid_high_freq_width, 0, 2, 2, 1);
+		m_grid.attach(*m_mid_low_freq_gain, 0, 3, 1, 1);
+		m_grid.attach(*m_mid_low_freq_band, 1, 3, 1, 1);
+		m_grid.attach(*m_mid_low_freq_width, 0, 4, 1, 1);
+		m_grid.attach(*m_eq_enable, 1, 4, 1, 1);
+		m_grid.attach(*m_low_freq_gain, 0, 5, 1, 1);
+		m_grid.attach(*m_low_freq_band, 1, 5, 1, 1);
+	}
+	if (layout == 2) {
+		m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
+		m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
+		m_grid.attach(*m_mid_low_freq_gain, 0, 2, 1, 1);
+		m_grid.attach(*m_low_freq_gain, 0, 3, 1, 1);
+
+		m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
+		m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
+		m_grid.attach(*m_mid_low_freq_band, 1, 2, 1, 1);
+		m_grid.attach(*m_low_freq_band, 1, 3, 1, 1);
+
+		m_grid.attach(*m_mid_high_freq_width, 2, 1, 1, 1);
+		m_grid.attach(*m_mid_low_freq_width, 2, 2, 1, 1);
+		m_grid.attach(*m_eq_enable, 2, 3, 1, 1);
+	}
+	m_pack = layout;
+}
+
+void OEq::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
+
+	OMainWnd* wnd_ = (OMainWnd*)wnd;
 	
-	m_high_freq_band.set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_FREQ, index));
-	m_high_freq_band.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_HIGH_FREQ, &m_high_freq_band));
-	
-	m_mid_high_freq_gain.set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_LEVEL, index));
-	m_mid_high_freq_gain.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_MIDHIGH_LEVEL, &m_mid_high_freq_gain));
-	
-	m_mid_high_freq_band.set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_FREQ, index));
-	m_mid_high_freq_band.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_MIDHIGH_FREQ, &m_mid_high_freq_band));
+	m_eq_enable = &wnd_->m_eq_enable[index];
+	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, index));
+	m_eq_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
 
-	m_mid_high_freq_width.set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGHWIDTH_FREQ, index));
-	m_mid_high_freq_width.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_MIDHIGHWIDTH_FREQ, &m_mid_high_freq_width));
+	m_high_freq_gain = &wnd_->m_high_freq_gain[index];
+	m_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_LEVEL, index));
+	m_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_LEVEL));
 
-	m_mid_low_freq_gain.set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_LEVEL, index));
-	m_mid_low_freq_gain.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_MIDLOW_LEVEL, &m_mid_low_freq_gain));
+	m_high_freq_band = &wnd_->m_high_freq_band[index];
+	m_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_FREQ, index));
+	m_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_FREQ));
 
-	m_mid_low_freq_band.set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_FREQ, index));
-	m_mid_low_freq_band.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_MIDLOW_FREQ, &m_mid_low_freq_band));
+	m_mid_high_freq_gain = &wnd_->m_mid_high_freq_gain[index];
+	m_mid_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_LEVEL, index));
+	m_mid_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_LEVEL));
 
-	m_mid_low_freq_width.set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOWWIDTH_FREQ, index));
-	m_mid_low_freq_width.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_MIDLOWWIDTH_FREQ, &m_mid_low_freq_width));
+	m_mid_high_freq_band = &wnd_->m_mid_high_freq_band[index];
+	m_mid_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_FREQ, index));
+	m_mid_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_FREQ));
 
-	m_low_freq_gain.set_value(alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, index));
-	m_low_freq_gain.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_LOW_LEVEL, &m_low_freq_gain));
+	m_mid_high_freq_width = &wnd_->m_mid_high_freq_width[index];
+	m_mid_high_freq_width->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGHWIDTH_FREQ, index));
+	m_mid_high_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGHWIDTH_FREQ));
 
-	m_low_freq_band.set_value(alsa->getInteger(CTL_NAME_EQ_LOW_FREQ, index));
-	m_low_freq_band.signal_value_changed.connect( sigc::bind<>(sigc::mem_fun (alsa, &OAlsa::on_dial_control_changed), index, CTL_NAME_EQ_LOW_FREQ, &m_low_freq_band));
+	m_mid_low_freq_gain = &wnd_->m_mid_low_freq_gain[index];
+	m_mid_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_LEVEL, index));
+	m_mid_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_LEVEL));
+
+	m_mid_low_freq_band = &wnd_->m_mid_low_freq_band[index];
+	m_mid_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_FREQ, index));
+	m_mid_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_FREQ));
+
+	m_mid_low_freq_width = &wnd_->m_mid_low_freq_width[index];
+	m_mid_low_freq_width->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOWWIDTH_FREQ, index));
+	m_mid_low_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOWWIDTH_FREQ));
+
+	m_low_freq_gain = &wnd_->m_low_freq_gain[index];
+	m_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, index));
+	m_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_LEVEL));
+
+	m_low_freq_band = &wnd_->m_low_freq_band[index];
+	m_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_FREQ, index));
+	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_FREQ));
 
 }
 
 void OEq::reset(OAlsa* alsa, int index) {
-	
+
 	alsa->setBoolean(CTL_NAME_EQ_ENABLE, 0, 0);
-	m_EqEnable.set_active(alsa->getBoolean(CTL_NAME_MUTE, 0));
+	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_MUTE, 0));
 	usleep(RESET_VALUE_DELAY);
 
-	m_high_freq_gain.reset();
+	m_high_freq_gain->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_high_freq_band.reset();
+
+	m_high_freq_band->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_mid_high_freq_gain.reset();
+
+	m_mid_high_freq_gain->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_mid_high_freq_band.reset();
+
+	m_mid_high_freq_band->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_mid_high_freq_width.reset();
+
+	m_mid_high_freq_width->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_mid_low_freq_gain.reset();
+
+	m_mid_low_freq_gain->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_mid_low_freq_band.reset();
+
+	m_mid_low_freq_band->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_mid_low_freq_width.reset();
+
+	m_mid_low_freq_width->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_low_freq_gain.reset();
+
+	m_low_freq_gain->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	m_low_freq_band.reset();
+
+	m_low_freq_band->reset();
 	usleep(RESET_VALUE_DELAY);
-	
-	
+
+
 }
 
 void OEq::save_values(FILE* file) {
-	
+
 	fprintf(file, "\t\t\t<enable>");
-	fprintf(file, "%d", (int) m_EqEnable.get_active());
+	fprintf(file, "%d", (int) m_eq_enable->get_active());
 	fprintf(file, "</enable>\n");
-	
+
 	fprintf(file, "\t\t\t<high_freq_gain>");
-	fprintf(file, "%d", (int) m_high_freq_gain.get_value());
+	fprintf(file, "%d", (int) m_high_freq_gain->get_value());
 	fprintf(file, "</high_freq_gain>\n");
 
 	fprintf(file, "\t\t\t<high_freq_band>");
-	fprintf(file, "%d", (int) m_high_freq_band.get_value());
+	fprintf(file, "%d", (int) m_high_freq_band->get_value());
 	fprintf(file, "</high_freq_band>\n");
 
 	fprintf(file, "\t\t\t<mid_high_freq_gain>");
-	fprintf(file, "%d", (int) m_mid_high_freq_gain.get_value());
+	fprintf(file, "%d", (int) m_mid_high_freq_gain->get_value());
 	fprintf(file, "</mid_high_freq_gain>\n");
 
 	fprintf(file, "\t\t\t<mid_high_freq_band>");
-	fprintf(file, "%d", (int) m_mid_high_freq_band.get_value());
+	fprintf(file, "%d", (int) m_mid_high_freq_band->get_value());
 	fprintf(file, "</mid_high_freq_band>\n");
 
 	fprintf(file, "\t\t\t<mid_high_freq_width>");
-	fprintf(file, "%d", (int) m_mid_high_freq_width.get_value());
+	fprintf(file, "%d", (int) m_mid_high_freq_width->get_value());
 	fprintf(file, "</mid_high_freq_width>\n");
 
 	fprintf(file, "\t\t\t<mid_low_freq_gain>");
-	fprintf(file, "%d", (int) m_mid_low_freq_gain.get_value());
+	fprintf(file, "%d", (int) m_mid_low_freq_gain->get_value());
 	fprintf(file, "</mid_low_freq_gain>\n");
 
 	fprintf(file, "\t\t\t<mid_low_freq_band>");
-	fprintf(file, "%d", (int) m_mid_low_freq_band.get_value());
+	fprintf(file, "%d", (int) m_mid_low_freq_band->get_value());
 	fprintf(file, "</mid_low_freq_band>\n");
 
 	fprintf(file, "\t\t\t<mid_low_freq_width>");
-	fprintf(file, "%d", (int) m_mid_low_freq_width.get_value());
+	fprintf(file, "%d", (int) m_mid_low_freq_width->get_value());
 	fprintf(file, "</mid_low_freq_width>\n");
 
 	fprintf(file, "\t\t\t<low_freq_gain>");
-	fprintf(file, "%d", (int) m_low_freq_gain.get_value());
+	fprintf(file, "%d", (int) m_low_freq_gain->get_value());
 	fprintf(file, "</low_freq_gain>\n");
 
 	fprintf(file, "\t\t\t<low_freq_band>");
-	fprintf(file, "%d", (int) m_low_freq_band.get_value());
+	fprintf(file, "%d", (int) m_low_freq_band->get_value());
 	fprintf(file, "</low_freq_band>\n");
 
 }
 
 void OEq::load_values(Glib::ustring xml) {
-	
+
 	try {
-		xmlpp::TextReader reader((const unsigned char*)xml.c_str(), xml.size());
-		
+		xmlpp::TextReader reader((const unsigned char*) xml.c_str(), xml.size());
+
 		while (reader.read()) {
-			if( !strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_EqEnable.set_active(atoi(reader.get_value().c_str()) == 1);
-				m_EqEnable.toggled();
-				usleep(RESET_VALUE_DELAY);
-			}				
-			if( !strcmp(reader.get_name().c_str(), "high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-				reader.read();
-				m_high_freq_gain.set_value(atoi(reader.get_value().c_str()));
+				m_eq_enable->set_active(atoi(reader.get_value().c_str()) == 1);
+				m_eq_enable->toggled();
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "high_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_high_freq_band.set_value(atoi(reader.get_value().c_str()));
+				m_high_freq_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "mid_high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "high_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_mid_high_freq_gain.set_value(atoi(reader.get_value().c_str()));
+				m_high_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "mid_high_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_mid_high_freq_band.set_value(atoi(reader.get_value().c_str()));
+				m_mid_high_freq_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "mid_high_freq_width") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_mid_high_freq_width.set_value(atoi(reader.get_value().c_str()));
+				m_mid_high_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "mid_low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_width") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_mid_low_freq_gain.set_value(atoi(reader.get_value().c_str()));
+				m_mid_high_freq_width->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "mid_low_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_mid_low_freq_band.set_value(atoi(reader.get_value().c_str()));
+				m_mid_low_freq_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "mid_low_freq_width") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_mid_low_freq_width.set_value(atoi(reader.get_value().c_str()));
+				m_mid_low_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_width") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_low_freq_gain.set_value(atoi(reader.get_value().c_str()));
+				m_mid_low_freq_width->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if( !strcmp(reader.get_name().c_str(), "low_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
-				m_low_freq_band.set_value(atoi(reader.get_value().c_str()));
+				m_low_freq_gain->set_value(atoi(reader.get_value().c_str()));
+				usleep(RESET_VALUE_DELAY);
+			}
+			if (!strcmp(reader.get_name().c_str(), "low_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_low_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
 
-		}		
+		}
 	} catch (const std::exception& e) {
 		std::cerr << "Exception caught: " << e.what() << std::endl;
 		return;
-	}		
+	}
 }
-		
+
 void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 	if (parameter_index == 0) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -357,7 +347,7 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 12.); // upper
 		lo_message_add_string(reply, "%.0f dB"); // format string
 		lo_message_add_int32(reply, 0); // scale points
-		lo_message_add_double(reply, (double) m_high_freq_gain.get_value()-12);
+		lo_message_add_double(reply, (double) m_high_freq_gain->get_value() - 12);
 	}
 	if (parameter_index == 1) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -369,11 +359,11 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 31.); // upper
 		lo_message_add_string(reply, ""); // format string
 		lo_message_add_int32(reply, eq_high_freq_map_size); // scale points
-		for( int i = 0; i < eq_high_freq_map_size; i++ ) {
-			lo_message_add_float(reply, (float)i); // scale points
+		for (int i = 0; i < eq_high_freq_map_size; i++) {
+			lo_message_add_float(reply, (float) i); // scale points
 			lo_message_add_string(reply, eq_high_freq_map[i]); // format string
-		}		
-		lo_message_add_double(reply, (double) m_high_freq_band.get_value());
+		}
+		lo_message_add_double(reply, (double) m_high_freq_band->get_value());
 	}
 	if (parameter_index == 2) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -385,7 +375,7 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 12.); // upper
 		lo_message_add_string(reply, "%.0f dB"); // format string
 		lo_message_add_int32(reply, 0); // scale points
-		lo_message_add_double(reply, (double) m_mid_high_freq_gain.get_value()-12);
+		lo_message_add_double(reply, (double) m_mid_high_freq_gain->get_value() - 12);
 	}
 	if (parameter_index == 3) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -397,11 +387,11 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 64.); // upper
 		lo_message_add_string(reply, ""); // format string
 		lo_message_add_int32(reply, eq_high_freq_map_size + eq_low_freq_map_size); // scale points
-		for( int i = 0; i < eq_high_freq_map_size + eq_low_freq_map_size ; i++ ) {
-			lo_message_add_float(reply, (float)i); // scale points
-			lo_message_add_string(reply, i < eq_low_freq_map_size ? eq_low_freq_map[i] : eq_high_freq_map[i-eq_low_freq_map_size]); // format string
-		}		
-		lo_message_add_double(reply, (double) m_mid_high_freq_band.get_value());
+		for (int i = 0; i < eq_high_freq_map_size + eq_low_freq_map_size; i++) {
+			lo_message_add_float(reply, (float) i); // scale points
+			lo_message_add_string(reply, i < eq_low_freq_map_size ? eq_low_freq_map[i] : eq_high_freq_map[i - eq_low_freq_map_size]); // format string
+		}
+		lo_message_add_double(reply, (double) m_mid_high_freq_band->get_value());
 	}
 	if (parameter_index == 4) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -413,12 +403,12 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 6.); // upper
 		lo_message_add_string(reply, ""); // format string
 		lo_message_add_int32(reply, 7); // scale points
-		for( int i = 0; i < 7 ; i++ ) {
+		for (int i = 0; i < 7; i++) {
 			char sp[16];
-			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_float(reply, (float) i); // scale points
 			lo_message_add_string(reply, eq_width_text(i, sp, 16)); // format string
-		}		
-		lo_message_add_double(reply, (double) m_mid_high_freq_width.get_value());
+		}
+		lo_message_add_double(reply, (double) m_mid_high_freq_width->get_value());
 	}
 	if (parameter_index == 5) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -430,7 +420,7 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 12.); // upper
 		lo_message_add_string(reply, "%.0f dB"); // format string
 		lo_message_add_int32(reply, 0); // scale points
-		lo_message_add_double(reply, (double) m_mid_low_freq_gain.get_value()-12);
+		lo_message_add_double(reply, (double) m_mid_low_freq_gain->get_value() - 12);
 	}
 	if (parameter_index == 6) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -442,11 +432,11 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 64.); // upper
 		lo_message_add_string(reply, ""); // format string
 		lo_message_add_int32(reply, eq_high_freq_map_size + eq_low_freq_map_size); // scale points
-		for( int i = 0; i < eq_high_freq_map_size + eq_low_freq_map_size ; i++ ) {
-			lo_message_add_float(reply, (float)i); // scale points
-			lo_message_add_string(reply, i < eq_low_freq_map_size ? eq_low_freq_map[i] : eq_high_freq_map[i-eq_low_freq_map_size]); // format string
-		}		
-		lo_message_add_double(reply, (double) m_mid_low_freq_band.get_value());
+		for (int i = 0; i < eq_high_freq_map_size + eq_low_freq_map_size; i++) {
+			lo_message_add_float(reply, (float) i); // scale points
+			lo_message_add_string(reply, i < eq_low_freq_map_size ? eq_low_freq_map[i] : eq_high_freq_map[i - eq_low_freq_map_size]); // format string
+		}
+		lo_message_add_double(reply, (double) m_mid_low_freq_band->get_value());
 	}
 	if (parameter_index == 7) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -458,12 +448,12 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 6.); // upper
 		lo_message_add_string(reply, ""); // format string
 		lo_message_add_int32(reply, 7); // scale points
-		for( int i = 0; i < 7 ; i++ ) {
+		for (int i = 0; i < 7; i++) {
 			char sp[16];
-			lo_message_add_float(reply, (float)i); // scale points
+			lo_message_add_float(reply, (float) i); // scale points
 			lo_message_add_string(reply, eq_width_text(i, sp, 16)); // format string
-		}		
-		lo_message_add_double(reply, (double) m_mid_low_freq_width.get_value());
+		}
+		lo_message_add_double(reply, (double) m_mid_low_freq_width->get_value());
 	}
 	if (parameter_index == 8) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -475,7 +465,7 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 12.); // upper
 		lo_message_add_string(reply, "%.0f dB"); // format string
 		lo_message_add_int32(reply, 0); // scale points
-		lo_message_add_double(reply, (double) m_low_freq_gain.get_value()-12);
+		lo_message_add_double(reply, (double) m_low_freq_gain->get_value() - 12);
 	}
 	if (parameter_index == 9) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -487,10 +477,10 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_float(reply, 32.); // upper
 		lo_message_add_string(reply, ""); // format string
 		lo_message_add_int32(reply, eq_low_freq_map_size); // scale points
-		for( int i = 0; i < eq_low_freq_map_size; i++ ) {
-			lo_message_add_float(reply, (float)i); // scale points
+		for (int i = 0; i < eq_low_freq_map_size; i++) {
+			lo_message_add_float(reply, (float) i); // scale points
 			lo_message_add_string(reply, eq_low_freq_map[i]); // format string
-		}		
-		lo_message_add_double(reply, (double) m_low_freq_band.get_value());
+		}
+		lo_message_add_double(reply, (double) m_low_freq_band->get_value());
 	}
 }

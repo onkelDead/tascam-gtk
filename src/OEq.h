@@ -23,12 +23,34 @@
 #include "ODial.h"
 #include "OAlsa.h"
 
+#define EBLUE_NORMAL .5, .55, 1., 1.
+#define EBLUE_LIGHT .78, .8, 1., 1.
+
+extern const char *eq_low_freq_map[];
+extern const int eq_low_freq_map_size;
+
+
+extern const char *eq_high_freq_map[];
+extern const int eq_high_freq_map_size;
+
+char* eq_width_text(int val, char* buf, size_t buf_size);
+
+char* eq_level_text(int val, char* buf, size_t buf_size);
+
+char* eq_high_freq_text(int val, char* buf, size_t buf_size);
+
+char* eq_lowhigh_freq_text(int val, char* buf, size_t buf_size);
+
+char* eq_low_freq_text(int val, char* buf, size_t buf_size);
+
 class OEq : public Gtk::VBox {
 public:
     OEq();
     virtual ~OEq();
     
-    void init(int index, OAlsa* alsa);
+    void pack(int layout);
+
+    void init(int index, OAlsa* alsa, Gtk::Window* wnd);
     
     void reset(OAlsa* alsa, int index);
  
@@ -38,28 +60,23 @@ public:
     int get_parameter_count() { return 10; }
     void get_parameter_decriptor(int parameter_index, lo_message reply);
     
-    Gtk::ToggleButton m_EqEnable;
-    ODial m_high_freq_gain;
-    ODial m_high_freq_band;
-    ODial m_mid_high_freq_gain;
-    ODial m_mid_high_freq_band;
-    ODial m_mid_high_freq_width;
-    ODial m_mid_low_freq_gain;
-    ODial m_mid_low_freq_band;
-    ODial m_mid_low_freq_width;
-    ODial m_low_freq_gain;
-    ODial m_low_freq_band;
     
+    Gtk::ToggleButton* m_eq_enable;
+    ODial* m_high_freq_gain;
+    ODial* m_high_freq_band;
+    ODial* m_mid_high_freq_gain;
+    ODial* m_mid_high_freq_band;
+    ODial* m_mid_high_freq_width;
+    ODial* m_mid_low_freq_gain;
+    ODial* m_mid_low_freq_band;
+    ODial* m_mid_low_freq_width;
+    ODial* m_low_freq_gain;
+    ODial* m_low_freq_band;
+    
+    Gtk::Grid m_grid;
+    int m_pack;
 private:
-    Gtk::VBox m_box;
-    Gtk::VBox l_eeb;
-    Gtk::HBox m_high_box;
-    Gtk::HBox m_mid_high_box;
-    Gtk::HBox m_mid_high_box1;
-    Gtk::HBox m_mid_low_box;
-    Gtk::HBox m_mid_low_box1;
-    Gtk::HBox m_low_box;
-    
+
 };
 
 #endif /* OEQ_H */

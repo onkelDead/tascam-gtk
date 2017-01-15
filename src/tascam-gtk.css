@@ -17,7 +17,7 @@ and open the template in the editor.
     background-color: rgb(50,50,50);
     color: rgb(228,228,228);
 }
-#mute-button, #solo-button, #phase-button, #comp-button, #eq-button {
+#mute-button, #solo-button, #phase-button, #comp-button, #eq-button, #link-button {
     background-image: -gtk-gradient (linear,
         left top,
         left bottom,
@@ -76,6 +76,15 @@ and open the template in the editor.
         from (rgb(128,145,255)),
         color-stop (0.5, lighter (rgb(145,175,255))),
         to (rgb(128,145,255)));
+    color: rgb(55,55,55);
+}
+#link-button:checked {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(255,208,85)),
+        color-stop (0.5, lighter (rgb(255,228,105))),
+        to (rgb(255,208,85)));
     color: rgb(55,55,55);
 }
 #fader {

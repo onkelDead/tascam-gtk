@@ -96,7 +96,6 @@ void OMeterWorker::do_work(OMainWnd* caller) {
     lo_server_thread_add_method(osc_server, NULL, NULL, osc_handler, this);
     lo_server_thread_start(osc_server);
 	
-	// Simulate a long calculation.
 	for (;;) // do until break
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -113,11 +112,9 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 	m_has_stopped = true;
 
     lo_server_thread_free(osc_server);
-	
-//	caller->notify();
 }
 
-const int OMeterWorker::new_osc_client(lo_address client) {
+const int OMeterWorker::new_osc_client(lo_message client) {
     int i;
     for(i = 0; i < MAX_OSC_CLIENTS; i++) {
         if( osc_client[i] == NULL) {
@@ -164,7 +161,7 @@ void OMeterWorker::dump_message(const char* path, const char *types, lo_arg ** a
 
 void OMeterWorker::send_osc(int client_index, const char* path, lo_message msg)  {
 	
-	lo_send_message_from(osc_client[client_index], osc_server, path, msg);
+	lo_send_message_from(osc_client[client_index], osc_server_out, path, msg);
 	
 }
 void OMeterWorker::send_osc_all(const char* path, lo_message msg)  {

@@ -106,6 +106,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am_tascamgtk_OBJECTS = src/tascamgtk-main.$(OBJEXT) \
 	src/tascamgtk-OAlsa.$(OBJEXT) src/tascamgtk-OComp.$(OBJEXT) \
 	src/tascamgtk-ODial.$(OBJEXT) src/tascamgtk-OEq.$(OBJEXT) \
+	src/tascamgtk-OFader.$(OBJEXT) \
 	src/tascamgtk-OMainWnd.$(OBJEXT) \
 	src/tascamgtk-OMaster.$(OBJEXT) src/tascamgtk-OMeter.$(OBJEXT) \
 	src/tascamgtk-OMeterWorker.$(OBJEXT) \
@@ -298,7 +299,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-tascamgtk_SOURCES = src/main.cpp  src/OAlsa.cpp  src/OComp.cpp  src/ODial.cpp  src/OEq.cpp  src/OMainWnd.cpp  src/OMaster.cpp  src/OMeter.cpp  src/OMeterWorker.cpp  src/OStripLayout.cpp
+tascamgtk_SOURCES = src/main.cpp  src/OAlsa.cpp  src/OComp.cpp  src/ODial.cpp  src/OEq.cpp src/OFader.cpp src/OMainWnd.cpp  src/OMaster.cpp  src/OMeter.cpp  src/OMeterWorker.cpp  src/OStripLayout.cpp
 tascamgtk_CPPFLAGS = -O2 -std=c++11 ${GTK3_CFLAGS} ${GTKMM3_CFLAGS} ${ALSA_CFLAGS} ${XML2_CFLAGS} ${LO_CFLAGS}
 tascamgtk_LDADD = ${GTK2_LIBS} ${GTKMM3_LIBS} ${ALSA_LIBS} ${XML2_LIBS} ${LO_LIBS} -lpthread
 all: config.h
@@ -412,6 +413,8 @@ src/tascamgtk-ODial.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/tascamgtk-OEq.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/tascamgtk-OFader.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/tascamgtk-OMainWnd.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/tascamgtk-OMaster.$(OBJEXT): src/$(am__dirstamp) \
@@ -438,6 +441,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OComp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-ODial.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OEq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OFader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OMainWnd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OMaster.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OMeter.Po@am__quote@
@@ -530,6 +534,20 @@ src/tascamgtk-OEq.obj: src/OEq.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/OEq.cpp' object='src/tascamgtk-OEq.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-OEq.obj `if test -f 'src/OEq.cpp'; then $(CYGPATH_W) 'src/OEq.cpp'; else $(CYGPATH_W) '$(srcdir)/src/OEq.cpp'; fi`
+
+src/tascamgtk-OFader.o: src/OFader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-OFader.o -MD -MP -MF src/$(DEPDIR)/tascamgtk-OFader.Tpo -c -o src/tascamgtk-OFader.o `test -f 'src/OFader.cpp' || echo '$(srcdir)/'`src/OFader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/tascamgtk-OFader.Tpo src/$(DEPDIR)/tascamgtk-OFader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/OFader.cpp' object='src/tascamgtk-OFader.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-OFader.o `test -f 'src/OFader.cpp' || echo '$(srcdir)/'`src/OFader.cpp
+
+src/tascamgtk-OFader.obj: src/OFader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-OFader.obj -MD -MP -MF src/$(DEPDIR)/tascamgtk-OFader.Tpo -c -o src/tascamgtk-OFader.obj `if test -f 'src/OFader.cpp'; then $(CYGPATH_W) 'src/OFader.cpp'; else $(CYGPATH_W) '$(srcdir)/src/OFader.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/tascamgtk-OFader.Tpo src/$(DEPDIR)/tascamgtk-OFader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/OFader.cpp' object='src/tascamgtk-OFader.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-OFader.obj `if test -f 'src/OFader.cpp'; then $(CYGPATH_W) 'src/OFader.cpp'; else $(CYGPATH_W) '$(srcdir)/src/OFader.cpp'; fi`
 
 src/tascamgtk-OMainWnd.o: src/OMainWnd.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-OMainWnd.o -MD -MP -MF src/$(DEPDIR)/tascamgtk-OMainWnd.Tpo -c -o src/tascamgtk-OMainWnd.o `test -f 'src/OMainWnd.cpp' || echo '$(srcdir)/'`src/OMainWnd.cpp

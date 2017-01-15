@@ -144,8 +144,6 @@ int OAlsa::open_device() {
 void OAlsa::close_device() {
     int i = 0, j;
 
-//  pthread_join(thread, NULL);
-
 	if (hctl) {
 		snd_hctl_close(hctl);
 		hctl = 0;

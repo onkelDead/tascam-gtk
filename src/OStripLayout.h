@@ -18,9 +18,10 @@
 #ifndef OSTRIPLAYOUT_H
 #define OSTRIPLAYOUT_H
 
-#include "OComp.h"
 #include "ODial.h"
+#include "OComp.h"
 #include "OEq.h"
+#include "OFader.h"
 #include "OMeter.h"
 #include "OAlsa.h"
 
@@ -32,7 +33,6 @@ public:
 
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
 
-    OMeter m_meter;
     Gtk::Label m_title;
     Gtk::EventBox m_event_box;
 
@@ -42,35 +42,21 @@ public:
     
     void load_values(Glib::ustring xml);
     
-    Gtk::ToggleButton m_MuteEnable;
-    Gtk::ToggleButton m_SoloEnable;
-    Gtk::VScale m_fader;
-    ODial m_Pan;
+    void set_channel_count(int num_channels);
+    int get_channel_count() {return m_num_channels;}
     
-    OEq m_eq;
     OComp m_comp;
+    OEq m_eq;
+    OFader m_fader;
     
 private:
-    Gtk::HBox m_hbox;
-    Gtk::VBox m_box;
-
-    Gtk::HBox m_fader_box;
+    int m_num_channels;
     
-    Gtk::VBox m_pvbox;
-    Gtk::Label m_dB;
-    
-    Gtk::ToggleButton m_PhaseEnable;    
-    Gtk::VSeparator m_sep;
-
+    Gtk::Grid m_grid;
     Gtk::HSeparator m_title_sep;
-
-    Gtk::HBox m_panbox;
-    Gtk::VBox m_pan_button_box;
-    
     Gtk::HSeparator m_comp_sep;
-
     Gtk::HSeparator m_eq_sep;
-
+    Gtk::VSeparator m_sep;
 };
 
 #endif /* OSTRIPLAYOUT_H */
