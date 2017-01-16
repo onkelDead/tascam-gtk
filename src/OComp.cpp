@@ -49,78 +49,71 @@ char* cp_release_text(int val, char* buf, size_t buf_size) {
 }
 
 OComp::OComp() : Gtk::VBox() {
-
-//	for(int ci = 0; ci < 2; ci++ ) {
-//		m_reduction[ci].setLevel(32768);
-//		m_reduction[ci].set_size_request(10, -1);
-//		m_reduction[ci].set_hexpand(false);
-//		m_reduction[ci].set_halign(Gtk::ALIGN_CENTER);
-//		m_reduction[ci].set_level_direction(1);
-//		m_reduction[ci].set_level_color(1, .6, .6, 1);
-//	}
 	m_pack = 0;
-
 	add(m_grid);
 }
 
 OComp::~OComp() {
 }
 
-void OComp::pack(int layout) {
+void OComp::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
-	unpack();
+	if (view_type == HIDDEN) {
+		std::vector<Gtk::Widget*> childList = m_grid.get_children();
+		std::vector<Gtk::Widget*>::iterator it;
 
-	
-	if (layout == 1) {
-		m_grid.attach(*m_threshold, 0, 0, 1, 1);
-		m_grid.attach(*m_gain, 1, 0, 1, 1);
-		m_grid.attach(*m_attack, 0, 1, 1, 1);
-		m_grid.attach(*m_release, 1, 1, 1, 1);
-		m_grid.attach(*m_ratio, 0, 2, 1, 1);
-		m_grid.attach(*m_enable, 0, 3, 1, 1);
-		m_grid.attach(*m_reduction[0], 1, 2, 1, 2);
+		for (it = childList.begin(); it < childList.end(); it++) {
+			m_grid.remove(**it);
+		}
 	}
 
-	if (layout == 2) {
-		m_grid.attach(*m_threshold, 0, 0, 1, 1);
-		m_grid.attach(*m_gain, 1, 0, 1, 1);
-		m_grid.attach(*m_attack, 0, 1, 1, 1);
-		m_grid.attach(*m_release, 1, 1, 1, 1);
-		m_grid.attach(*m_ratio, 0, 2, 1, 1);
-		m_grid.attach(*m_enable, 1, 2, 1, 1);
-		m_grid.attach(*m_reduction[0], 2, 0, 1, 3);
-		m_grid.attach(*m_reduction[1], 3, 0, 1, 3);
+	if (view_type == NORMAL) {
+		m_enable->set_hexpand(false);
+		m_enable->set_halign(Gtk::ALIGN_CENTER);		
+		
+		if (channel_type == MONO) {
+			m_grid.attach(*m_threshold, 0, 0, 1, 1);
+			m_grid.attach(*m_gain, 1, 0, 1, 1);
+			m_grid.attach(*m_attack, 0, 1, 1, 1);
+			m_grid.attach(*m_release, 1, 1, 1, 1);
+			m_grid.attach(*m_ratio, 0, 2, 1, 1);
+			m_grid.attach(*m_enable, 0, 3, 1, 1);
+			m_grid.attach(*m_reduction[0], 1, 2, 1, 2);
+		}
+		if (channel_type == STEREO) {
+			m_grid.attach(*m_threshold, 0, 0, 1, 1);
+			m_grid.attach(*m_gain, 1, 0, 1, 1);
+			m_grid.attach(*m_attack, 0, 1, 1, 1);
+			m_grid.attach(*m_release, 1, 1, 1, 1);
+			m_grid.attach(*m_ratio, 0, 2, 1, 1);
+			m_grid.attach(*m_enable, 1, 2, 1, 1);
+			m_grid.attach(*m_reduction[0], 2, 0, 1, 3);
+			m_grid.attach(*m_reduction[1], 3, 0, 1, 3);
+		}
 	}
-	for(int ci = 0; ci < layout; ci++ ) {
-		m_reduction[ci]->set_hexpand(false);
-		m_reduction[ci]->set_margin_start(5);
-		m_reduction[ci]->set_halign(Gtk::ALIGN_CENTER);
+
+	if (view_type == COMPACT) {
+		m_enable->set_hexpand(true);
+		m_enable->set_halign(Gtk::ALIGN_FILL);		
+		m_grid.attach(*m_enable, 0, 0, 1, 1);
 	}
-	m_pack = layout;
+
+	m_pack = view_type;
 }
 
 void OComp::unpack() {
-	if (m_pack) {
-		m_grid.remove(*m_threshold);
-		m_grid.remove(*m_gain);
-		m_grid.remove(*m_attack);
-		m_grid.remove(*m_release);
-		m_grid.remove(*m_ratio);
-		m_grid.remove(*m_enable);
-		m_grid.remove(*m_reduction[0]);		
-		if( m_pack == 2 )
-			m_grid.remove(*m_reduction[1]);	
-	}
-	m_pack = 0;
-	
+	//	while (m_grid.get_children().size())
+	//		m_grid.remove_row(0);
+	//	m_pack = 0;
+
 }
 
 void OComp::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
-	
+
 	m_reduction[0] = &wnd_->m_reduction[index];
-	
+
 	m_enable = &wnd_->m_comp_enable[index];
 	m_enable->set_active(alsa->getBoolean(CTL_NAME_CP_ENABLE, index));
 	m_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CP_ENABLE));
@@ -145,10 +138,19 @@ void OComp::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_ratio->set_value(alsa->getInteger(CTL_NAME_CP_RATIO, index));
 	m_ratio->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_RATIO));
 
+	m_enable->set_hexpand(false);
+	m_enable->set_vexpand(false);
+	m_enable->set_valign(Gtk::ALIGN_CENTER);
+
+	m_reduction[0]->set_hexpand(false);
+	m_reduction[0]->set_margin_start(5);
+	m_reduction[0]->set_halign(Gtk::ALIGN_CENTER);
 	if (!(index % 2)) {
 		m_reduction[1] = &wnd_->m_reduction[index + 1];
+		m_reduction[1]->set_hexpand(false);
+		m_reduction[1]->set_margin_start(5);
+		m_reduction[1]->set_halign(Gtk::ALIGN_CENTER);
 	}
-	
 }
 
 void OComp::reset(OAlsa* alsa, int index) {

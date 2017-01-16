@@ -22,6 +22,7 @@
 #include "ODial.h"
 #include "OMeter.h"
 #include "OAlsa.h"
+#include "OTypes.h"
 
 #define CREAD_LIGHT 1., .8, .8, 1.
 #define CREAD_NORMAL 1., .6, .6, 1.
@@ -43,7 +44,7 @@ public:
     
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
     
-    void pack(int layout);
+    void pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
     void unpack();
     
     bool is_active() { return m_enable->get_active(); }

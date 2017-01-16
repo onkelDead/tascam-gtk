@@ -20,6 +20,7 @@
 
 #include <lo/lo.h>
 
+#include "OTypes.h"
 #include "ODial.h"
 #include "OAlsa.h"
 
@@ -48,7 +49,9 @@ public:
     OEq();
     virtual ~OEq();
     
-    void pack(int layout);
+    void pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
+    void unpack();
+
 
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
     

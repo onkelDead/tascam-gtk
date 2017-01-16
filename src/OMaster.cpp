@@ -20,7 +20,7 @@
 #include "OMainWnd.h"
 
 OMaster::OMaster() : Gtk::VBox() {
-//	set_size_request(120, -1);
+	//	set_size_request(120, -1);
 
 
 	m_true_bypass.set_label("Mixer True\nBypass");
@@ -33,7 +33,7 @@ OMaster::OMaster() : Gtk::VBox() {
 
 	m_mute.set_label("Mute");
 	m_mute.set_name("mute-button");
-	
+
 	m_mute.set_size_request(-1, 48);
 
 	m_fader.set_name("fader");
@@ -53,35 +53,18 @@ OMaster::OMaster() : Gtk::VBox() {
 	m_fader.add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
 	m_fader.set_vexpand(true);
 
-	
+
 	m_meter_left.set_size_request(10, 160);
 	m_meter_left.set_level_color(0, .7, 0, 1);
 	m_meter_right.set_size_request(10, 160);
 	m_meter_right.set_level_color(0, .7, 0, 1);
 	m_meter_left.set_hexpand(false);
-	m_meter_left.set_halign(Gtk::ALIGN_CENTER);	
+	m_meter_left.set_halign(Gtk::ALIGN_CENTER);
 	m_meter_right.set_hexpand(false);
-	m_meter_right.set_halign(Gtk::ALIGN_CENTER);		
-	
-	for (int i = 0; i < 8; i++) {
-		m_route[i].set_name("route");
-		m_route[i].append("Master Left");
-		m_route[i].append("Master Right");
-		for (int j = 0; j < 8; j++) {
-			char entry[24];
-			snprintf(entry, 24, "Output %d", j + 1);
-			m_route[i].append(entry);
-		}
-		m_grid.attach(m_route[i], 0, i, 3, 1);
-	}
+	m_meter_right.set_halign(Gtk::ALIGN_CENTER);
 
-	m_grid.attach(m_true_bypass, 0, 8, 3, 1);
-	m_grid.attach(m_comp_to_stereo, 0, 9, 3, 1);
-	m_grid.attach(m_mute, 0, 10, 3, 1);
-	m_grid.attach(m_fader, 0, 11, 1, 1);
-	m_grid.attach(m_meter_left, 1, 11, 1, 1);
-	m_grid.attach(m_meter_right, 2, 11, 1, 1);
-	
+	pack(NORMAL);
+
 	add(m_grid);
 }
 
@@ -95,7 +78,7 @@ void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
 	val = alsa->getInteger(CTL_MASTER, 0);
-	m_fader.set_value(alsa->dBToSlider(val)+1);
+	m_fader.set_value(alsa->dBToSlider(val) + 1);
 	m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_fader_changed), 0, CTL_MASTER, &m_fader, (Gtk::Label*) NULL));
 	snprintf(l_title, sizeof (l_title), "%d dB", val - 127);
 	m_fader.set_tooltip_text(l_title);
@@ -137,4 +120,44 @@ void OMaster::reset(OAlsa* alsa) {
 		m_route[ri].set_active(ri + (ri < 2 ? 0 : 2));
 		usleep(RESET_VALUE_DELAY);
 	}
+}
+
+void OMaster::pack(VIEW_TYPE view_type) {
+
+	unpack();
+
+	if (view_type == NORMAL) {
+		for (int i = 0; i < 8; i++) {
+			m_route[i].set_name("route");
+			m_route[i].append("Master Left");
+			m_route[i].append("Master Right");
+			for (int j = 0; j < 8; j++) {
+				char entry[24];
+				snprintf(entry, 24, "Output %d", j + 1);
+				m_route[i].append(entry);
+			}
+			m_grid.attach(m_route[i], 0, i, 3, 1);
+		}
+		m_grid.attach(m_true_bypass, 0, 8, 3, 1);
+		m_grid.attach(m_comp_to_stereo, 0, 9, 3, 1);
+		m_grid.attach(m_mute, 0, 10, 3, 1);
+		m_grid.attach(m_fader, 0, 11, 1, 1);
+		m_grid.attach(m_meter_left, 1, 11, 1, 1);
+		m_grid.attach(m_meter_right, 2, 11, 1, 1);
+
+	}
+	if (view_type == COMPACT) {
+		m_grid.attach(m_true_bypass, 0, 8, 3, 1);
+		m_grid.attach(m_comp_to_stereo, 0, 9, 3, 1);
+		m_grid.attach(m_mute, 0, 10, 3, 1);
+		m_grid.attach(m_fader, 0, 11, 1, 1);
+		m_grid.attach(m_meter_left, 1, 11, 1, 1);
+		m_grid.attach(m_meter_right, 2, 11, 1, 1);		
+	}
+}
+
+void OMaster::unpack() {
+	while (m_grid.get_children().size())
+		m_grid.remove_row(0);
+	m_pack = 0;
 }

@@ -17,7 +17,7 @@ and open the template in the editor.
     background-color: rgb(50,50,50);
     color: rgb(228,228,228);
 }
-#mute-button, #solo-button, #phase-button, #comp-button, #eq-button, #link-button {
+#mute-button, #solo-button, #phase-button, #comp-button, #eq-button, #link-button, #dsp-active {
     background-image: -gtk-gradient (linear,
         left top,
         left bottom,
@@ -31,7 +31,7 @@ and open the template in the editor.
     border-width: 1px;
     border-style: solid;
     border-radius: 0;
-    font-size: 90%;
+    font-size: 75%;
 }
 #mute-button:checked {
     background-image: -gtk-gradient (linear,
@@ -87,8 +87,17 @@ and open the template in the editor.
         to (rgb(255,208,85)));
     color: rgb(55,55,55);
 }
+#dsp-active:checked {
+    background-image: -gtk-gradient (linear,
+        left top,
+        left bottom,
+        from (rgb(224,224,224)),
+        color-stop (0.5, lighter (rgb(255,255,255))),
+        to (rgb(224,224,224)));
+    color: rgb(55,55,55);
+}
 #fader {
-    font-size: 70%;
+    font-size: 75%;
 }
 #db-label {
     font-size: 80%;
@@ -103,6 +112,8 @@ and open the template in the editor.
     border-style: solid;
     border-radius: 0;
     outline-offset: 0px;
+    font-size: 90%;
+
 }
 /*
 #menu  {       

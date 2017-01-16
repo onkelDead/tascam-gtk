@@ -55,7 +55,7 @@ OAlsa::OAlsa() {
 OAlsa::~OAlsa() {
 }
 
-#define DEBUG
+//#define DEBUG
 
 int OAlsa::get_alsa_cardnum() {
 	int card = -1;

@@ -18,6 +18,7 @@
 #ifndef OSTRIPLAYOUT_H
 #define OSTRIPLAYOUT_H
 
+#include "OTypes.h"
 #include "ODial.h"
 #include "OComp.h"
 #include "OEq.h"
@@ -42,15 +43,21 @@ public:
     
     void load_values(Glib::ustring xml);
     
-    void set_channel_count(int num_channels);
-    int get_channel_count() {return m_num_channels;}
+    void set_view_type(VIEW_TYPE i);
+    VIEW_TYPE get_view_type() {return m_view_type;}
+    
+    void set_channel_type(CHANNEL_TYPE num_channels);
+    CHANNEL_TYPE get_channel_type() {return m_channel_type;}
     
     OComp m_comp;
     OEq m_eq;
     OFader m_fader;
     
 private:
-    int m_num_channels;
+    CHANNEL_TYPE m_channel_type;
+    VIEW_TYPE m_view_type;
+   
+    Gtk::ToggleButton m_DspEnable;
     
     Gtk::Grid m_grid;
     Gtk::HSeparator m_title_sep;

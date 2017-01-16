@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <vector>
 
 #include <gtkmm.h>
 #include <stdbool.h>
@@ -73,8 +74,6 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
 #define EBLUE_LIGHT .78, .8, 1., 1.
 
 OEq::OEq() : Gtk::VBox() {
-
-
 	m_pack = 0;
 	add(m_grid);
 }
@@ -82,60 +81,76 @@ OEq::OEq() : Gtk::VBox() {
 OEq::~OEq() {
 }
 
-void OEq::pack(int layout) {
-
-	if (m_pack) {
-		m_grid.remove(*m_high_freq_gain);
-		m_grid.remove(*m_high_freq_band);
-		m_grid.remove(*m_mid_high_freq_gain);
-		m_grid.remove(*m_mid_high_freq_band);
-		m_grid.remove(*m_mid_high_freq_width);
-		m_grid.remove(*m_mid_low_freq_gain);
-		m_grid.remove(*m_mid_low_freq_band);
-		m_grid.remove(*m_mid_low_freq_width);
-		m_grid.remove(*m_eq_enable);
-		m_grid.remove(*m_low_freq_gain);
-		m_grid.remove(*m_low_freq_band);
-	}
-
-	if (layout == 1) {
-		m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
-		m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
-		m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
-		m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
-		m_grid.attach(*m_mid_high_freq_width, 0, 2, 2, 1);
-		m_grid.attach(*m_mid_low_freq_gain, 0, 3, 1, 1);
-		m_grid.attach(*m_mid_low_freq_band, 1, 3, 1, 1);
-		m_grid.attach(*m_mid_low_freq_width, 0, 4, 1, 1);
-		m_grid.attach(*m_eq_enable, 1, 4, 1, 1);
-		m_grid.attach(*m_low_freq_gain, 0, 5, 1, 1);
-		m_grid.attach(*m_low_freq_band, 1, 5, 1, 1);
-	}
-	if (layout == 2) {
-		m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
-		m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
-		m_grid.attach(*m_mid_low_freq_gain, 0, 2, 1, 1);
-		m_grid.attach(*m_low_freq_gain, 0, 3, 1, 1);
-
-		m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
-		m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
-		m_grid.attach(*m_mid_low_freq_band, 1, 2, 1, 1);
-		m_grid.attach(*m_low_freq_band, 1, 3, 1, 1);
-
-		m_grid.attach(*m_mid_high_freq_width, 2, 1, 1, 1);
-		m_grid.attach(*m_mid_low_freq_width, 2, 2, 1, 1);
-		m_grid.attach(*m_eq_enable, 2, 3, 1, 1);
-	}
-	m_pack = layout;
+void OEq::unpack() {
+	while (m_grid.get_children().size())
+		m_grid.remove_row(0);
+	m_pack = 0;
 }
 
-void OEq::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
+void OEq::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
-	OMainWnd* wnd_ = (OMainWnd*)wnd;
-	
+	if (view_type == HIDDEN) {
+		std::vector<Gtk::Widget*> childList = m_grid.get_children();
+		std::vector<Gtk::Widget*>::iterator it;
+
+		for (it = childList.begin(); it < childList.end(); it++) {
+			m_grid.remove(**it);
+		}
+	}
+
+	if (view_type == NORMAL) {
+		m_eq_enable->set_hexpand(false);
+		m_eq_enable->set_halign(Gtk::ALIGN_CENTER);		
+		
+		if (channel_type == MONO) {
+			m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
+			m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
+			m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
+			m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
+			m_grid.attach(*m_mid_high_freq_width, 0, 2, 2, 1);
+			m_grid.attach(*m_mid_low_freq_gain, 0, 3, 1, 1);
+			m_grid.attach(*m_mid_low_freq_band, 1, 3, 1, 1);
+			m_grid.attach(*m_mid_low_freq_width, 0, 4, 1, 1);
+			m_grid.attach(*m_eq_enable, 1, 4, 1, 1);
+			m_grid.attach(*m_low_freq_gain, 0, 5, 1, 1);
+			m_grid.attach(*m_low_freq_band, 1, 5, 1, 1);
+		}
+		if (channel_type == STEREO) {
+			m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
+			m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
+			m_grid.attach(*m_mid_low_freq_gain, 0, 2, 1, 1);
+			m_grid.attach(*m_low_freq_gain, 0, 3, 1, 1);
+
+			m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
+			m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
+			m_grid.attach(*m_mid_low_freq_band, 1, 2, 1, 1);
+			m_grid.attach(*m_low_freq_band, 1, 3, 1, 1);
+
+			m_grid.attach(*m_mid_high_freq_width, 2, 1, 1, 1);
+			m_grid.attach(*m_mid_low_freq_width, 2, 2, 1, 1);
+			m_grid.attach(*m_eq_enable, 2, 3, 1, 1);
+		}
+
+	}
+	if (view_type == COMPACT) {
+		m_eq_enable->set_hexpand(true);
+		m_eq_enable->set_halign(Gtk::ALIGN_FILL);		
+		m_grid.attach(*m_eq_enable, 0, 0, 1, 1);
+
+	}
+
+	m_pack = view_type;
+}
+
+void OEq::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
+
+	OMainWnd* wnd_ = (OMainWnd*) wnd;
+
 	m_eq_enable = &wnd_->m_eq_enable[index];
 	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, index));
 	m_eq_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
+	m_eq_enable->set_vexpand(false);
+	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);
 
 	m_high_freq_gain = &wnd_->m_high_freq_gain[index];
 	m_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_LEVEL, index));
@@ -176,6 +191,8 @@ void OEq::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_low_freq_band = &wnd_->m_low_freq_band[index];
 	m_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_FREQ, index));
 	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_FREQ));
+
+
 
 }
 
@@ -218,7 +235,7 @@ void OEq::reset(OAlsa* alsa, int index) {
 
 }
 
-void OEq::save_values(FILE* file) {
+void OEq::save_values(FILE * file) {
 
 	fprintf(file, "\t\t\t<enable>");
 	fprintf(file, "%d", (int) m_eq_enable->get_active());

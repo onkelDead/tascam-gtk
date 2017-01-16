@@ -21,16 +21,11 @@
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
 #include <iostream>
 
-OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
+OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE::NORMAL) {
 	int i;
 	set_title("Tascam US-16x08 DSP Mixer");
 
 	alsa = new OAlsa();
-
-	//
-	//	Gdk::Color color;
-	//	color.set_rgb_p(0.2, 0.2, 0.2);
-	//	modify_bg(Gtk::STATE_NORMAL, color);
 
 	create_menu();
 
@@ -141,6 +136,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 			m_Pan[i].set_label("L Pan R");
 			m_Pan[i].set_knob_background_color(1., .8, .3, 1.);
 
+
 			m_MuteEnable[i].set_label("Mute");
 			m_MuteEnable[i].set_name("mute-button");
 
@@ -170,7 +166,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr) {
 
 			m_stripLayouts[i].init(i, alsa, this);
 			m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_title_context), i));
-
+			m_stripLayouts[i].set_view_type(NORMAL);
 			m_grid.attach(m_stripLayouts[i], i, 1, 1, 1);
 
 		}
@@ -256,6 +252,11 @@ void OMainWnd::create_menu() {
 			sigc::mem_fun(this, &OMainWnd::on_menu_file_reset));
 	m_refActionGroup->add(Gtk::Action::create("exit", Gtk::Stock::QUIT),
 			sigc::mem_fun(this, &OMainWnd::on_menu_file_exit));
+	m_refActionGroup->add(Gtk::Action::create("View", "_View"));
+	m_refActionGroup->add(Gtk::Action::create("compact", Gtk::Stock::ZOOM_IN, "_Compact"),
+			sigc::mem_fun(this, &OMainWnd::on_menu_view_compact));
+	m_refActionGroup->add(Gtk::Action::create("normal", Gtk::Stock::ZOOM_OUT, "_Normal"),
+			sigc::mem_fun(this, &OMainWnd::on_menu_view_normal));
 
 	m_refUIManager = Gtk::UIManager::create();
 	m_refUIManager->insert_action_group(m_refActionGroup);
@@ -270,6 +271,10 @@ void OMainWnd::create_menu() {
 			"        <menuitem action='reset'/>"
 			"        <separator />"
 			"        <menuitem action='exit' />"
+			"    </menu>"
+			"    <menu action='View'>"
+			"        <menuitem action='compact'/>"
+			"        <menuitem action='normal'/>"
 			"    </menu>"
 			"  </menubar>"
 			"</ui>";
@@ -339,7 +344,7 @@ void OMainWnd::on_notification_from_worker_thread() {
 			m_reduction[i].setLevel(32767);
 		}
 
-		if (m_stripLayouts[i].get_channel_count() == 2) {
+		if (m_stripLayouts[i].get_channel_type() == STEREO) {
 			ch_meter = alsa->sliderTodB(alsa->meters[i + 1] / 32768. * 133.) / 133. * 32768;
 			m_stripLayouts[i].m_fader.m_meter[1].setLevel(ch_meter);
 		}
@@ -455,6 +460,22 @@ void OMainWnd::on_menu_file_load() {
 	}
 }
 
+void OMainWnd::on_menu_view_compact() {
+	m_view = VIEW_TYPE::COMPACT;
+	for (int i = 0; i < NUM_CHANNELS / 2; i++) {
+		on_ch_lb_changed(i);
+	}
+	m_master.pack(m_view);
+}
+
+void OMainWnd::on_menu_view_normal() {
+	m_view = VIEW_TYPE::NORMAL;
+	for (int i = 0; i < NUM_CHANNELS / 2; i++) {
+		on_ch_lb_changed(i);
+	}
+	m_master.pack(m_view);
+}
+
 void OMainWnd::on_menu_popup_load(int channel_index) {
 	char l_title[256];
 
@@ -513,7 +534,7 @@ void OMainWnd::on_menu_popup_save(int channel_index) {
 
 void OMainWnd::on_menu_popup_reset(int i) {
 	m_stripLayouts[i].reset(alsa, i);
-	if (m_stripLayouts[i].get_channel_count() == 2) {
+	if (m_stripLayouts[i].get_channel_type() == STEREO) {
 		m_stripLayouts[i + 1].reset(alsa, i);
 	}
 }
@@ -891,7 +912,7 @@ void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale*
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, control->get_value() / 133.);
 		m_Worker.send_osc_all("/strip/fader", reply);
-		if (m_stripLayouts[n].get_channel_count() == 2) {
+		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			m_fader[n + 1].set_value(m_fader[n].get_value());
 		}
 	}
@@ -918,35 +939,35 @@ void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
 	{
 		if (!strcmp(control_name, CTL_NAME_CP_THRESHOLD)) {
 			alsa->on_dial_control_changed(n, control_name, &m_threshold[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_threshold[n + 1].set_value(m_threshold[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_CP_GAIN)) {
 			alsa->on_dial_control_changed(n, control_name, &m_gain[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_gain[n + 1].set_value(m_gain[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_CP_ATTACK)) {
 			alsa->on_dial_control_changed(n, control_name, &m_attack[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_attack[n + 1].set_value(m_attack[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_CP_RELEASE)) {
 			alsa->on_dial_control_changed(n, control_name, &m_release[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_release[n + 1].set_value(m_release[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_CP_RATIO)) {
 			alsa->on_dial_control_changed(n, control_name, &m_ratio[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_ratio[n + 1].set_value(m_ratio[n].get_value());
 			}
@@ -957,70 +978,70 @@ void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
 	{
 		if (!strcmp(control_name, CTL_NAME_EQ_HIGH_FREQ)) {
 			alsa->on_dial_control_changed(n, control_name, &m_high_freq_band[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_high_freq_band[n + 1].set_value(m_high_freq_band[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_HIGH_LEVEL)) {
 			alsa->on_dial_control_changed(n, control_name, &m_high_freq_gain[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_high_freq_gain[n + 1].set_value(m_high_freq_gain[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_MIDHIGH_FREQ)) {
 			alsa->on_dial_control_changed(n, control_name, &m_mid_high_freq_band[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_mid_high_freq_band[n + 1].set_value(m_mid_high_freq_band[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_MIDHIGH_LEVEL)) {
 			alsa->on_dial_control_changed(n, control_name, &m_mid_high_freq_gain[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_mid_high_freq_gain[n + 1].set_value(m_mid_high_freq_gain[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_MIDHIGHWIDTH_FREQ)) {
 			alsa->on_dial_control_changed(n, control_name, &m_mid_high_freq_width[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_mid_high_freq_width[n + 1].set_value(m_mid_high_freq_width[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_MIDLOW_FREQ)) {
 			alsa->on_dial_control_changed(n, control_name, &m_mid_low_freq_band[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_mid_low_freq_band[n + 1].set_value(m_mid_low_freq_band[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_MIDLOW_LEVEL)) {
 			alsa->on_dial_control_changed(n, control_name, &m_mid_low_freq_gain[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_mid_low_freq_gain[n + 1].set_value(m_mid_low_freq_gain[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_MIDLOWWIDTH_FREQ)) {
 			alsa->on_dial_control_changed(n, control_name, &m_mid_low_freq_width[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_mid_low_freq_width[n + 1].set_value(m_mid_low_freq_width[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_LOW_FREQ)) {
 			alsa->on_dial_control_changed(n, control_name, &m_low_freq_band[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_low_freq_band[n + 1].set_value(m_low_freq_band[n].get_value());
 			}
 		}
 		if (!strcmp(control_name, CTL_NAME_EQ_LOW_LEVEL)) {
 			alsa->on_dial_control_changed(n, control_name, &m_low_freq_gain[n]);
-			if (m_stripLayouts[n].get_channel_count() == 2) {
+			if (m_stripLayouts[n].get_channel_type() == STEREO) {
 				usleep(RESET_VALUE_DELAY);
 				m_low_freq_gain[n + 1].set_value(m_low_freq_gain[n].get_value());
 			}
@@ -1032,7 +1053,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
 	if (!strcmp(control_name, CTL_NAME_CP_ENABLE)) {
 		alsa->on_toggle_button_control_changed(n, control_name, &m_comp_enable[n]);
-		if (m_stripLayouts[n].get_channel_count() == 2) {
+		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			usleep(RESET_VALUE_DELAY);
 			m_comp_enable[n + 1].set_active(m_comp_enable[n].get_active());
 		}
@@ -1040,7 +1061,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
 	if (!strcmp(control_name, CTL_NAME_EQ_ENABLE)) {
 		alsa->on_toggle_button_control_changed(n, control_name, &m_eq_enable[n]);
-		if (m_stripLayouts[n].get_channel_count() == 2) {
+		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			usleep(RESET_VALUE_DELAY);
 			m_eq_enable[n + 1].set_active(m_eq_enable[n].get_active());
 		}
@@ -1052,7 +1073,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 		lo_message_add_float(reply, m_MuteEnable[n].get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/strip/mute", reply);
 		alsa->on_toggle_button_control_changed(n, control_name, &m_MuteEnable[n]);
-		if (m_stripLayouts[n].get_channel_count() == 2) {
+		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			usleep(RESET_VALUE_DELAY);
 			m_MuteEnable[n + 1].set_active(m_MuteEnable[n].get_active());
 		}
@@ -1066,6 +1087,14 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 		alsa->on_toggle_button_control_changed(n, control_name, &m_SoloEnable[n]);
 		lo_message_free(reply);
 	}
+	if (!strcmp(control_name, CTL_NAME_PHASE)) {
+		lo_message reply = lo_message_new();
+		lo_message_add_int32(reply, n);
+		lo_message_add_float(reply, m_PhaseEnable[n].get_active() ? 1. : 0.);
+		m_Worker.send_osc_all("/strip/solo", reply);
+		alsa->on_toggle_button_control_changed(n, control_name, &m_PhaseEnable[n]);
+		lo_message_free(reply);
+	}
 	if (!strcmp(control_name, CTL_NAME_MASTER_MUTE)) {
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, m_master.m_mute.get_active() ? 1. : 0.);
@@ -1073,27 +1102,50 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_mute);
 		lo_message_free(reply);
 	}
+	if (!strcmp(control_name, CTL_NAME_BYPASS)) {
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, m_master.m_true_bypass.get_active() ? 1. : 0.);
+		m_Worker.send_osc_all("/master/mute", reply);
+		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_true_bypass);
+		lo_message_free(reply);
+	}
 
 }
 
 void OMainWnd::on_ch_lb_changed(int n) {
-	//	printf("link: %d\n", n*2);
 	char title[64];
 	if (m_link[n].get_active()) {
-		m_stripLayouts[n * 2 + 1].m_comp.unpack();
-		m_stripLayouts[n * 2 + 1].m_fader.unpack();
-		m_grid.remove(m_stripLayouts[n * 2 + 1]);
-		m_stripLayouts[n * 2].set_channel_count(2);
+		
+		m_stripLayouts[n * 2].set_channel_type(STEREO);
+		
+		m_stripLayouts[n * 2 + 1].set_view_type(VIEW_TYPE::HIDDEN);
+		if (m_stripLayouts[n * 2 + 1].get_parent())
+			m_grid.remove(m_stripLayouts[n * 2 + 1]);
+		
+		m_stripLayouts[n * 2].set_view_type(HIDDEN);
+		m_stripLayouts[n * 2].set_view_type(m_view);
+
 		snprintf(title, 64, "Ch %d-%d", n * 2 + 1, n * 2 + 2);
 		m_stripLayouts[n * 2].m_title.set_label(title);
-	} else {
-		m_stripLayouts[n * 2].set_channel_count(1);
-		m_stripLayouts[n * 2 + 1].m_comp.pack(1);
-		m_stripLayouts[n * 2 + 1].m_fader.pack(1);
-		m_grid.attach(m_stripLayouts[n * 2 + 1], n * 2 + 1, 1, 1, 1);
+
+	}
+	else {
+		m_stripLayouts[n * 2].set_channel_type(MONO);
+		m_stripLayouts[n * 2 + 1].set_channel_type(MONO);
+
+		m_stripLayouts[n * 2].set_view_type(HIDDEN);
+		m_stripLayouts[n * 2].set_view_type(m_view);
+		
+		if (!m_stripLayouts[n * 2 + 1].get_parent())
+			m_grid.attach(m_stripLayouts[n * 2 + 1], n * 2 + 1, 1, 1, 1);
+		
+		m_stripLayouts[n * 2 + 1].set_view_type(HIDDEN);
+		m_stripLayouts[n * 2 + 1].set_view_type(m_view);
+
 		snprintf(title, 64, "Ch %d", n * 2 + 1);
 		m_stripLayouts[n * 2].m_title.set_label(title);
 	}
 	show_all_children(true);
+	resize(1, 1);
 }
 

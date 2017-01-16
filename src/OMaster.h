@@ -18,9 +18,11 @@
 #ifndef OMASTER_H
 #define OMASTER_H
 
+#include "OTypes.h"
 #include "ODial.h"
 #include "OAlsa.h"
 #include "OMeter.h"
+
 
 class OMaster : public Gtk::VBox  {
 public:
@@ -28,6 +30,9 @@ public:
     virtual ~OMaster();
     
     void init(OAlsa* alsa, Gtk::Window* wnd);    
+    
+    void pack(VIEW_TYPE pack);
+    void unpack();
     
     void reset(OAlsa* alsa);
     
@@ -39,6 +44,8 @@ public:
     Gtk::ToggleButton m_true_bypass;
     Gtk::ToggleButton m_comp_to_stereo;
     Gtk::ComboBoxText m_route[8];
+    
+    int m_pack;
     
 private:
     Gtk::Grid m_grid;

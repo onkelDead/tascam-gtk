@@ -37,7 +37,8 @@ Gtk::Widget() {
 	m_scroll_step = 5;
 	set_size_request(40, 54);
 	set_knob_background_color(0.0, 0.0, 0.8, 0.6);
-
+	set_halign(Gtk::ALIGN_CENTER);
+	set_hexpand(false);
 	set_name("o-dial");
 	m_refCssProvider = Gtk::CssProvider::create();
 	auto refStyleContext = get_style_context();
@@ -177,7 +178,6 @@ bool ODial::on_button_release_event(GdkEventButton* event) {
 
 bool ODial::on_motion_notify_event(GdkEventMotion* event) {
 	if (m_refGdkWindow && m_in_motion) {
-		printf("%d - %d\n", m_last_y, (int)(event->y));
 		m_value += (m_last_y - (int)(event->y));
 		m_last_y = (int)(event->y);
 		if (m_value < m_min)

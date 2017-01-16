@@ -28,18 +28,21 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 	m_event_box.add(m_title);
 	m_event_box.add_events(Gdk::EventMask::BUTTON_PRESS_MASK);
 
-
+	m_DspEnable.set_label("Active");
+	m_DspEnable.set_name("dsp-active");
+	
+	m_channel_type = MONO;
 
 	m_grid.attach(m_event_box, 0, 0, 1, 1);
-	m_grid.attach(m_title_sep, 0, 1, 1, 1);
-	m_grid.attach(m_comp, 0, 2, 1, 1);
-	m_grid.attach(m_comp_sep, 0, 3, 1, 1);
-	m_grid.attach(m_eq, 0, 4, 1, 1);
-	m_grid.attach(m_eq_sep, 0, 5, 1, 1);
+	m_grid.attach(m_title_sep, 0, 2, 1, 1);
+	m_grid.attach(m_comp, 0, 3, 1, 1);
+	m_grid.attach(m_comp_sep, 0, 4, 1, 1);
+	m_grid.attach(m_eq, 0, 5, 1, 1);
+	m_grid.attach(m_eq_sep, 0, 6, 1, 1);
 
-	m_grid.attach(m_fader, 0, 6, 1, 1);
+	m_grid.attach(m_fader, 0, 7, 1, 1);
 
-	m_grid.attach(m_sep, 1, 0, 1, 7);
+	m_grid.attach(m_sep, 1, 0, 1, 8);
 
 	add(m_grid);
 }
@@ -58,17 +61,27 @@ void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_eq.init(index, alsa, wnd);
 	m_fader.init(index, alsa, wnd);
 
-	m_comp.pack(1);
-	m_eq.pack(1);
-	m_fader.pack(1);
 
 }
 
-void OStripLayout::set_channel_count(int num_channels) {
-	m_comp.pack(num_channels);
-	m_eq.pack(num_channels);
-	m_fader.pack(num_channels);
-	m_num_channels = num_channels;
+void OStripLayout::set_view_type(VIEW_TYPE view_type)  {
+	
+	m_comp.pack(view_type, m_channel_type);
+	m_eq.pack(view_type, m_channel_type);
+	m_fader.pack(view_type, m_channel_type);
+	
+	if( view_type == HIDDEN || view_type == NORMAL ) {
+		if( m_DspEnable.get_parent() )
+			m_grid.remove(m_DspEnable);
+	}
+	if( view_type == COMPACT ) {
+		if( !m_DspEnable.get_parent() )
+			m_grid.attach(m_DspEnable, 0, 1, 1, 1);
+	}
+}
+
+void OStripLayout::set_channel_type(CHANNEL_TYPE num_channels) {
+	m_channel_type = num_channels;
 }
 
 void OStripLayout::reset(OAlsa* alsa, int index) {

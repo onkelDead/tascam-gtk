@@ -37,52 +37,79 @@ OFader::OFader(const OFader& orig) {
 OFader::~OFader() {
 }
 
-void OFader::pack(int layout) {
+void OFader::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
-	unpack();
+	if( view_type == HIDDEN) {
+		std::vector<Gtk::Widget*> childList = m_grid.get_children();
+		std::vector<Gtk::Widget*>::iterator it;
 
-	
-	if (layout == 1) {
-		m_grid.attach(*m_MuteEnable, 0, 0, 1, 1);
-		m_grid.attach(*m_SoloEnable, 0, 1, 1, 1);
-		m_grid.attach(*m_Pan[0], 1, 0, 1, 2);
-		m_grid.attach(*m_PhaseEnable[0], 1, 2, 1, 1);
-		m_grid.attach(m_dB, 0, 2, 1, 1);
-		m_grid.attach(*m_fader, 0, 3, 1, 1);
-		m_grid.attach(m_meter[0], 1, 3, 1, 1);
-
+		for (it = childList.begin(); it < childList.end(); it++) {
+			m_grid.remove(**it);
+		}
 	}
-	if (layout == 2) {
 
-		m_grid.attach(*m_MuteEnable, 0, 0, 1, 1);
-		m_grid.attach(*m_SoloEnable, 0, 1, 1, 1);
-		m_grid.attach(*m_Pan[0], 1, 0, 1, 2);
-		m_grid.attach(*m_Pan[1], 2, 0, 1, 2);
-		m_grid.attach(*m_PhaseEnable[0], 1, 2, 1, 1);
-		m_grid.attach(*m_PhaseEnable[1], 2, 2, 1, 1);
-		m_grid.attach(m_dB, 0, 2, 1, 1);
-		m_grid.attach(*m_fader, 0, 3, 1, 1);
-		m_grid.attach(m_meter[0], 1, 3, 1, 1);
-		m_grid.attach(m_meter[1], 2, 3, 1, 1);
+	if (view_type == NORMAL) {
+		if (channel_type == MONO) {
+			m_grid.attach(*m_MuteEnable, 0, 0, 1, 1);
+			m_grid.attach(*m_SoloEnable, 0, 1, 1, 1);
+			m_grid.attach(*m_Pan[0], 1, 0, 1, 2);
+			m_grid.attach(*m_PhaseEnable[0], 1, 2, 1, 1);
+			m_grid.attach(m_dB, 0, 2, 1, 1);
+			m_grid.attach(*m_fader, 0, 3, 1, 1);
+			m_grid.attach(m_meter[0], 1, 3, 1, 1);
+
+		}
+		if (channel_type == STEREO) {
+
+			m_grid.attach(*m_MuteEnable, 0, 0, 1, 1);
+			m_grid.attach(*m_SoloEnable, 0, 1, 1, 1);
+			m_grid.attach(*m_Pan[0], 1, 0, 1, 2);
+			m_grid.attach(*m_Pan[1], 2, 0, 1, 2);
+			m_grid.attach(*m_PhaseEnable[0], 1, 2, 1, 1);
+			m_grid.attach(*m_PhaseEnable[1], 2, 2, 1, 1);
+			m_grid.attach(m_dB, 0, 2, 1, 1);
+			m_grid.attach(*m_fader, 0, 3, 1, 1);
+			m_grid.attach(m_meter[0], 1, 3, 1, 1);
+			m_grid.attach(m_meter[1], 2, 3, 1, 1);
+		}
 	}
-	m_pack = layout;
+	if (view_type == COMPACT) {
+		if (channel_type == MONO) {
+			m_grid.attach(*m_MuteEnable, 0, 0, 3, 1);
+			m_grid.attach(*m_SoloEnable, 0, 1, 3, 1);
+			m_grid.attach(*m_Pan[0], 0, 2, 3, 1);
+			//		m_grid.attach(*m_Pan[1], 2, 0, 1, 2);
+			m_grid.attach(*m_PhaseEnable[0], 0, 3, 3, 1);
+			//		m_grid.attach(*m_PhaseEnable[1], 2, 2, 1, 1);
+			m_grid.attach(m_dB, 0, 4, 3, 1);
+			m_grid.attach(*m_fader, 0, 5, 1, 1);
+			m_grid.attach(m_meter[0], 1, 5, 1, 1);
+			//		m_grid.attach(m_meter[1], 2, 5, 1, 1);
+
+		}
+		if (channel_type == STEREO) {
+
+			m_grid.attach(*m_MuteEnable, 0, 0, 4, 1);
+			m_grid.attach(*m_SoloEnable, 0, 1, 4, 1);
+			m_grid.attach(*m_Pan[0], 0, 2, 2, 1);
+			m_grid.attach(*m_Pan[1], 2, 2, 2, 1);
+			m_grid.attach(*m_PhaseEnable[0], 0, 3, 2, 1);
+			m_grid.attach(*m_PhaseEnable[1], 2, 3, 2, 1);
+			m_grid.attach(m_dB, 0, 4, 4, 1);
+			m_grid.attach(*m_fader, 0, 5, 2, 1);
+			m_grid.attach(m_meter[0], 2, 5, 1, 1);
+			m_grid.attach(m_meter[1], 3, 5, 1, 1);
+		}
+	}
+	for (int ci = 0; ci < (view_type == 2 ? 2 : 1); ci++) {
+	}
+
+	m_pack = view_type;
 }
 
 void OFader::unpack() {
-	if (m_pack) {
-		m_grid.remove(*m_MuteEnable);
-		m_grid.remove(*m_SoloEnable);
-		m_grid.remove(*m_PhaseEnable[0]);
-		m_grid.remove(*m_Pan[0]);
-		if (m_pack == 2) {
-			m_grid.remove(*m_PhaseEnable[1]);
-			m_grid.remove(*m_Pan[1]);
-			m_grid.remove(m_meter[1]);
-		}
-		m_grid.remove(m_dB);
-		m_grid.remove(*m_fader);
-		m_grid.remove(m_meter[0]);
-	}
+	while (m_grid.get_children().size())
+		m_grid.remove_row(0);
 	m_pack = 0;
 }
 
@@ -106,6 +133,8 @@ void OFader::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
 	m_Pan[0] = &wnd_->m_Pan[index];
 	m_Pan[0]->set_value(alsa->getInteger(CTL_NAME_PAN, index));
 	m_Pan[0]->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_PAN));
+	m_Pan[0]->set_hexpand(false);
+	m_Pan[0]->set_halign(Gtk::ALIGN_CENTER);
 
 	m_MuteEnable = &wnd_->m_MuteEnable[index];
 	m_MuteEnable->set_active(alsa->getBoolean(CTL_NAME_MUTE, index));
@@ -118,14 +147,20 @@ void OFader::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
 	m_PhaseEnable[0] = &wnd_->m_PhaseEnable[index];
 	m_PhaseEnable[0]->set_active(alsa->getBoolean(CTL_NAME_PHASE, index));
 	m_PhaseEnable[0]->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_PHASE));
+
+
 	if (!(index % 2)) {
 		m_Pan[1] = &wnd_->m_Pan[index + 1];
 		m_Pan[1]->set_value(alsa->getInteger(CTL_NAME_PAN, index + 1));
 		m_Pan[1]->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index + 1, CTL_NAME_PAN));
-		m_PhaseEnable[1] = &wnd_->m_PhaseEnable[index+1];
-		m_PhaseEnable[1]->set_active(alsa->getBoolean(CTL_NAME_PHASE, index+1));
+		m_Pan[1]->set_hexpand(false);
+		m_Pan[1]->set_halign(Gtk::ALIGN_CENTER);
+		m_PhaseEnable[1] = &wnd_->m_PhaseEnable[index + 1];
+		m_PhaseEnable[1]->set_active(alsa->getBoolean(CTL_NAME_PHASE, index + 1));
 		m_PhaseEnable[1]->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index + 1, CTL_NAME_PHASE));
 	}
+	
+
 }
 
 void OFader::reset(OAlsa* alsa, int index) {
