@@ -28,7 +28,7 @@ and open the template in the editor.
         from (rgb(55,55,55)),
         color-stop (0.5, darker (rgb(75,75,75))),
         to (rgb(75,75,75)));
-    /*background-color: rgb(55,55,55);*/
+    background-color: rgb(55,55,55);
     color: rgb(228,228,228);
     border-top-width: 0;
     border-color: rgb(55,55,55);
@@ -95,9 +95,9 @@ and open the template in the editor.
     background-image: -gtk-gradient (linear,
         left top,
         left bottom,
-        from (rgb(224,224,224)),
+        from (rgb(208,208,208)),
         color-stop (0.5, lighter (rgb(255,255,255))),
-        to (rgb(224,224,224)));
+        to (rgb(208,208,208)));
     color: rgb(55,55,55);
 }
 #fader {
@@ -119,15 +119,7 @@ and open the template in the editor.
     font-size: 90%;
 
 }
-/*
-#menu  {       
-    background-color: white;
-    color: green;
-    font-weight:bold;
-}
 
-#menu :hover {
-    background-color: red;
-    color: blue;
-    font-weight:bold;
-}*/
+.separator {
+    color: rgb(32,32,32);
+}

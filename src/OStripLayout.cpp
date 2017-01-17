@@ -30,19 +30,11 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 
 	m_DspEnable.set_label("Active");
 	m_DspEnable.set_name("dsp-active");
-	
+
 	m_channel_type = MONO;
 
-	m_grid.attach(m_event_box, 0, 0, 1, 1);
-	m_grid.attach(m_title_sep, 0, 2, 1, 1);
-	m_grid.attach(m_comp, 0, 3, 1, 1);
-	m_grid.attach(m_comp_sep, 0, 4, 1, 1);
-	m_grid.attach(m_eq, 0, 5, 1, 1);
-	m_grid.attach(m_eq_sep, 0, 6, 1, 1);
 
-	m_grid.attach(m_fader, 0, 7, 1, 1);
-
-	m_grid.attach(m_sep, 1, 0, 1, 8);
+	//	m_grid.attach(m_sep, 1, 0, 1, 8);
 
 	add(m_grid);
 }
@@ -51,10 +43,10 @@ OStripLayout::~OStripLayout() {
 }
 
 void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
-	OMainWnd* wnd_ = (OMainWnd*) wnd;	
+	OMainWnd* wnd_ = (OMainWnd*) wnd;
 	char l_title[64];
 	int val;
-	
+
 	snprintf(l_title, sizeof (l_title), "Ch %d", index + 1);
 	m_title.set_text(l_title);
 
@@ -66,20 +58,49 @@ void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 }
 
-void OStripLayout::set_view_type(VIEW_TYPE view_type)  {
-	
+void OStripLayout::set_view_type(VIEW_TYPE view_type) {
+
 	m_comp.set_view_type(view_type, m_channel_type);
 	m_eq.set_view_type(view_type, m_channel_type);
 	m_fader.set_view_type(view_type, m_channel_type);
-	
-	if( view_type == HIDDEN || view_type == NORMAL ) {
-		if( m_DspEnable.get_parent() )
+
+	if (view_type == HIDDEN) {
+		std::vector<Gtk::Widget*> childList = m_grid.get_children();
+		std::vector<Gtk::Widget*>::iterator it;
+
+		for (it = childList.begin(); it < childList.end(); it++) {
+			m_grid.remove(**it);
+		}
+	}
+
+	if (view_type == NORMAL) {
+		m_grid.attach(m_event_box, 0, 0, 1, 1);
+		m_grid.attach(m_comp, 0, 3, 1, 1);
+		m_grid.attach(m_comp_sep, 0, 4, 1, 1);
+		m_grid.attach(m_eq, 0, 5, 1, 1);
+		m_grid.attach(m_eq_sep, 0, 6, 1, 1);
+
+		m_grid.attach(m_fader, 0, 7, 1, 1);
+
+		if (m_DspEnable.get_parent())
 			m_grid.remove(m_DspEnable);
+		m_grid.attach(m_sep, 1, 0, 1, 8);
+
 	}
-	if( view_type == COMPACT ) {
-		if( !m_DspEnable.get_parent() )
+
+	if (view_type == COMPACT) {
+		m_grid.attach(m_event_box, 0, 0, 1, 1);
+		m_grid.attach(m_comp, 0, 3, 1, 1);
+		//		m_grid.attach(m_comp_sep, 0, 4, 1, 1);
+		m_grid.attach(m_eq, 0, 5, 1, 1);
+		//		m_grid.attach(m_eq_sep, 0, 6, 1, 1);
+
+		m_grid.attach(m_fader, 0, 7, 1, 1);
+		if (!m_DspEnable.get_parent())
 			m_grid.attach(m_DspEnable, 0, 1, 1, 1);
+		m_grid.attach(m_sep, 1, 0, 1, 8);
 	}
+
 }
 
 void OStripLayout::set_channel_type(CHANNEL_TYPE num_channels) {

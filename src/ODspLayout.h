@@ -20,6 +20,7 @@
 #include "OEq.h"
 #include "OFader.h"
 #include "OMeter.h"
+#include "ORoute.h"
 #include "OAlsa.h"
 
 class ODspLayout : public Gtk::VBox {
@@ -41,7 +42,10 @@ public:
     
     OComp m_comp;
     OEq m_eq;
+    ORoute* m_route;
+    
 private:
+    Gtk::Label m_filler;
     Gtk::Grid m_grid;
     CHANNEL_TYPE m_channel_type;
     Gtk::VSeparator m_eq_sep;

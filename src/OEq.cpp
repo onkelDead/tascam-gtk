@@ -112,8 +112,7 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 
 	if (view_type == NORMAL) {
-		m_eq_enable->set_hexpand(false);
-		m_eq_enable->set_halign(Gtk::ALIGN_CENTER);
+
 
 		if (channel_type == MONO) {
 			m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);

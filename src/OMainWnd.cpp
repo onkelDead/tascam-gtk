@@ -77,8 +77,6 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 
 			// equalizer controls
 			{
-				m_eq_enable[i].set_size_request(-1, 24);
-
 				m_eq_enable[i].set_label("EQ");
 				m_eq_enable[i].set_name("eq-button");
 				m_eq_enable[i].set_vexpand(false);
@@ -180,7 +178,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 		}
 		m_dsp_layout.init(16, alsa, this);
 		
-		m_dsp_layout.set_view_type(SINGLE_DSP);
+		m_dsp_layout.set_view_type(PREPARE);
 		m_dsp_layout.set_sensitive(false);
 
 		gqueue = g_async_queue_new();
@@ -207,6 +205,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 		m_grid.attach(m_link[i], i * 2, 3, 2, 1);
 	}
 
+	m_route.init(alsa, this);
 	m_master.init(alsa, this);
 	m_grid.attach(m_master, 16, 1, 1, 3);
 
@@ -417,6 +416,8 @@ void OMainWnd::on_menu_file_exit() {
 void OMainWnd::on_menu_file_reset() {
 	m_master.reset(alsa);
 
+	m_route.reset(alsa);
+	
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		m_stripLayouts[i].reset(alsa, i);
 	}
@@ -622,7 +623,7 @@ void OMainWnd::save_values(Glib::ustring filename) {
 		for (int i = 0; i < 8; i++) {
 
 			fprintf(file, "\t<route index=\"%d\">", i);
-			fprintf(file, "%d", (int) m_master.m_route[i].get_active_row_number());
+			fprintf(file, "%d", (int) m_route.m_route[i].get_active_row_number());
 			fprintf(file, "</route>\n");
 
 		}
@@ -673,7 +674,7 @@ void OMainWnd::load_values(Glib::ustring filename) {
 					reader.move_to_first_attribute();
 					int index = atoi(reader.get_value().c_str());
 					reader.read();
-					m_master.m_route[index].set_active(atoi(reader.get_value().c_str()));
+					m_route.m_route[index].set_active(atoi(reader.get_value().c_str()));
 					usleep(RESET_VALUE_DELAY);
 				}
 			}

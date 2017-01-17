@@ -63,7 +63,6 @@ OMaster::OMaster() : Gtk::VBox() {
 	m_meter_right.set_hexpand(false);
 	m_meter_right.set_halign(Gtk::ALIGN_CENTER);
 
-	set_view_type(NORMAL);
 
 	add(m_grid);
 }
@@ -77,6 +76,8 @@ void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
 
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
+	m_route = &wnd_->m_route;
+	
 	val = alsa->getInteger(CTL_MASTER, 0);
 	m_fader.set_value(alsa->dBToSlider(val) + 1);
 	m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_fader_changed), 0, CTL_MASTER, &m_fader, (Gtk::Label*) NULL));
@@ -92,11 +93,8 @@ void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
 	m_mute.set_active(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0));
 	m_mute.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_MASTER_MUTE));
 
-	for (int ri = 0; ri < 8; ri++) {
-		val = alsa->getInteger(CTL_ROUTE, ri);
-		m_route[ri].set_active(val);
-		m_route[ri].signal_changed().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_combo_control_changed), ri, CTL_ROUTE, &m_route[ri]));
-	}
+	set_view_type(NORMAL);
+
 }
 
 void OMaster::reset(OAlsa* alsa) {
@@ -115,38 +113,29 @@ void OMaster::reset(OAlsa* alsa) {
 	alsa->setBoolean(CTL_NAME_MASTER_MUTE, 0, 0);
 	m_mute.set_active(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0));
 	usleep(RESET_VALUE_DELAY);
-
-	for (int ri = 0; ri < 8; ri++) {
-		m_route[ri].set_active(ri + (ri < 2 ? 0 : 2));
-		usleep(RESET_VALUE_DELAY);
-	}
 }
 
 void OMaster::set_view_type(VIEW_TYPE view_type) {
 
 	if (view_type == HIDDEN) {
-		while (m_grid.get_children().size())
-			m_grid.remove_row(0);
+		std::vector<Gtk::Widget*> childList = m_grid.get_children();
+		std::vector<Gtk::Widget*>::iterator it;
+
+		for (it = childList.begin(); it < childList.end(); it++) {
+			m_grid.remove(**it);
+		}
+		m_route->set_view_type(view_type);
 	}
 
 	if (view_type == NORMAL) {
-		for (int i = 0; i < 8; i++) {
-			m_route[i].set_name("route");
-			m_route[i].append("Master Left");
-			m_route[i].append("Master Right");
-			for (int j = 0; j < 8; j++) {
-				char entry[24];
-				snprintf(entry, 24, "Output %d", j + 1);
-				m_route[i].append(entry);
-			}
-			m_grid.attach(m_route[i], 0, i, 3, 1);
-		}
+		m_grid.attach(*m_route, 0, 0, 3, 1);
 		m_grid.attach(m_true_bypass, 0, 8, 3, 1);
 		m_grid.attach(m_comp_to_stereo, 0, 9, 3, 1);
 		m_grid.attach(m_mute, 0, 10, 3, 1);
 		m_grid.attach(m_fader, 0, 11, 1, 1);
 		m_grid.attach(m_meter_left, 1, 11, 1, 1);
 		m_grid.attach(m_meter_right, 2, 11, 1, 1);
+		m_route->set_view_type(view_type);
 
 	}
 	if (view_type == COMPACT) {
@@ -156,6 +145,7 @@ void OMaster::set_view_type(VIEW_TYPE view_type) {
 		m_grid.attach(m_fader, 0, 11, 1, 1);
 		m_grid.attach(m_meter_left, 1, 11, 1, 1);
 		m_grid.attach(m_meter_right, 2, 11, 1, 1);
+		m_route->set_view_type(view_type);
 	}
 	m_view_type = view_type;
 	

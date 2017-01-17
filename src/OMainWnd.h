@@ -24,6 +24,7 @@
 #include "OStripLayout.h"
 #include "ODspLayout.h"
 #include "OMaster.h"
+#include "ORoute.h"
 #include "OAlsa.h"
 #include "OMeterWorker.h"
 
@@ -80,6 +81,8 @@ public:
     Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS+1];
     Gtk::VScale m_fader[NUM_CHANNELS+1];
 
+    ORoute m_route;
+    
     void on_menu_file_load();
     void on_menu_file_save();
     void on_menu_file_reset();

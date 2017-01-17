@@ -108,9 +108,11 @@ am_tascamgtk_OBJECTS = src/tascamgtk-main.$(OBJEXT) \
 	src/tascamgtk-ODial.$(OBJEXT) src/tascamgtk-OEq.$(OBJEXT) \
 	src/tascamgtk-OFader.$(OBJEXT) \
 	src/tascamgtk-OMainWnd.$(OBJEXT) \
-	src/tascamgtk-OMaster.$(OBJEXT) src/tascamgtk-OMeter.$(OBJEXT) \
+	src/tascamgtk-OMaster.$(OBJEXT) src/tascamgtk-ORoute.$(OBJEXT) \
+	src/tascamgtk-OMeter.$(OBJEXT) \
 	src/tascamgtk-OMeterWorker.$(OBJEXT) \
-	src/tascamgtk-OStripLayout.$(OBJEXT)
+	src/tascamgtk-OStripLayout.$(OBJEXT) \
+	src/tascamgtk-ODspLayout.$(OBJEXT)
 tascamgtk_OBJECTS = $(am_tascamgtk_OBJECTS)
 am__DEPENDENCIES_1 =
 tascamgtk_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -299,7 +301,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-tascamgtk_SOURCES = src/main.cpp  src/OAlsa.cpp  src/OComp.cpp  src/ODial.cpp  src/OEq.cpp src/OFader.cpp src/OMainWnd.cpp  src/OMaster.cpp  src/OMeter.cpp  src/OMeterWorker.cpp  src/OStripLayout.cpp
+tascamgtk_SOURCES = src/main.cpp  src/OAlsa.cpp  src/OComp.cpp  src/ODial.cpp  src/OEq.cpp src/OFader.cpp src/OMainWnd.cpp  src/OMaster.cpp  src/ORoute.cpp  src/OMeter.cpp  src/OMeterWorker.cpp  src/OStripLayout.cpp src/ODspLayout.cpp
 tascamgtk_CPPFLAGS = -O2 -std=c++11 ${GTK3_CFLAGS} ${GTKMM3_CFLAGS} ${ALSA_CFLAGS} ${XML2_CFLAGS} ${LO_CFLAGS}
 tascamgtk_LDADD = ${GTK2_LIBS} ${GTKMM3_LIBS} ${ALSA_LIBS} ${XML2_LIBS} ${LO_LIBS} -lpthread
 all: config.h
@@ -419,11 +421,15 @@ src/tascamgtk-OMainWnd.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/tascamgtk-OMaster.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/tascamgtk-ORoute.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/tascamgtk-OMeter.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/tascamgtk-OMeterWorker.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/tascamgtk-OStripLayout.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/tascamgtk-ODspLayout.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
 tascamgtk$(EXEEXT): $(tascamgtk_OBJECTS) $(tascamgtk_DEPENDENCIES) $(EXTRA_tascamgtk_DEPENDENCIES) 
@@ -440,12 +446,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OAlsa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OComp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-ODial.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-ODspLayout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OEq.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OFader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OMainWnd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OMaster.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OMeter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OMeterWorker.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-ORoute.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-OStripLayout.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tascamgtk-main.Po@am__quote@
 
@@ -577,6 +585,20 @@ src/tascamgtk-OMaster.obj: src/OMaster.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-OMaster.obj `if test -f 'src/OMaster.cpp'; then $(CYGPATH_W) 'src/OMaster.cpp'; else $(CYGPATH_W) '$(srcdir)/src/OMaster.cpp'; fi`
 
+src/tascamgtk-ORoute.o: src/ORoute.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-ORoute.o -MD -MP -MF src/$(DEPDIR)/tascamgtk-ORoute.Tpo -c -o src/tascamgtk-ORoute.o `test -f 'src/ORoute.cpp' || echo '$(srcdir)/'`src/ORoute.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/tascamgtk-ORoute.Tpo src/$(DEPDIR)/tascamgtk-ORoute.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/ORoute.cpp' object='src/tascamgtk-ORoute.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-ORoute.o `test -f 'src/ORoute.cpp' || echo '$(srcdir)/'`src/ORoute.cpp
+
+src/tascamgtk-ORoute.obj: src/ORoute.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-ORoute.obj -MD -MP -MF src/$(DEPDIR)/tascamgtk-ORoute.Tpo -c -o src/tascamgtk-ORoute.obj `if test -f 'src/ORoute.cpp'; then $(CYGPATH_W) 'src/ORoute.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ORoute.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/tascamgtk-ORoute.Tpo src/$(DEPDIR)/tascamgtk-ORoute.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/ORoute.cpp' object='src/tascamgtk-ORoute.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-ORoute.obj `if test -f 'src/ORoute.cpp'; then $(CYGPATH_W) 'src/ORoute.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ORoute.cpp'; fi`
+
 src/tascamgtk-OMeter.o: src/OMeter.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-OMeter.o -MD -MP -MF src/$(DEPDIR)/tascamgtk-OMeter.Tpo -c -o src/tascamgtk-OMeter.o `test -f 'src/OMeter.cpp' || echo '$(srcdir)/'`src/OMeter.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/tascamgtk-OMeter.Tpo src/$(DEPDIR)/tascamgtk-OMeter.Po
@@ -618,6 +640,20 @@ src/tascamgtk-OStripLayout.obj: src/OStripLayout.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/OStripLayout.cpp' object='src/tascamgtk-OStripLayout.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-OStripLayout.obj `if test -f 'src/OStripLayout.cpp'; then $(CYGPATH_W) 'src/OStripLayout.cpp'; else $(CYGPATH_W) '$(srcdir)/src/OStripLayout.cpp'; fi`
+
+src/tascamgtk-ODspLayout.o: src/ODspLayout.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-ODspLayout.o -MD -MP -MF src/$(DEPDIR)/tascamgtk-ODspLayout.Tpo -c -o src/tascamgtk-ODspLayout.o `test -f 'src/ODspLayout.cpp' || echo '$(srcdir)/'`src/ODspLayout.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/tascamgtk-ODspLayout.Tpo src/$(DEPDIR)/tascamgtk-ODspLayout.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/ODspLayout.cpp' object='src/tascamgtk-ODspLayout.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-ODspLayout.o `test -f 'src/ODspLayout.cpp' || echo '$(srcdir)/'`src/ODspLayout.cpp
+
+src/tascamgtk-ODspLayout.obj: src/ODspLayout.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/tascamgtk-ODspLayout.obj -MD -MP -MF src/$(DEPDIR)/tascamgtk-ODspLayout.Tpo -c -o src/tascamgtk-ODspLayout.obj `if test -f 'src/ODspLayout.cpp'; then $(CYGPATH_W) 'src/ODspLayout.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ODspLayout.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/tascamgtk-ODspLayout.Tpo src/$(DEPDIR)/tascamgtk-ODspLayout.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/ODspLayout.cpp' object='src/tascamgtk-ODspLayout.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-ODspLayout.obj `if test -f 'src/ODspLayout.cpp'; then $(CYGPATH_W) 'src/ODspLayout.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ODspLayout.cpp'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

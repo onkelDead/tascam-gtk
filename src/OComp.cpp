@@ -56,7 +56,7 @@ OComp::OComp() : Gtk::VBox() {
 OComp::~OComp() {
 }
 
-void OComp::set_sensitive(bool val){
+void OComp::set_sensitive(bool val) {
 
 	std::vector<Gtk::Widget*> childList = m_grid.get_children();
 	std::vector<Gtk::Widget*>::iterator it;
@@ -102,12 +102,6 @@ void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 			m_grid.attach(*m_reduction[0], 2, 0, 1, 3);
 			m_grid.attach(*m_reduction[1], 3, 0, 1, 3);
 		}
-//		m_threshold->set_view_type(NORMAL);
-//		m_gain->set_view_type(NORMAL);
-//		m_attack->set_view_type(NORMAL);
-//		m_release->set_view_type(NORMAL);
-//		m_ratio->set_view_type(NORMAL);
-
 	}
 
 	if (view_type == COMPACT) {
@@ -121,46 +115,41 @@ void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 		m_grid.attach(*m_gain, 2, 0, 1, 1);
 		m_grid.attach(*m_attack, 0, 1, 1, 1);
 		m_grid.attach(*m_release, 1, 1, 1, 1);
-		if (channel_type == MONO) 
+		if (channel_type == MONO)
 			m_grid.attach(*m_reduction[0], 3, 0, 1, 2);
 		if (channel_type == STEREO) {
 			m_grid.attach(*m_reduction[0], 3, 0, 1, 2);
 			m_grid.attach(*m_reduction[1], 4, 0, 1, 2);
 		}
-//		m_threshold->set_view_type(SINGLE_DSP);
-//		m_ratio->set_view_type(SINGLE_DSP);
-//		m_gain->set_view_type(SINGLE_DSP);
-//		m_attack->set_view_type(SINGLE_DSP);
-//		m_release->set_view_type(SINGLE_DSP);
 	}
 
 	m_view_type = view_type;
 }
 
-void OComp::set_ref_index(int index, Gtk::Window* wnd){
-	
+void OComp::set_ref_index(int index, Gtk::Window* wnd) {
+
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
-	
+
 	m_enable = &wnd_->m_comp_enable[index];
 	m_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CP_ENABLE));
-	
+
 	m_threshold = &wnd_->m_threshold[index];
 	m_threshold->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_THRESHOLD));
-	
+
 	m_gain = &wnd_->m_gain[index];
 	m_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_GAIN));
-	
+
 	m_attack = &wnd_->m_attack[index];
 	m_attack->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_ATTACK));
-	
+
 	m_release = &wnd_->m_release[index];
 	m_release->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_RELEASE));
-	
+
 	m_ratio = &wnd_->m_ratio[index];
 	m_ratio->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_RATIO));
-	
+
 	m_reduction[0] = &wnd_->m_reduction[index];
-	if (!(index % 2) ) 
+	if (!(index % 2) && index < 16)
 		m_reduction[1] = &wnd_->m_reduction[index + 1];
 }
 
@@ -171,18 +160,18 @@ void OComp::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	set_ref_index(index, wnd_);
 
 	m_reduction[0]->set_hexpand(false);
-	m_reduction[0]->set_margin_start(5);
+	m_reduction[0]->set_margin_start(6);
 	m_reduction[0]->set_halign(Gtk::ALIGN_CENTER);
-	if (!(index % 2) ) {
+	if (!(index % 2) && index < 16) {
 		m_reduction[1]->set_hexpand(false);
-		m_reduction[1]->set_margin_start(5);
+		m_reduction[1]->set_margin_start(6);
 		m_reduction[1]->set_halign(Gtk::ALIGN_CENTER);
 	}
 
 	m_enable->set_hexpand(false);
 	m_enable->set_vexpand(false);
 	m_enable->set_valign(Gtk::ALIGN_CENTER);
-	if ( index < NUM_CHANNELS)
+	if (index < NUM_CHANNELS)
 		get_alsa_values(index, alsa);
 }
 
