@@ -40,7 +40,6 @@ void ODspLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 	m_comp.init(index, alsa, wnd);
 	m_eq.init(index, alsa, wnd);
-	m_eq.set_active(false);
 
 }
 
@@ -55,12 +54,17 @@ void ODspLayout::set_view_type(VIEW_TYPE view_type) {
 	m_grid.set_hexpand(true);
 	m_grid.set_halign(Gtk::ALIGN_FILL);
 	
-	m_comp.pack(view_type, m_channel_type);
-	m_eq.pack(view_type, m_channel_type);
+	m_comp.set_view_type(view_type, m_channel_type);
+	m_eq.set_view_type(view_type, m_channel_type);
 
 }
 
 void ODspLayout::set_ref_index(int index, Gtk::Window* wnd) {
 	m_comp.set_ref_index(index, wnd);
 	m_eq.set_ref_index(index, wnd);
+}
+
+void ODspLayout::set_sensitive(bool val) {
+	m_eq.set_sensitive(val);
+	m_comp.set_sensitive(val);
 }

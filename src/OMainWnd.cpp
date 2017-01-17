@@ -87,6 +87,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 				m_high_freq_gain[i].set_label("High");
 				m_high_freq_gain[i].set_value_callback(eq_level_text);
 				m_high_freq_gain[i].set_params(0, 24, 12, 1);
+				m_high_freq_gain[i].set_name("eq_high_gain");
 				m_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
 
 				m_high_freq_band[i].set_label("Freq");
@@ -180,6 +181,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 		m_dsp_layout.init(16, alsa, this);
 		
 		m_dsp_layout.set_view_type(SINGLE_DSP);
+		m_dsp_layout.set_sensitive(false);
 
 		gqueue = g_async_queue_new();
 
@@ -477,7 +479,8 @@ void OMainWnd::on_menu_view_compact() {
 	for (int i = 0; i < NUM_CHANNELS / 2; i++) {
 		on_ch_lb_changed(i);
 	}
-	m_master.pack(m_view);
+	m_master.set_view_type(HIDDEN);
+	m_master.set_view_type(m_view);
 	if( !m_dsp_layout.get_parent())
 		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
 }
@@ -487,7 +490,8 @@ void OMainWnd::on_menu_view_normal() {
 	for (int i = 0; i < NUM_CHANNELS / 2; i++) {
 		on_ch_lb_changed(i);
 	}
-	m_master.pack(m_view);
+	m_master.set_view_type(HIDDEN);
+	m_master.set_view_type(m_view);
 	if( m_dsp_layout.get_parent())
 		m_grid.remove(m_dsp_layout);
 }
@@ -1149,6 +1153,8 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 			m_dsp_layout.set_view_type(HIDDEN);
 			m_dsp_layout.set_ref_index(n, this);
 			m_dsp_layout.set_view_type(SINGLE_DSP);
+			m_dsp_layout.set_sensitive(true);
+			
 			m_block_ui = false;
 		}
 		else {
@@ -1157,6 +1163,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 			m_dsp_layout.set_view_type(HIDDEN);
 			m_dsp_layout.set_ref_index(16, this);
 			m_dsp_layout.set_view_type(SINGLE_DSP);
+			m_dsp_layout.set_sensitive(false);
 		}
 	}
 }

@@ -19,6 +19,7 @@
 
 #include <lo/lo.h>
 
+#include "OTypes.h"
 #include "ODial.h"
 #include "OMeter.h"
 #include "OAlsa.h"
@@ -45,12 +46,11 @@ public:
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
     void set_ref_index(int index, Gtk::Window* wnd_);
 
-    void get_all_values(int index, OAlsa* alsa);
-
+    void get_alsa_values(int index, OAlsa* alsa);
     
-    void pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
-    void unpack();
+    void set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
     
+    void set_sensitive(bool val);
     bool is_active() { return m_enable->get_active(); }
 
     void reset(OAlsa* alsa, int index);
@@ -70,8 +70,8 @@ public:
     
     OMeter* m_reduction[2];
     
-    int m_pack;
 private:
+    VIEW_TYPE m_view_type;
     Gtk::Grid m_grid;
 };
 

@@ -31,6 +31,8 @@ public:
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
 
     void set_view_type(VIEW_TYPE i);
+    
+    void set_sensitive(bool val);
 
     void set_channel_type(CHANNEL_TYPE num_channels);
     CHANNEL_TYPE get_channel_type() {return m_channel_type;}

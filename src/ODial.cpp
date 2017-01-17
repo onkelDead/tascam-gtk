@@ -29,38 +29,42 @@ m_map(0),
 m_value_callback(0),
 Gtk::Widget() {
 	set_has_window(true);
+
 	m_value = 0;
 	m_in_motion = false;
 	m_min = 0;
 	m_default = 0;
 	m_max = 1;
 	m_scroll_step = 5;
+
 	set_size_request(40, 54);
-	set_knob_background_color(0.0, 0.0, 0.8, 0.6);
+	set_knob_background_color(0.6, 0.6, 0.6, 1);
 	set_halign(Gtk::ALIGN_CENTER);
 	set_hexpand(false);
 	set_name("o-dial");
-	m_refCssProvider = Gtk::CssProvider::create();
-	auto refStyleContext = get_style_context();
-	refStyleContext->add_provider(m_refCssProvider,
-			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-	m_refCssProvider->signal_parsing_error().connect(
-			sigc::mem_fun(*this, &ODial::on_parsing_error));
 
-	try {
-		m_refCssProvider->load_from_path("src/tascam-gtk.css");
-	} catch (const Gtk::CssProviderError& ex) {
-		std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
-				<< ex.what() << std::endl;
-	} catch (const Glib::Error& ex) {
-		std::cerr << "Error, Gtk::CssProvider::load_from_path() failed: "
-				<< ex.what() << std::endl;
-	}
+	//	m_refCssProvider = Gtk::CssProvider::create();
+	//	auto refStyleContext = get_style_context();
+	//	refStyleContext->add_provider(m_refCssProvider,
+	//			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	//	m_refCssProvider->signal_parsing_error().connect(
+	//			sigc::mem_fun(*this, &ODial::on_parsing_error));
+	//
+	//	try {
+	//		m_refCssProvider->load_from_path("src/tascam-gtk.css");
+	//	} catch (const Gtk::CssProviderError& ex) {
+	//		std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
+	//				<< ex.what() << std::endl;
+	//	} catch (const Glib::Error& ex) {
+	//		std::cerr << "Error, Gtk::CssProvider::load_from_path() failed: "
+	//				<< ex.what() << std::endl;
+	//	}
+
 }
 
 ODial::~ODial() {
 	if (m_label)
-		free(m_label);	
+		free(m_label);
 }
 
 void ODial::on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error) {
@@ -178,8 +182,8 @@ bool ODial::on_button_release_event(GdkEventButton* event) {
 
 bool ODial::on_motion_notify_event(GdkEventMotion* event) {
 	if (m_refGdkWindow && m_in_motion) {
-		m_value += (m_last_y - (int)(event->y));
-		m_last_y = (int)(event->y);
+		m_value += (m_last_y - (int) (event->y));
+		m_last_y = (int) (event->y);
 		if (m_value < m_min)
 			m_value = m_min;
 		if (m_value > m_max)
@@ -254,7 +258,8 @@ bool ODial::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 	cr->set_line_width(.5);
 	cr->save();
 	cr->arc(center_x, center_y, inner_radius, 0.0, 2.0 * M_PI); // full circle
-	cr->set_source_rgba(m_b_red, m_b_green, m_b_blue, m_b_alpha);
+	if (get_sensitive())
+		cr->set_source_rgba(m_b_red, m_b_green, m_b_blue, m_b_alpha);
 	cr->fill_preserve();
 	cr->restore(); // back to opaque black
 	cr->stroke();
@@ -296,7 +301,7 @@ void ODial::draw_text(const Cairo::RefPtr<Cairo::Context>& cr,
 
 	layout->get_pixel_size(text_width, text_height);
 
-	cr->set_source_rgb(.8,.8,.8);
+	cr->set_source_rgb(.8, .8, .8);
 	cr->move_to((rectangle_width - text_width) / 2, rectangle_height);
 
 	layout->show_in_cairo_context(cr);

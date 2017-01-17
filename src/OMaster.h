@@ -31,8 +31,7 @@ public:
     
     void init(OAlsa* alsa, Gtk::Window* wnd);    
     
-    void pack(VIEW_TYPE pack);
-    void unpack();
+    void set_view_type(VIEW_TYPE pack);
     
     void reset(OAlsa* alsa);
     
@@ -45,15 +44,9 @@ public:
     Gtk::ToggleButton m_comp_to_stereo;
     Gtk::ComboBoxText m_route[8];
     
-    int m_pack;
-    
 private:
+    VIEW_TYPE m_view_type;
     Gtk::Grid m_grid;
-    
-//    Gtk::VBox m_route_box;
-//    
-//    Gtk::HBox m_fader_box;
-    
 };
 
 #endif /* OMASTER_H */

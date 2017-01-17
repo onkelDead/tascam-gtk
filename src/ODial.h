@@ -71,12 +71,9 @@ public:
 
     virtual void reset();
 
-
-
 protected:
 
     //Overrides:
-    //    virtual void on_size_request(Gtk::Requisition* requisition) override;
     Gtk::SizeRequestMode get_request_mode_vfunc() const override;
     void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
     void get_preferred_height_for_width_vfunc(int width, int& minimum_height, int& natural_height) const override;
@@ -87,8 +84,7 @@ protected:
     virtual void on_unmap() override;
     virtual void on_realize() override;
     virtual void on_unrealize() override;
-    //    virtual bool on_expose_event(GdkEventExpose* event) override;
-    bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
     virtual bool on_button_press_event(GdkEventButton* event) override;
     virtual bool on_button_release_event(GdkEventButton* event) override;
     virtual bool on_motion_notify_event(GdkEventMotion* event) override;
@@ -103,10 +99,9 @@ protected:
 
     Glib::RefPtr<Gtk::CssProvider> m_refCssProvider;
 
-    int m_scale;
+//    int m_scale;
 
 private:
-
     value_callback m_value_callback;
 
     char *m_label;

@@ -40,8 +40,7 @@ public:
     void reset(OAlsa* alsa, int index);
     
     void save_values(FILE* file, int indexnt = 0);
-    
-    void load_values(Glib::ustring xml);
+        void load_values(Glib::ustring xml);
     
     void set_view_type(VIEW_TYPE i);
     VIEW_TYPE get_view_type() {return m_view_type;}
@@ -57,7 +56,6 @@ public:
 private:
     CHANNEL_TYPE m_channel_type;
     VIEW_TYPE m_view_type;
-   
     
     Gtk::Grid m_grid;
     Gtk::HSeparator m_title_sep;

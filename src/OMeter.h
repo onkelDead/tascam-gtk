@@ -35,7 +35,6 @@ public:
 protected:
 
     //Overrides:
-//    virtual void on_size_request(Gtk::Requisition* requisition) override;
     Gtk::SizeRequestMode get_request_mode_vfunc() const override;
     void get_preferred_width_vfunc(int& minimum_width, int& natural_width) const override;
     void get_preferred_height_for_width_vfunc(int width, int& minimum_height, int& natural_height) const override;
@@ -46,7 +45,6 @@ protected:
     virtual void on_unmap() override;
     virtual void on_realize() override;
     virtual void on_unrealize() override;
-//    virtual bool on_expose_event(GdkEventExpose* event) override;
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
     Glib::RefPtr<Gdk::Window> m_refGdkWindow;

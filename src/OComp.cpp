@@ -49,14 +49,25 @@ char* cp_release_text(int val, char* buf, size_t buf_size) {
 }
 
 OComp::OComp() : Gtk::VBox() {
-	m_pack = 0;
+	m_view_type = HIDDEN;
 	add(m_grid);
 }
 
 OComp::~OComp() {
 }
 
-void OComp::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
+void OComp::set_sensitive(bool val){
+
+	std::vector<Gtk::Widget*> childList = m_grid.get_children();
+	std::vector<Gtk::Widget*>::iterator it;
+
+	for (it = childList.begin(); it < childList.end(); it++) {
+		Gtk::Widget* w = (*it);
+		w->set_sensitive(val);
+	}
+}
+
+void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
 	if (view_type == HIDDEN) {
 		std::vector<Gtk::Widget*> childList = m_grid.get_children();
@@ -112,14 +123,7 @@ void OComp::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 
 
-	m_pack = view_type;
-}
-
-void OComp::unpack() {
-	//	while (m_grid.get_children().size())
-	//		m_grid.remove_row(0);
-	//	m_pack = 0;
-
+	m_view_type = view_type;
 }
 
 void OComp::set_ref_index(int index, Gtk::Window* wnd){
@@ -168,10 +172,10 @@ void OComp::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_enable->set_vexpand(false);
 	m_enable->set_valign(Gtk::ALIGN_CENTER);
 	if ( index < NUM_CHANNELS)
-		get_all_values(index, alsa);
+		get_alsa_values(index, alsa);
 }
 
-void OComp::get_all_values(int index, OAlsa* alsa) {
+void OComp::get_alsa_values(int index, OAlsa* alsa) {
 	if (index < NUM_CHANNELS) {
 		m_enable->set_active(alsa->getBoolean(CTL_NAME_CP_ENABLE, index));
 		m_threshold->set_value(alsa->getInteger(CTL_NAME_CP_THRESHOLD, index));

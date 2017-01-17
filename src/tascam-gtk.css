@@ -13,6 +13,9 @@ and open the template in the editor.
     color:            rgb(0,0,255);
 }
 
+#eq_high_gain {
+    color:            rgb(128,140,255);
+}
 
 #OMainWnd {
     background-color: rgb(50,50,50);

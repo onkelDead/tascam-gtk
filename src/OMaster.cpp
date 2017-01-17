@@ -63,7 +63,7 @@ OMaster::OMaster() : Gtk::VBox() {
 	m_meter_right.set_hexpand(false);
 	m_meter_right.set_halign(Gtk::ALIGN_CENTER);
 
-	pack(NORMAL);
+	set_view_type(NORMAL);
 
 	add(m_grid);
 }
@@ -122,9 +122,12 @@ void OMaster::reset(OAlsa* alsa) {
 	}
 }
 
-void OMaster::pack(VIEW_TYPE view_type) {
+void OMaster::set_view_type(VIEW_TYPE view_type) {
 
-	unpack();
+	if (view_type == HIDDEN) {
+		while (m_grid.get_children().size())
+			m_grid.remove_row(0);
+	}
 
 	if (view_type == NORMAL) {
 		for (int i = 0; i < 8; i++) {
@@ -152,12 +155,8 @@ void OMaster::pack(VIEW_TYPE view_type) {
 		m_grid.attach(m_mute, 0, 10, 3, 1);
 		m_grid.attach(m_fader, 0, 11, 1, 1);
 		m_grid.attach(m_meter_left, 1, 11, 1, 1);
-		m_grid.attach(m_meter_right, 2, 11, 1, 1);		
+		m_grid.attach(m_meter_right, 2, 11, 1, 1);
 	}
-}
-
-void OMaster::unpack() {
-	while (m_grid.get_children().size())
-		m_grid.remove_row(0);
-	m_pack = 0;
+	m_view_type = view_type;
+	
 }

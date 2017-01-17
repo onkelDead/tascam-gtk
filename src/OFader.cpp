@@ -27,7 +27,7 @@ OFader::OFader() {
 		m_meter[mi].set_hexpand(false);
 		m_meter[mi].set_halign(Gtk::ALIGN_CENTER);
 	}
-	m_pack = 0;
+	m_view_type = HIDDEN;
 	add(m_grid);
 }
 
@@ -37,7 +37,7 @@ OFader::OFader(const OFader& orig) {
 OFader::~OFader() {
 }
 
-void OFader::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
+void OFader::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
 	if( view_type == HIDDEN) {
 		std::vector<Gtk::Widget*> childList = m_grid.get_children();
@@ -78,14 +78,10 @@ void OFader::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 			m_grid.attach(*m_MuteEnable, 0, 0, 3, 1);
 			m_grid.attach(*m_SoloEnable, 0, 1, 3, 1);
 			m_grid.attach(*m_Pan[0], 0, 2, 3, 1);
-			//		m_grid.attach(*m_Pan[1], 2, 0, 1, 2);
 			m_grid.attach(*m_PhaseEnable[0], 0, 3, 3, 1);
-			//		m_grid.attach(*m_PhaseEnable[1], 2, 2, 1, 1);
 			m_grid.attach(m_dB, 0, 4, 3, 1);
 			m_grid.attach(*m_fader, 0, 5, 1, 1);
 			m_grid.attach(m_meter[0], 1, 5, 1, 1);
-			//		m_grid.attach(m_meter[1], 2, 5, 1, 1);
-
 		}
 		if (channel_type == STEREO) {
 
@@ -104,13 +100,7 @@ void OFader::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	for (int ci = 0; ci < (view_type == 2 ? 2 : 1); ci++) {
 	}
 
-	m_pack = view_type;
-}
-
-void OFader::unpack() {
-	while (m_grid.get_children().size())
-		m_grid.remove_row(0);
-	m_pack = 0;
+	m_view_type = view_type;
 }
 
 void OFader::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
@@ -159,8 +149,6 @@ void OFader::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
 		m_PhaseEnable[1]->set_active(alsa->getBoolean(CTL_NAME_PHASE, index + 1));
 		m_PhaseEnable[1]->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index + 1, CTL_NAME_PHASE));
 	}
-	
-
 }
 
 void OFader::reset(OAlsa* alsa, int index) {

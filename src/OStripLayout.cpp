@@ -68,9 +68,9 @@ void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 void OStripLayout::set_view_type(VIEW_TYPE view_type)  {
 	
-	m_comp.pack(view_type, m_channel_type);
-	m_eq.pack(view_type, m_channel_type);
-	m_fader.pack(view_type, m_channel_type);
+	m_comp.set_view_type(view_type, m_channel_type);
+	m_eq.set_view_type(view_type, m_channel_type);
+	m_fader.set_view_type(view_type, m_channel_type);
 	
 	if( view_type == HIDDEN || view_type == NORMAL ) {
 		if( m_DspEnable.get_parent() )
@@ -91,8 +91,6 @@ void OStripLayout::reset(OAlsa* alsa, int index) {
 	m_comp.reset(alsa, index);
 	m_eq.reset(alsa, index);
 	m_fader.reset(alsa, index);
-	if (m_fader.m_pack == 2)
-		m_fader.reset(alsa, index);
 }
 
 void OStripLayout::save_values(FILE* file, int indent) {

@@ -73,30 +73,27 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
 #define EBLUE_NORMAL .5, .55, 1., 1.
 #define EBLUE_LIGHT .78, .8, 1., 1.
 
-void OEq::set_active(bool val){
+void OEq::set_sensitive(bool val){
 	m_is_active = val;
 
 	std::vector<Gtk::Widget*> childList = m_grid.get_children();
 	std::vector<Gtk::Widget*>::iterator it;
 
-	m_high_freq_gain->set_sensitive(val);
+	for (it = childList.begin(); it < childList.end(); it++) {
+		Gtk::Widget* w = (*it);
+		w->set_sensitive(val);
+	}
 }
 
 OEq::OEq() : Gtk::VBox() {
-	m_pack = 0;
+	m_view_type = HIDDEN;
 	add(m_grid);
 }
 
 OEq::~OEq() {
 }
 
-void OEq::unpack() {
-	while (m_grid.get_children().size())
-		m_grid.remove_row(0);
-	m_pack = 0;
-}
-
-void OEq::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
+void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
 	if (view_type == HIDDEN) {
 		std::vector<Gtk::Widget*> childList = m_grid.get_children();
@@ -164,7 +161,7 @@ void OEq::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	m_eq_enable->set_vexpand(false);
 	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);
 	
-	m_pack = view_type;
+	m_view_type = view_type;
 }
 
 
@@ -173,7 +170,7 @@ void OEq::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 	set_ref_index(index, wnd);
 	if (index < NUM_CHANNELS) {
-		get_all_values(index, alsa);
+		get_alsa_values(index, alsa);
 	}
 	
 }
@@ -216,7 +213,7 @@ void OEq::set_ref_index(int index, Gtk::Window* wnd){
 	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_FREQ));
 }
 
-void OEq::get_all_values(int channel_index, OAlsa* alsa) {
+void OEq::get_alsa_values(int channel_index, OAlsa* alsa) {
 	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, channel_index));
 	m_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_LEVEL, channel_index));
 	m_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_FREQ, channel_index));
@@ -265,8 +262,6 @@ void OEq::reset(OAlsa* alsa, int index) {
 
 	m_low_freq_band->reset();
 	usleep(RESET_VALUE_DELAY);
-
-
 }
 
 void OEq::save_values(FILE * file) {

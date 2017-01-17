@@ -30,11 +30,10 @@ public:
     virtual ~OFader();
 
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
-    void pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
-    void unpack();
+    
+    void set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
     
     void reset(OAlsa* alsa, int index);
- 
     void save_values(FILE* file);    
     void load_values(Glib::ustring xml);    
     
@@ -47,11 +46,10 @@ public:
     OMeter m_meter[2];
     Gtk::Label m_dB;
 
-    int m_pack;
     
 private:
+    VIEW_TYPE m_view_type;
     Gtk::Grid m_grid;
-    
 };
 
 #endif /* OFADER_H */
