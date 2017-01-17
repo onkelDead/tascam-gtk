@@ -52,12 +52,12 @@ public:
     OComp m_comp;
     OEq m_eq;
     OFader m_fader;
+    Gtk::ToggleButton m_DspEnable;
     
 private:
     CHANNEL_TYPE m_channel_type;
     VIEW_TYPE m_view_type;
    
-    Gtk::ToggleButton m_DspEnable;
     
     Gtk::Grid m_grid;
     Gtk::HSeparator m_title_sep;

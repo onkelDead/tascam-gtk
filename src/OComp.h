@@ -43,6 +43,10 @@ public:
     virtual ~OComp();
     
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
+    void set_ref_index(int index, Gtk::Window* wnd_);
+
+    void get_all_values(int index, OAlsa* alsa);
+
     
     void pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
     void unpack();

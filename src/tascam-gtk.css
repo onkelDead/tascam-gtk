@@ -13,6 +13,7 @@ and open the template in the editor.
     color:            rgb(0,0,255);
 }
 
+
 #OMainWnd {
     background-color: rgb(50,50,50);
     color: rgb(228,228,228);
@@ -97,7 +98,7 @@ and open the template in the editor.
     color: rgb(55,55,55);
 }
 #fader {
-    font-size: 75%;
+    font-size: 70%;
 }
 #db-label {
     font-size: 80%;

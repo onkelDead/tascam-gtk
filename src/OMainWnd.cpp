@@ -25,15 +25,20 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 	int i;
 	set_title("Tascam US-16x08 DSP Mixer");
 
+	m_block_ui = true;
+	m_last_dsp_active = -1;
+	
 	alsa = new OAlsa();
 
 	create_menu();
 
 	m_grid.attach(m_menubox, 0, 0, 17, 1);
 
+	m_grid.attach(m_dsp_layout, 0,1,16,1);
+	
 	if (!alsa->open_device()) {
 
-		for (i = 0; i < NUM_CHANNELS; i++) {
+		for (i = 0; i < NUM_CHANNELS + 1; i++) {
 			// compressor controls
 			{
 				m_comp_enable[i].set_label("Comp");
@@ -132,49 +137,49 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 				m_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
 			}
 
-			m_Pan[i].set_params(0, 254, 127, 5);
-			m_Pan[i].set_label("L Pan R");
-			m_Pan[i].set_knob_background_color(1., .8, .3, 1.);
+			if (i < NUM_CHANNELS) {
+				m_Pan[i].set_params(0, 254, 127, 5);
+				m_Pan[i].set_label("L Pan R");
+				m_Pan[i].set_knob_background_color(1., .8, .3, 1.);
 
 
-			m_MuteEnable[i].set_label("Mute");
-			m_MuteEnable[i].set_name("mute-button");
+				m_MuteEnable[i].set_label("Mute");
+				m_MuteEnable[i].set_name("mute-button");
 
-			m_SoloEnable[i].set_label("Solo");
-			m_SoloEnable[i].set_name("solo-button");
+				m_SoloEnable[i].set_label("Solo");
+				m_SoloEnable[i].set_name("solo-button");
 
-			m_PhaseEnable[i].set_label("Phase");
-			m_PhaseEnable[i].set_name("phase-button");
+				m_PhaseEnable[i].set_label("Phase");
+				m_PhaseEnable[i].set_name("phase-button");
 
-			m_fader[i].set_range(0, 133);
-			m_fader[i].set_name("fader");
-			m_fader[i].set_inverted(true);
-			m_fader[i].set_size_request(-1, 160);
-			m_fader[i].set_draw_value(false);
-			m_fader[i].set_increments(1, 5);
-			m_fader[i].add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
-			m_fader[i].add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
-			m_fader[i].add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
-			m_fader[i].add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
-			m_fader[i].add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
-			m_fader[i].add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
-			m_fader[i].add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
-			m_fader[i].add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
-			m_fader[i].add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
-			m_fader[i].set_tooltip_text("channel fader");
-			m_fader[i].set_vexpand(true);
+				m_fader[i].set_range(0, 133);
+				m_fader[i].set_name("fader");
+				m_fader[i].set_inverted(true);
+				m_fader[i].set_size_request(-1, 160);
+				m_fader[i].set_draw_value(false);
+				m_fader[i].set_increments(1, 5);
+				m_fader[i].add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
+				m_fader[i].add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
+				m_fader[i].add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
+				m_fader[i].add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
+				m_fader[i].add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
+				m_fader[i].add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
+				m_fader[i].add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
+				m_fader[i].add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
+				m_fader[i].add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
+				m_fader[i].set_tooltip_text("channel fader");
+				m_fader[i].set_vexpand(true);
 
-			m_stripLayouts[i].init(i, alsa, this);
-			m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_title_context), i));
-			m_stripLayouts[i].set_view_type(NORMAL);
-			m_grid.attach(m_stripLayouts[i], i, 1, 1, 1);
+				m_stripLayouts[i].init(i, alsa, this);
+				m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_title_context), i));
+				m_stripLayouts[i].set_view_type(NORMAL);
+				m_grid.attach(m_stripLayouts[i], i, 2, 1, 1);
+			}
 
 		}
-		m_master.init(alsa, this);
-		m_grid.attach(m_master, 16, 1, 1, 2);
-
-
-		show_all_children(true);
+		m_dsp_layout.init(16, alsa, this);
+		
+		m_dsp_layout.set_view_type(SINGLE_DSP);
 
 		gqueue = g_async_queue_new();
 
@@ -197,8 +202,12 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 		m_link[i].set_label("Link");
 		m_link[i].set_name("link-button");
 		m_link[i].signal_toggled().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_ch_lb_changed), i));
-		m_grid.attach(m_link[i], i * 2, 2, 2, 1);
+		m_grid.attach(m_link[i], i * 2, 3, 2, 1);
 	}
+
+	m_master.init(alsa, this);
+	m_grid.attach(m_master, 16, 1, 1, 3);
+
 
 
 	set_name("OMainWnd");
@@ -227,6 +236,9 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
 			);
 	show_all_children(true);
+		m_grid.remove(m_dsp_layout);
+
+	m_block_ui = false;
 }
 
 OMainWnd::~OMainWnd() {
@@ -235,8 +247,8 @@ OMainWnd::~OMainWnd() {
 		sleep(1);
 	if (alsa)
 		delete alsa;
-
 	g_async_queue_unref(gqueue);
+//	delete m_WorkerThread;
 }
 
 void OMainWnd::create_menu() {
@@ -466,6 +478,8 @@ void OMainWnd::on_menu_view_compact() {
 		on_ch_lb_changed(i);
 	}
 	m_master.pack(m_view);
+	if( !m_dsp_layout.get_parent())
+		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
 }
 
 void OMainWnd::on_menu_view_normal() {
@@ -474,6 +488,8 @@ void OMainWnd::on_menu_view_normal() {
 		on_ch_lb_changed(i);
 	}
 	m_master.pack(m_view);
+	if( m_dsp_layout.get_parent())
+		m_grid.remove(m_dsp_layout);
 }
 
 void OMainWnd::on_menu_popup_load(int channel_index) {
@@ -926,7 +942,19 @@ void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale*
 }
 
 void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
+	int org_index = -1;
+	if( m_block_ui)
+		return;
 
+	if( n == 16) { // singel dsp signal
+		org_index = n;
+		
+		if(m_last_dsp_active != -1)
+			n = m_last_dsp_active;
+		else
+			return;
+	}
+	
 	if (!strcmp(control_name, CTL_NAME_PAN)) {
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
@@ -1051,6 +1079,7 @@ void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
 
 void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
+
 	if (!strcmp(control_name, CTL_NAME_CP_ENABLE)) {
 		alsa->on_toggle_button_control_changed(n, control_name, &m_comp_enable[n]);
 		if (m_stripLayouts[n].get_channel_type() == STEREO) {
@@ -1110,35 +1139,54 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 		lo_message_free(reply);
 	}
 
+	if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {
+		if( m_stripLayouts[n].m_DspEnable.get_active()) {
+			if( m_last_dsp_active != -1 )
+				m_stripLayouts[m_last_dsp_active].m_DspEnable.set_active(false);
+			m_last_dsp_active = n;
+			m_block_ui = true;
+			m_dsp_layout.set_channel_type(m_stripLayouts[m_last_dsp_active].get_channel_type());
+			m_dsp_layout.set_view_type(HIDDEN);
+			m_dsp_layout.set_ref_index(n, this);
+			m_dsp_layout.set_view_type(SINGLE_DSP);
+			m_block_ui = false;
+		}
+		else {
+			m_last_dsp_active = -1;
+			m_dsp_layout.set_channel_type(MONO);
+			m_dsp_layout.set_view_type(HIDDEN);
+			m_dsp_layout.set_ref_index(16, this);
+			m_dsp_layout.set_view_type(SINGLE_DSP);
+		}
+	}
 }
 
 void OMainWnd::on_ch_lb_changed(int n) {
 	char title[64];
 	if (m_link[n].get_active()) {
-		
+
 		m_stripLayouts[n * 2].set_channel_type(STEREO);
-		
+
 		m_stripLayouts[n * 2 + 1].set_view_type(VIEW_TYPE::HIDDEN);
 		if (m_stripLayouts[n * 2 + 1].get_parent())
 			m_grid.remove(m_stripLayouts[n * 2 + 1]);
-		
+
 		m_stripLayouts[n * 2].set_view_type(HIDDEN);
 		m_stripLayouts[n * 2].set_view_type(m_view);
 
 		snprintf(title, 64, "Ch %d-%d", n * 2 + 1, n * 2 + 2);
 		m_stripLayouts[n * 2].m_title.set_label(title);
 
-	}
-	else {
+	} else {
 		m_stripLayouts[n * 2].set_channel_type(MONO);
 		m_stripLayouts[n * 2 + 1].set_channel_type(MONO);
 
 		m_stripLayouts[n * 2].set_view_type(HIDDEN);
 		m_stripLayouts[n * 2].set_view_type(m_view);
-		
+
 		if (!m_stripLayouts[n * 2 + 1].get_parent())
-			m_grid.attach(m_stripLayouts[n * 2 + 1], n * 2 + 1, 1, 1, 1);
-		
+			m_grid.attach(m_stripLayouts[n * 2 + 1], n * 2 + 1, 2, 1, 1);
+
 		m_stripLayouts[n * 2 + 1].set_view_type(HIDDEN);
 		m_stripLayouts[n * 2 + 1].set_view_type(m_view);
 
@@ -1149,3 +1197,4 @@ void OMainWnd::on_ch_lb_changed(int n) {
 	resize(1, 1);
 }
 
+ 

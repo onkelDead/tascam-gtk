@@ -17,7 +17,8 @@
 typedef enum {
     HIDDEN,
     NORMAL,
-    COMPACT
+    COMPACT,
+    SINGLE_DSP
 } VIEW_TYPE;
 
 typedef enum {

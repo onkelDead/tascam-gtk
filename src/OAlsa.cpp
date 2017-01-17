@@ -215,7 +215,11 @@ void OAlsa::setInteger(const char* name, int channel_index, int value) {
             fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
             return;
         }
+		 
+		
     }
+	else 
+		fprintf(stderr, "Control %s element not found\n", elem_name);
 }
 
 bool OAlsa::getBoolean(const char* name, int channel_index) {

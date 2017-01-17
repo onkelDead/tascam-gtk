@@ -73,6 +73,15 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
 #define EBLUE_NORMAL .5, .55, 1., 1.
 #define EBLUE_LIGHT .78, .8, 1., 1.
 
+void OEq::set_active(bool val){
+	m_is_active = val;
+
+	std::vector<Gtk::Widget*> childList = m_grid.get_children();
+	std::vector<Gtk::Widget*>::iterator it;
+
+	m_high_freq_gain->set_sensitive(val);
+}
+
 OEq::OEq() : Gtk::VBox() {
 	m_pack = 0;
 	add(m_grid);
@@ -100,8 +109,8 @@ void OEq::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
 	if (view_type == NORMAL) {
 		m_eq_enable->set_hexpand(false);
-		m_eq_enable->set_halign(Gtk::ALIGN_CENTER);		
-		
+		m_eq_enable->set_halign(Gtk::ALIGN_CENTER);
+
 		if (channel_type == MONO) {
 			m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
 			m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
@@ -134,66 +143,91 @@ void OEq::pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 	if (view_type == COMPACT) {
 		m_eq_enable->set_hexpand(true);
-		m_eq_enable->set_halign(Gtk::ALIGN_FILL);		
+		m_eq_enable->set_halign(Gtk::ALIGN_FILL);
 		m_grid.attach(*m_eq_enable, 0, 0, 1, 1);
 
 	}
+	if (view_type == SINGLE_DSP) {
+		m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
+		m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
+		m_grid.attach(*m_mid_high_freq_gain, 3, 0, 1, 1);
+		m_grid.attach(*m_mid_high_freq_band, 4, 0, 1, 1);
+		m_grid.attach(*m_mid_high_freq_width, 5, 0, 1, 1);
+		m_grid.attach(*m_mid_low_freq_gain, 0, 1, 1, 1);
+		m_grid.attach(*m_mid_low_freq_band, 1, 1, 1, 1);
+		m_grid.attach(*m_mid_low_freq_width, 2, 1, 1, 1);
+		//		m_grid.attach(*m_eq_enable, 1, 4, 1, 1);
+		m_grid.attach(*m_low_freq_gain, 3, 1, 1, 1);
+		m_grid.attach(*m_low_freq_band, 4, 1, 1, 1);
+	}
 
+	m_eq_enable->set_vexpand(false);
+	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);
+	
 	m_pack = view_type;
 }
 
-void OEq::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
 
+
+void OEq::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
+
+	set_ref_index(index, wnd);
+	if (index < NUM_CHANNELS) {
+		get_all_values(index, alsa);
+	}
+	
+}
+
+void OEq::set_ref_index(int index, Gtk::Window* wnd){
+	
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
 	m_eq_enable = &wnd_->m_eq_enable[index];
-	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, index));
 	m_eq_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
-	m_eq_enable->set_vexpand(false);
-	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);
-
+	
 	m_high_freq_gain = &wnd_->m_high_freq_gain[index];
-	m_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_LEVEL, index));
 	m_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_LEVEL));
-
+	
 	m_high_freq_band = &wnd_->m_high_freq_band[index];
-	m_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_FREQ, index));
 	m_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_FREQ));
-
+	
 	m_mid_high_freq_gain = &wnd_->m_mid_high_freq_gain[index];
-	m_mid_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_LEVEL, index));
 	m_mid_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_LEVEL));
-
+	
 	m_mid_high_freq_band = &wnd_->m_mid_high_freq_band[index];
-	m_mid_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_FREQ, index));
 	m_mid_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_FREQ));
-
+	
 	m_mid_high_freq_width = &wnd_->m_mid_high_freq_width[index];
-	m_mid_high_freq_width->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGHWIDTH_FREQ, index));
 	m_mid_high_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGHWIDTH_FREQ));
-
+	
 	m_mid_low_freq_gain = &wnd_->m_mid_low_freq_gain[index];
-	m_mid_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_LEVEL, index));
 	m_mid_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_LEVEL));
-
+	
 	m_mid_low_freq_band = &wnd_->m_mid_low_freq_band[index];
-	m_mid_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_FREQ, index));
 	m_mid_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_FREQ));
-
+	
 	m_mid_low_freq_width = &wnd_->m_mid_low_freq_width[index];
-	m_mid_low_freq_width->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOWWIDTH_FREQ, index));
 	m_mid_low_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOWWIDTH_FREQ));
-
+	
 	m_low_freq_gain = &wnd_->m_low_freq_gain[index];
-	m_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, index));
 	m_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_LEVEL));
-
+	
 	m_low_freq_band = &wnd_->m_low_freq_band[index];
-	m_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_FREQ, index));
 	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_FREQ));
+}
 
-
-
+void OEq::get_all_values(int channel_index, OAlsa* alsa) {
+	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, channel_index));
+	m_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_LEVEL, channel_index));
+	m_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_FREQ, channel_index));
+	m_mid_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_LEVEL, channel_index));
+	m_mid_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_FREQ, channel_index));
+	m_mid_high_freq_width->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGHWIDTH_FREQ, channel_index));
+	m_mid_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_LEVEL, channel_index));
+	m_mid_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_FREQ, channel_index));
+	m_mid_low_freq_width->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOWWIDTH_FREQ, channel_index));
+	m_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, channel_index));
+	m_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_FREQ, channel_index));
 }
 
 void OEq::reset(OAlsa* alsa, int index) {

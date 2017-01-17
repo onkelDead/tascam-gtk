@@ -55,6 +55,8 @@
 
 #define RESET_VALUE_DELAY                   1000
 
+#define CTL_NAME_CHANNEL_ACTIVE             "channel_active"
+
 class OAlsa {
 public:
     OAlsa();

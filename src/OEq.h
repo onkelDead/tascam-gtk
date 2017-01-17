@@ -47,6 +47,8 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size);
 class OEq : public Gtk::VBox {
 public:
     OEq();
+    void set_active();
+
     virtual ~OEq();
     
     void pack(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
@@ -54,15 +56,21 @@ public:
 
 
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
+    void set_ref_index(int index, Gtk::Window* wnd);
+
     
     void reset(OAlsa* alsa, int index);
  
+    void get_all_values(int channel_index, OAlsa* alsa);
+    
     void save_values(FILE* file);    
     void load_values(Glib::ustring xml);
 
     int get_parameter_count() { return 10; }
     void get_parameter_decriptor(int parameter_index, lo_message reply);
-    
+ 
+    void set_active(bool val);
+    bool get_active() {return m_is_active;}
     
     Gtk::ToggleButton* m_eq_enable;
     ODial* m_high_freq_gain;
@@ -79,6 +87,7 @@ public:
     Gtk::Grid m_grid;
     int m_pack;
 private:
+    bool m_is_active;
 
 };
 

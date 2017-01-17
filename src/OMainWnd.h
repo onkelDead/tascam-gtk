@@ -22,6 +22,7 @@
 
 #include "OTypes.h"
 #include "OStripLayout.h"
+#include "ODspLayout.h"
 #include "OMaster.h"
 #include "OAlsa.h"
 #include "OMeterWorker.h"
@@ -39,6 +40,7 @@ public:
     }
 
     OStripLayout m_stripLayouts[16];
+    ODspLayout m_dsp_layout;
 
     void notify();
     void on_notification_from_worker_thread();
@@ -52,31 +54,31 @@ public:
 
     OAlsa *alsa;
 
-    Gtk::ToggleButton m_comp_enable[NUM_CHANNELS];
-    ODial m_threshold[NUM_CHANNELS];
-    ODial m_gain[NUM_CHANNELS];
-    ODial m_attack[NUM_CHANNELS];
-    ODial m_release[NUM_CHANNELS];
-    ODial m_ratio[NUM_CHANNELS];
-    OMeter m_reduction[NUM_CHANNELS];
+    Gtk::ToggleButton m_comp_enable[NUM_CHANNELS+1];
+    ODial m_threshold[NUM_CHANNELS+1];
+    ODial m_gain[NUM_CHANNELS+1];
+    ODial m_attack[NUM_CHANNELS+1];
+    ODial m_release[NUM_CHANNELS+1];
+    ODial m_ratio[NUM_CHANNELS+1];
+    OMeter m_reduction[NUM_CHANNELS+1];
 
-    Gtk::ToggleButton m_eq_enable[NUM_CHANNELS];
-    ODial m_high_freq_gain[NUM_CHANNELS];
-    ODial m_high_freq_band[NUM_CHANNELS];
-    ODial m_mid_high_freq_gain[NUM_CHANNELS];
-    ODial m_mid_high_freq_band[NUM_CHANNELS];
-    ODial m_mid_high_freq_width[NUM_CHANNELS];
-    ODial m_mid_low_freq_gain[NUM_CHANNELS];
-    ODial m_mid_low_freq_band[NUM_CHANNELS];
-    ODial m_mid_low_freq_width[NUM_CHANNELS];
-    ODial m_low_freq_gain[NUM_CHANNELS];
-    ODial m_low_freq_band[NUM_CHANNELS];
+    Gtk::ToggleButton m_eq_enable[NUM_CHANNELS+1];
+    ODial m_high_freq_gain[NUM_CHANNELS+1];
+    ODial m_high_freq_band[NUM_CHANNELS+1];
+    ODial m_mid_high_freq_gain[NUM_CHANNELS+1];
+    ODial m_mid_high_freq_band[NUM_CHANNELS+1];
+    ODial m_mid_high_freq_width[NUM_CHANNELS+1];
+    ODial m_mid_low_freq_gain[NUM_CHANNELS+1];
+    ODial m_mid_low_freq_band[NUM_CHANNELS+1];
+    ODial m_mid_low_freq_width[NUM_CHANNELS+1];
+    ODial m_low_freq_gain[NUM_CHANNELS+1];
+    ODial m_low_freq_band[NUM_CHANNELS+1];
 
-    ODial m_Pan[NUM_CHANNELS];
-    Gtk::ToggleButton m_PhaseEnable[NUM_CHANNELS];
-    Gtk::ToggleButton m_MuteEnable[NUM_CHANNELS];
-    Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS];
-    Gtk::VScale m_fader[NUM_CHANNELS];
+    ODial m_Pan[NUM_CHANNELS+1];
+    Gtk::ToggleButton m_PhaseEnable[NUM_CHANNELS+1];
+    Gtk::ToggleButton m_MuteEnable[NUM_CHANNELS+1];
+    Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS+1];
+    Gtk::VScale m_fader[NUM_CHANNELS+1];
 
     void on_menu_file_load();
     void on_menu_file_save();
@@ -103,6 +105,9 @@ protected:
 
 private:
 
+    bool m_block_ui;
+    int m_last_dsp_active;
+    
     VIEW_TYPE m_view;
 
     Gtk::Grid m_grid;

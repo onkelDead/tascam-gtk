@@ -51,9 +51,10 @@ OStripLayout::~OStripLayout() {
 }
 
 void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
+	OMainWnd* wnd_ = (OMainWnd*) wnd;	
 	char l_title[64];
 	int val;
-
+	
 	snprintf(l_title, sizeof (l_title), "Ch %d", index + 1);
 	m_title.set_text(l_title);
 
@@ -61,6 +62,7 @@ void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_eq.init(index, alsa, wnd);
 	m_fader.init(index, alsa, wnd);
 
+	m_DspEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CHANNEL_ACTIVE));
 
 }
 
