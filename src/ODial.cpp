@@ -43,22 +43,6 @@ Gtk::Widget() {
 	set_hexpand(false);
 	set_name("o-dial");
 
-	//	m_refCssProvider = Gtk::CssProvider::create();
-	//	auto refStyleContext = get_style_context();
-	//	refStyleContext->add_provider(m_refCssProvider,
-	//			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-	//	m_refCssProvider->signal_parsing_error().connect(
-	//			sigc::mem_fun(*this, &ODial::on_parsing_error));
-	//
-	//	try {
-	//		m_refCssProvider->load_from_path("src/tascam-gtk.css");
-	//	} catch (const Gtk::CssProviderError& ex) {
-	//		std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
-	//				<< ex.what() << std::endl;
-	//	} catch (const Glib::Error& ex) {
-	//		std::cerr << "Error, Gtk::CssProvider::load_from_path() failed: "
-	//				<< ex.what() << std::endl;
-	//	}
 
 }
 
@@ -67,19 +51,13 @@ ODial::~ODial() {
 		free(m_label);
 }
 
-void ODial::on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error) {
-	std::cerr << "on_parsing_error(): " << error.what() << std::endl;
-	if (section) {
-		const auto file = section->get_file();
-		if (file) {
-			std::cerr << "  URI = " << file->get_uri() << std::endl;
-		}
+void ODial::set_view_type(VIEW_TYPE view_type) {
+	if (view_type == SINGLE_DSP)
+		set_size_request(80, 36);
+	if (view_type == NORMAL)
+		set_size_request(40, 54);
 
-		std::cerr << "  start_line = " << section->get_start_line() + 1
-				<< ", end_line = " << section->get_end_line() + 1 << std::endl;
-		std::cerr << "  start_position = " << section->get_start_position()
-				<< ", end_position = " << section->get_end_position() << std::endl;
-	}
+	m_view_type = view_type;
 }
 
 Gtk::SizeRequestMode ODial::get_request_mode_vfunc() const {
@@ -206,26 +184,35 @@ bool ODial::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 	auto refStyleContext = get_style_context();
 
 	gint i;
-	gint width = allocation.get_width();
+	gint width = m_view_type == SINGLE_DSP ? 40 : allocation.get_width();
 	int height = allocation.get_height();
 
 	gint center_x = width / 2;
-	gint center_y = (height) / 2;
+	gint center_y = m_view_type == SINGLE_DSP ? 20 : (height) / 2;
 
 	gint outer_radius = width / 2 - 4; // 4 is padding
 	gint tick_length = 4;
 	gint inner_radius = outer_radius - tick_length;
 
 	// draw knob title		
-	if (m_label)
-		draw_text(cr, width, center_y - outer_radius - 8, m_label);
-
+	if (m_label) {
+		if (m_view_type == SINGLE_DSP)
+			draw_text(cr, width + 80, 8, m_label);
+		else
+			draw_text(cr, width, center_y - outer_radius - 8, m_label);
+	}
 	// draw value below		
 	if (m_map) {
-		draw_text(cr, width, center_y + outer_radius, (char*) m_map[m_value]);
+		if (m_view_type == SINGLE_DSP)
+			draw_text(cr, width + 80, 24, (char*) m_map[m_value]);
+		else
+			draw_text(cr, width, center_y + outer_radius, (char*) m_map[m_value]);
 	} else if (m_value_callback) {
 		char vs[32];
-		draw_text(cr, width, center_y + outer_radius, m_value_callback(m_value, vs, sizeof (vs)));
+		if (m_view_type == SINGLE_DSP)
+			draw_text(cr, width + 80, 24, m_value_callback(m_value, vs, sizeof (vs)));
+		else
+			draw_text(cr, width, center_y + outer_radius, m_value_callback(m_value, vs, sizeof (vs)));
 	}
 
 	cr->set_line_width(.5);

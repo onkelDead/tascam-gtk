@@ -21,6 +21,8 @@
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/styleproperty.h>
 
+#include "OTypes.h"
+
 typedef char* (*value_callback)(int val, char* buf, size_t buf_size);
 
 class ODial : public Gtk::Widget {
@@ -65,6 +67,8 @@ public:
         m_value_callback = func;
     }
 
+    void set_view_type(VIEW_TYPE type);
+    
     virtual void set_knob_background_color(double red, double green, double blue, double alpha);
 
     sigc::signal<void> signal_value_changed;
@@ -92,14 +96,14 @@ protected:
 
     virtual void draw_text(const Cairo::RefPtr<Cairo::Context>& cr,
             int rectangle_width, int rectangle_height, char* text);
-
-    void on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error);
-
+    //
+    //    void on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error);
+    //
     Glib::RefPtr<Gdk::Window> m_refGdkWindow;
+    //
+    //    Glib::RefPtr<Gtk::CssProvider> m_refCssProvider;
 
-    Glib::RefPtr<Gtk::CssProvider> m_refCssProvider;
-
-//    int m_scale;
+    //    int m_scale;
 
 private:
     value_callback m_value_callback;
@@ -117,6 +121,7 @@ private:
     gint m_scroll_step;
 
     double m_b_red, m_b_green, m_b_blue, m_b_alpha;
+    VIEW_TYPE m_view_type;
 };
 
 #endif /* ODIAL_H */

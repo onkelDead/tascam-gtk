@@ -82,6 +82,11 @@ public:
     
     Gtk::Grid m_grid;
 private:
+    Gtk::Label l_high;
+    Gtk::Label l_midhigh;
+    Gtk::Label l_midlow;
+    Gtk::Label l_low;
+    
     VIEW_TYPE m_view_type;
     bool m_is_active;
 

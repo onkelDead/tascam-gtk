@@ -65,6 +65,7 @@ void OComp::set_sensitive(bool val){
 		Gtk::Widget* w = (*it);
 		w->set_sensitive(val);
 	}
+	Gtk::VBox::set_sensitive(val);
 }
 
 void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
@@ -101,6 +102,12 @@ void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 			m_grid.attach(*m_reduction[0], 2, 0, 1, 3);
 			m_grid.attach(*m_reduction[1], 3, 0, 1, 3);
 		}
+//		m_threshold->set_view_type(NORMAL);
+//		m_gain->set_view_type(NORMAL);
+//		m_attack->set_view_type(NORMAL);
+//		m_release->set_view_type(NORMAL);
+//		m_ratio->set_view_type(NORMAL);
+
 	}
 
 	if (view_type == COMPACT) {
@@ -120,8 +127,12 @@ void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 			m_grid.attach(*m_reduction[0], 3, 0, 1, 2);
 			m_grid.attach(*m_reduction[1], 4, 0, 1, 2);
 		}
+//		m_threshold->set_view_type(SINGLE_DSP);
+//		m_ratio->set_view_type(SINGLE_DSP);
+//		m_gain->set_view_type(SINGLE_DSP);
+//		m_attack->set_view_type(SINGLE_DSP);
+//		m_release->set_view_type(SINGLE_DSP);
 	}
-
 
 	m_view_type = view_type;
 }

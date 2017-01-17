@@ -51,7 +51,6 @@ public:
     void set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
     
     void set_sensitive(bool val);
-    bool is_active() { return m_enable->get_active(); }
 
     void reset(OAlsa* alsa, int index);
 

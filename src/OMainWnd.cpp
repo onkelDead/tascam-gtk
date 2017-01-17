@@ -483,10 +483,13 @@ void OMainWnd::on_menu_view_compact() {
 	m_master.set_view_type(m_view);
 	if( !m_dsp_layout.get_parent())
 		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
+	m_dsp_layout.set_view_type(HIDDEN);
+	m_dsp_layout.set_view_type(SINGLE_DSP);
 }
 
 void OMainWnd::on_menu_view_normal() {
 	m_view = VIEW_TYPE::NORMAL;
+	m_dsp_layout.set_view_type(HIDDEN);
 	for (int i = 0; i < NUM_CHANNELS / 2; i++) {
 		on_ch_lb_changed(i);
 	}
