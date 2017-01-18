@@ -137,11 +137,11 @@ private:
     sigc::connection m_popup_reset_connection;
 
 
-    gint open_channels;
-    gint last_channel;
-    gint cardnum;
-    snd_hctl_t *hctl;
-
+    bool m_mute_store[16];
+    int m_solo_channel;
+    void set_solo_channel(int solo_channel);
+    void release_solo_channel();
+    
     void save_values(Glib::ustring);
     void load_values(Glib::ustring);
 

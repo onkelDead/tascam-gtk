@@ -21,21 +21,21 @@
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
 #include <iostream>
 
-OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE::NORMAL) {
+OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE::NORMAL), m_solo_channel(-1) {
 	int i;
 	set_title("Tascam US-16x08 DSP Mixer");
 
 	m_block_ui = true;
 	m_last_dsp_active = -1;
-	
+
 	alsa = new OAlsa();
 
 	create_menu();
 
 	m_grid.attach(m_menubox, 0, 0, 17, 1);
 
-	m_grid.attach(m_dsp_layout, 0,1,16,1);
-	
+	m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
+
 	if (!alsa->open_device()) {
 
 		for (i = 0; i < NUM_CHANNELS + 1; i++) {
@@ -177,7 +177,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 
 		}
 		m_dsp_layout.init(16, alsa, this);
-		
+
 		m_dsp_layout.set_view_type(PREPARE);
 		m_dsp_layout.set_sensitive(false);
 
@@ -237,7 +237,7 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
 			);
 	show_all_children(true);
-		m_grid.remove(m_dsp_layout);
+	m_grid.remove(m_dsp_layout);
 
 	m_block_ui = false;
 }
@@ -249,7 +249,7 @@ OMainWnd::~OMainWnd() {
 	if (alsa)
 		delete alsa;
 	g_async_queue_unref(gqueue);
-//	delete m_WorkerThread;
+	//	delete m_WorkerThread;
 }
 
 void OMainWnd::create_menu() {
@@ -417,7 +417,7 @@ void OMainWnd::on_menu_file_reset() {
 	m_master.reset(alsa);
 
 	m_route.reset(alsa);
-	
+
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		m_stripLayouts[i].reset(alsa, i);
 	}
@@ -482,16 +482,16 @@ void OMainWnd::on_menu_view_compact() {
 	}
 	m_master.set_view_type(HIDDEN);
 	m_master.set_view_type(m_view);
-	if( !m_dsp_layout.get_parent())
+	if (!m_dsp_layout.get_parent())
 		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
 	m_dsp_layout.set_view_type(HIDDEN);
 	m_dsp_layout.set_view_type(SINGLE_DSP);
 }
 
 void OMainWnd::on_menu_view_normal() {
-	if( m_view == COMPACT && m_last_dsp_active != -1 )
+	if (m_view == COMPACT && m_last_dsp_active != -1)
 		set_dsp_channel(m_last_dsp_active, false);
-			
+
 	m_view = VIEW_TYPE::NORMAL;
 	m_dsp_layout.set_view_type(HIDDEN);
 	for (int i = 0; i < NUM_CHANNELS / 2; i++) {
@@ -499,7 +499,7 @@ void OMainWnd::on_menu_view_normal() {
 	}
 	m_master.set_view_type(HIDDEN);
 	m_master.set_view_type(m_view);
-	if( m_dsp_layout.get_parent())
+	if (m_dsp_layout.get_parent())
 		m_grid.remove(m_dsp_layout);
 }
 
@@ -781,8 +781,10 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
 	}
 	if (!strcmp(path, "/strip/solo")) {
 		int channel_index = argv[0]->i;
-		float val = argv[1]->f;
-		m_stripLayouts[channel_index].m_fader.m_SoloEnable->set_active(val != 0);
+		if (channel_index == m_solo_channel || m_solo_channel == -1) {
+			float val = argv[1]->f;
+			m_stripLayouts[channel_index].m_fader.m_SoloEnable->set_active(val != 0);
+		}
 	}
 	if (!strcmp(path, "/strip/plugin/list")) {
 		int channel_index = argv[0]->i;
@@ -954,18 +956,18 @@ void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale*
 
 void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
 	int org_index = -1;
-	if( m_block_ui)
+	if (m_block_ui)
 		return;
 
-	if( n == 16) { // singel dsp signal
+	if (n == 16) { // singel dsp signal
 		org_index = n;
-		
-		if(m_last_dsp_active != -1)
+
+		if (m_last_dsp_active != -1)
 			n = m_last_dsp_active;
 		else
 			return;
 	}
-	
+
 	if (!strcmp(control_name, CTL_NAME_PAN)) {
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
@@ -1120,12 +1122,17 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 		lo_message_free(reply);
 	}
 	if (!strcmp(control_name, CTL_NAME_SOLO)) {
-		lo_message reply = lo_message_new();
-		lo_message_add_int32(reply, n);
-		lo_message_add_float(reply, m_SoloEnable[n].get_active() ? 1. : 0.);
-		m_Worker.send_osc_all("/strip/solo", reply);
-		alsa->on_toggle_button_control_changed(n, control_name, &m_SoloEnable[n]);
-		lo_message_free(reply);
+		if (m_solo_channel == n || m_solo_channel == -1) {
+			lo_message reply = lo_message_new();
+			lo_message_add_int32(reply, n);
+			lo_message_add_float(reply, m_SoloEnable[n].get_active() ? 1. : 0.);
+			m_Worker.send_osc_all("/strip/solo", reply);
+			lo_message_free(reply);
+			if (m_SoloEnable[n].get_active())
+				set_solo_channel(n);
+			else
+				release_solo_channel();
+		}
 	}
 	if (!strcmp(control_name, CTL_NAME_PHASE)) {
 		lo_message reply = lo_message_new();
@@ -1155,10 +1162,9 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 	}
 }
 
-
-void OMainWnd::set_dsp_channel(int n, bool enable){
-	if( enable ) {
-		if( m_last_dsp_active != -1 )
+void OMainWnd::set_dsp_channel(int n, bool enable) {
+	if (enable) {
+		if (m_last_dsp_active != -1)
 			m_stripLayouts[m_last_dsp_active].m_DspEnable.set_active(false);
 		m_last_dsp_active = n;
 		m_block_ui = true;
@@ -1167,10 +1173,9 @@ void OMainWnd::set_dsp_channel(int n, bool enable){
 		m_dsp_layout.set_ref_index(n, this);
 		m_dsp_layout.set_view_type(SINGLE_DSP);
 		m_dsp_layout.set_sensitive(true);
-		
+
 		m_block_ui = false;
-	}
-	else {
+	} else {
 		m_last_dsp_active = -1;
 		m_dsp_layout.set_channel_type(MONO);
 		m_dsp_layout.set_view_type(HIDDEN);
@@ -1182,11 +1187,10 @@ void OMainWnd::set_dsp_channel(int n, bool enable){
 
 void OMainWnd::on_ch_lb_changed(int n) {
 	char title[64];
-	if( m_last_dsp_active == n*2  ) {
-		m_stripLayouts[n*2].m_DspEnable.set_active(false);
-	}
-	else if( m_last_dsp_active == n*2 + 1 )
-		m_stripLayouts[n*2 + 1].m_DspEnable.set_active(false);
+	if (m_last_dsp_active == n * 2) {
+		m_stripLayouts[n * 2].m_DspEnable.set_active(false);
+	} else if (m_last_dsp_active == n * 2 + 1)
+		m_stripLayouts[n * 2 + 1].m_DspEnable.set_active(false);
 
 	if (m_link[n].get_active()) {
 
@@ -1222,4 +1226,25 @@ void OMainWnd::on_ch_lb_changed(int n) {
 	resize(1, 1);
 }
 
- 
+void OMainWnd::set_solo_channel(int solo_channel) {
+	for (int i = 0; i < NUM_CHANNELS; i++) {
+		m_mute_store[i] = m_MuteEnable[i].get_active();
+		if (i != solo_channel) {
+			m_MuteEnable[i].set_active(true);
+			usleep(RESET_VALUE_DELAY);
+			m_SoloEnable[i].set_sensitive(false);
+		}
+	}
+	m_solo_channel = solo_channel;
+}
+
+void OMainWnd::release_solo_channel() {
+	for (int i = 0; i < NUM_CHANNELS; i++) {
+		if (i != m_solo_channel) {
+			m_MuteEnable[i].set_active(m_mute_store[i]);
+			m_SoloEnable[i].set_sensitive(true);
+		}
+		usleep(RESET_VALUE_DELAY);
+	}
+	m_solo_channel = -1;
+}
