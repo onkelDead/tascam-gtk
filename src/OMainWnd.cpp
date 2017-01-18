@@ -489,6 +489,9 @@ void OMainWnd::on_menu_view_compact() {
 }
 
 void OMainWnd::on_menu_view_normal() {
+	if( m_view == COMPACT && m_last_dsp_active != -1 )
+		set_dsp_channel(m_last_dsp_active, false);
+			
 	m_view = VIEW_TYPE::NORMAL;
 	m_dsp_layout.set_view_type(HIDDEN);
 	for (int i = 0; i < NUM_CHANNELS / 2; i++) {
@@ -1148,32 +1151,43 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 	}
 
 	if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {
-		if( m_stripLayouts[n].m_DspEnable.get_active()) {
-			if( m_last_dsp_active != -1 )
-				m_stripLayouts[m_last_dsp_active].m_DspEnable.set_active(false);
-			m_last_dsp_active = n;
-			m_block_ui = true;
-			m_dsp_layout.set_channel_type(m_stripLayouts[m_last_dsp_active].get_channel_type());
-			m_dsp_layout.set_view_type(HIDDEN);
-			m_dsp_layout.set_ref_index(n, this);
-			m_dsp_layout.set_view_type(SINGLE_DSP);
-			m_dsp_layout.set_sensitive(true);
-			
-			m_block_ui = false;
-		}
-		else {
-			m_last_dsp_active = -1;
-			m_dsp_layout.set_channel_type(MONO);
-			m_dsp_layout.set_view_type(HIDDEN);
-			m_dsp_layout.set_ref_index(16, this);
-			m_dsp_layout.set_view_type(SINGLE_DSP);
-			m_dsp_layout.set_sensitive(false);
-		}
+		set_dsp_channel(n, m_stripLayouts[n].m_DspEnable.get_active());
+	}
+}
+
+
+void OMainWnd::set_dsp_channel(int n, bool enable){
+	if( enable ) {
+		if( m_last_dsp_active != -1 )
+			m_stripLayouts[m_last_dsp_active].m_DspEnable.set_active(false);
+		m_last_dsp_active = n;
+		m_block_ui = true;
+		m_dsp_layout.set_channel_type(m_stripLayouts[m_last_dsp_active].get_channel_type());
+		m_dsp_layout.set_view_type(HIDDEN);
+		m_dsp_layout.set_ref_index(n, this);
+		m_dsp_layout.set_view_type(SINGLE_DSP);
+		m_dsp_layout.set_sensitive(true);
+		
+		m_block_ui = false;
+	}
+	else {
+		m_last_dsp_active = -1;
+		m_dsp_layout.set_channel_type(MONO);
+		m_dsp_layout.set_view_type(HIDDEN);
+		m_dsp_layout.set_ref_index(16, this);
+		m_dsp_layout.set_view_type(SINGLE_DSP);
+		m_dsp_layout.set_sensitive(false);
 	}
 }
 
 void OMainWnd::on_ch_lb_changed(int n) {
 	char title[64];
+	if( m_last_dsp_active == n*2  ) {
+		m_stripLayouts[n*2].m_DspEnable.set_active(false);
+	}
+	else if( m_last_dsp_active == n*2 + 1 )
+		m_stripLayouts[n*2 + 1].m_DspEnable.set_active(false);
+
 	if (m_link[n].get_active()) {
 
 		m_stripLayouts[n * 2].set_channel_type(STEREO);

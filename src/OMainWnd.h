@@ -99,6 +99,8 @@ public:
     void on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
     void on_ch_dial_changed(int n, const char* control_name);
     void on_ch_tb_changed(int n, const char* control_name);
+    void set_dsp_channel(int n, bool enable);
+
     void on_ch_lb_changed(int n);
 
 protected:

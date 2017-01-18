@@ -37,6 +37,9 @@ void ORoute::init(OAlsa* alsa, Gtk::Window* wnd) {
 
 	for (int i = 0; i < 8; i++) {
 		m_route[i].set_name("route");
+		m_route[i].set_margin_start(2);
+		m_route[i].set_margin_bottom(2);
+		
 		m_route[i].append("Master Left");
 		m_route[i].append("Master Right");
 		for (int j = 0; j < 8; j++) {
