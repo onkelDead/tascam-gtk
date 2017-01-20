@@ -17,7 +17,11 @@
 #ifndef OCOMP_H
 #define OCOMP_H
 
+#include "config.h"
+
+#ifdef HAVE_OSC
 #include <lo/lo.h>
+#endif
 
 #include "OTypes.h"
 #include "ODial.h"
@@ -57,8 +61,11 @@ public:
     void save_values(FILE* file);   
     void load_values(Glib::ustring xml);
     
+#ifdef HAVE_OSC    
     int get_parameter_count() { return 5; }
     void get_parameter_decriptor(int parameter_index, lo_message reply);
+#endif
+    
     
     Gtk::ToggleButton* m_enable;
     ODial* m_threshold;

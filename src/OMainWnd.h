@@ -28,61 +28,67 @@
 #include "OAlsa.h"
 #include "OMeterWorker.h"
 
-
-
+/**     Class OMainWnd, derived from Gtk::Window.
+ *      It's the main UI element of this application.
+ */
 class OMainWnd : public Gtk::Window {
 public:
-
     OMainWnd();
     virtual ~OMainWnd();
 
-    OAlsa* get_alsa() {
-        return alsa;
-    }
-
+    /// Member variable of class MainWndUI, array of elements for the channel controls. 
     OStripLayout m_stripLayouts[16];
+    /// UI element to display the DSP controls if view type is compact.
     ODspLayout m_dsp_layout;
 
+#ifdef HAVE_OSC
+    /// Mutex to synchronize access to OSC message queue (gqueue).
+    Glib::Mutex oscMutex;
+    /// OSC message queue.
+    GAsyncQueue *m_osc_queue;
+    
+    /// handler function called by the wirker thread, if data from the asla device is available
+    void notify_osc();
+    /// dispatcher callback if data from alsa device should be processed
+    void on_notification_from_osc_thread();
+#endif
+    
+    /// handler function called by< the worker thread, if OSC messages are available
     void notify();
+    /// dispaatcher callback on OSC massage arrived.
     void on_notification_from_worker_thread();
 
-    GAsyncQueue *gqueue;
-
-    Glib::Mutex oscMutex;
-    std::queue<char*> m_osc_queue;
-    void notify_osc();
-    void on_notification_from_osc_thread();
-
+    /// Pointer to the ALSA device.
     OAlsa *alsa;
 
-    Gtk::ToggleButton m_comp_enable[NUM_CHANNELS+1];
-    ODial m_threshold[NUM_CHANNELS+1];
-    ODial m_gain[NUM_CHANNELS+1];
-    ODial m_attack[NUM_CHANNELS+1];
-    ODial m_release[NUM_CHANNELS+1];
-    ODial m_ratio[NUM_CHANNELS+1];
-    OMeter m_reduction[NUM_CHANNELS+1];
+    Gtk::ToggleButton m_comp_enable[NUM_CHANNELS + 1];
+    ODial m_threshold[NUM_CHANNELS + 1];
+    ODial m_gain[NUM_CHANNELS + 1];
+    ODial m_attack[NUM_CHANNELS + 1];
+    ODial m_release[NUM_CHANNELS + 1];
+    ODial m_ratio[NUM_CHANNELS + 1];
+    OMeter m_reduction[NUM_CHANNELS + 1];
 
-    Gtk::ToggleButton m_eq_enable[NUM_CHANNELS+1];
-    ODial m_high_freq_gain[NUM_CHANNELS+1];
-    ODial m_high_freq_band[NUM_CHANNELS+1];
-    ODial m_mid_high_freq_gain[NUM_CHANNELS+1];
-    ODial m_mid_high_freq_band[NUM_CHANNELS+1];
-    ODial m_mid_high_freq_width[NUM_CHANNELS+1];
-    ODial m_mid_low_freq_gain[NUM_CHANNELS+1];
-    ODial m_mid_low_freq_band[NUM_CHANNELS+1];
-    ODial m_mid_low_freq_width[NUM_CHANNELS+1];
-    ODial m_low_freq_gain[NUM_CHANNELS+1];
-    ODial m_low_freq_band[NUM_CHANNELS+1];
+    Gtk::ToggleButton m_eq_enable[NUM_CHANNELS + 1];
+    ODial m_high_freq_gain[NUM_CHANNELS + 1];
+    ODial m_high_freq_band[NUM_CHANNELS + 1];
+    ODial m_mid_high_freq_gain[NUM_CHANNELS + 1];
+    ODial m_mid_high_freq_band[NUM_CHANNELS + 1];
+    ODial m_mid_high_freq_width[NUM_CHANNELS + 1];
+    ODial m_mid_low_freq_gain[NUM_CHANNELS + 1];
+    ODial m_mid_low_freq_band[NUM_CHANNELS + 1];
+    ODial m_mid_low_freq_width[NUM_CHANNELS + 1];
+    ODial m_low_freq_gain[NUM_CHANNELS + 1];
+    ODial m_low_freq_band[NUM_CHANNELS + 1];
 
-    ODial m_Pan[NUM_CHANNELS+1];
-    Gtk::ToggleButton m_PhaseEnable[NUM_CHANNELS+1];
-    Gtk::ToggleButton m_MuteEnable[NUM_CHANNELS+1];
-    Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS+1];
-    Gtk::VScale m_fader[NUM_CHANNELS+1];
+    ODial m_Pan[NUM_CHANNELS + 1];
+    Gtk::ToggleButton m_PhaseEnable[NUM_CHANNELS + 1];
+    Gtk::ToggleButton m_MuteEnable[NUM_CHANNELS + 1];
+    Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS + 1];
+    Gtk::VScale m_fader[NUM_CHANNELS + 1];
 
     ORoute m_route;
-    
+
     void on_menu_file_load();
     void on_menu_file_save();
     void on_menu_file_reset();
@@ -112,7 +118,7 @@ private:
 
     bool m_block_ui;
     int m_last_dsp_active;
-    
+
     VIEW_TYPE m_view;
 
     Gtk::Grid m_grid;
@@ -141,7 +147,7 @@ private:
     int m_solo_channel;
     void set_solo_channel(int solo_channel);
     void release_solo_channel();
-    
+
     void save_values(Glib::ustring);
     void load_values(Glib::ustring);
 
@@ -149,11 +155,13 @@ private:
     void load_channel_values(Glib::ustring, int channel_index);
 
     Glib::Dispatcher m_Dispatcher;
+#ifdef HAVE_OSC    
     Glib::Dispatcher m_Dispatcher_osc;
+    void on_osc_message(int client_index, const char* path, lo_message msg);
+#endif
+    
     OMeterWorker m_Worker;
     std::thread* m_WorkerThread;
-
-    void on_osc_message(int client_index, const char* path, lo_message msg);
 
     void create_menu();
 };

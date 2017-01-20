@@ -18,20 +18,24 @@
 #ifndef GTKMM_EXAMPLEWORKER_H
 #define GTKMM_EXAMPLEWORKER_H
 
+#include "config.h"
 #include <gtkmm.h>
 #include <thread>
 #include <mutex>
+
+#ifdef HAVE_OSC
 #include <lo/lo.h>
 
-#define MAX_OSC_CLIENTS 16
-
-class OMainWnd;
-
-typedef struct  {
+typedef struct {
     int client_index;
     char* path;
     lo_message data;
 } osc_message;
+#endif
+
+#define MAX_OSC_CLIENTS 16
+
+class OMainWnd;
 
 class OMeterWorker {
 public:
@@ -44,31 +48,31 @@ public:
     void stop_work();
     bool has_stopped() const;
 
+#ifdef HAVE_OSC
     lo_address osc_client[MAX_OSC_CLIENTS];
     lo_server_thread osc_server;
     lo_address osc_server_out;
-    
-    Gtk::Window* m_caller;
-    
     const int new_osc_client(lo_message client);
     const int osc_client_exists(lo_address client);
-
     void send_osc(int client_index, const char* path, lo_message msg);
     void send_osc_all(const char* path, lo_message msg);
-    void dump_message(const char* path, const char *types, lo_arg ** argv, int argc );
-    
+    void dump_message(const char* path, const char *types, lo_arg ** argv, int argc);
+#endif
+
+    Gtk::Window* m_caller;
+
 private:
     // Synchronizes access to member data.
     mutable std::mutex m_Mutex;
 
-    
+
     // Data used by both GUI thread and worker thread.
     bool m_shall_stop;
     bool m_has_stopped;
     double m_fraction_done;
-    Glib::ustring m_message;
+//    Glib::ustring m_message;
 
-    
+
 };
 
 #endif // GTKMM_EXAMPLEWORKER_H

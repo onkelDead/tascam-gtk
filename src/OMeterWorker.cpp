@@ -20,7 +20,7 @@
 #include <chrono>
 
 
-
+#ifdef HAVE_OSC
 void osc_err_handler(int num, const char *msg, const char *where) {
     fprintf(stderr, "ARDMIX_ERROR %d: %s at %s\n", num, msg, where);
 }
@@ -52,23 +52,25 @@ int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, l
 	wnd->oscMutex.lock();
 	
 //	printf("send: %p\n", data);
-	g_async_queue_push (wnd->gqueue, msg);
+	g_async_queue_push (wnd->m_osc_queue, msg);
 	wnd->notify_osc();
 
 	wnd->oscMutex.unlock();
 	
     return 0;
 }
-
+#endif
 
 
 OMeterWorker::OMeterWorker() :
 m_Mutex(),
 m_shall_stop(false),
 m_has_stopped(false) {
+#ifdef HAVE_OSC
     for( int i = 0; i < MAX_OSC_CLIENTS; i++ ) {
         osc_client[i] = NULL;
     }	
+#endif
 }
 
 
@@ -88,6 +90,7 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 
 	m_caller = caller;
 	
+#ifdef HAVE_OSC
     osc_server = lo_server_thread_new_with_proto("3135", LO_TCP, osc_err_handler);
     if( !osc_server ) {
         fprintf(stderr, "ERROR: unable to create client port.\n");
@@ -107,13 +110,15 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 
 		caller->notify();
 	}
+    lo_server_thread_free(osc_server);
+#endif	
 
 	m_shall_stop = false;
 	m_has_stopped = true;
 
-    lo_server_thread_free(osc_server);
 }
 
+#ifdef HAVE_OSC
 const int OMeterWorker::new_osc_client(lo_message client) {
     int i;
     for(i = 0; i < MAX_OSC_CLIENTS; i++) {
@@ -172,3 +177,4 @@ void OMeterWorker::send_osc_all(const char* path, lo_message msg)  {
 	}
 	
 }
+#endif

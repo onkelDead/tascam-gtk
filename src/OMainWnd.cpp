@@ -21,6 +21,7 @@
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
 #include <iostream>
 
+/// constructor implementation
 OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE::NORMAL), m_solo_channel(-1) {
 	int i;
 	set_title("Tascam US-16x08 DSP Mixer");
@@ -181,11 +182,12 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 		m_dsp_layout.set_view_type(PREPARE);
 		m_dsp_layout.set_sensitive(false);
 
-		gqueue = g_async_queue_new();
-
 		m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
-		m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
 
+#ifdef HAVE_OSC
+		m_osc_queue = g_async_queue_new();
+		m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
+#endif
 		if (m_WorkerThread) {
 			std::cout << "Can't start a worker thread while another one is running." << std::endl;
 		} else {
@@ -248,8 +250,9 @@ OMainWnd::~OMainWnd() {
 		sleep(1);
 	if (alsa)
 		delete alsa;
-	g_async_queue_unref(gqueue);
-	//	delete m_WorkerThread;
+#ifdef HAVE_OSC	
+	g_async_queue_unref(m_osc_queue);
+#endif
 }
 
 void OMainWnd::create_menu() {
@@ -351,6 +354,7 @@ void OMainWnd::on_notification_from_worker_thread() {
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		int ch_meter = alsa->sliderTodB(alsa->meters[i] / 32768. * 133.) / 133. * 32768;
 		m_stripLayouts[i].m_fader.m_meter[0].setLevel(ch_meter);
+		
 		if (m_comp_enable[i].get_active())
 			m_reduction[i].setLevel(alsa->sliderTodB(alsa->meters[i + 18] / 32768. * 133.) / 133. * 32768);
 		else {
@@ -361,7 +365,7 @@ void OMainWnd::on_notification_from_worker_thread() {
 			ch_meter = alsa->sliderTodB(alsa->meters[i + 1] / 32768. * 133.) / 133. * 32768;
 			m_stripLayouts[i].m_fader.m_meter[1].setLevel(ch_meter);
 		}
-
+#ifdef HAVE_OSC
 		lo_message reply = lo_message_new();
 		int ch_leds = m_stripLayouts[i].m_fader.m_meter[i].get_level() * 14 / 32768;
 		int ch_led_mask = 1 << ch_leds;
@@ -369,6 +373,7 @@ void OMainWnd::on_notification_from_worker_thread() {
 		lo_message_add_int32(reply, ch_led_mask - 1);
 		m_Worker.send_osc_all("/strip/meter", reply);
 		lo_message_free(reply);
+#endif		
 	}
 
 	int left_level = alsa->sliderTodB(alsa->meters[16] / 32768. * 133.) / 133. * 32768;
@@ -379,13 +384,16 @@ void OMainWnd::on_notification_from_worker_thread() {
 	int master_leds = MAX(m_master.m_meter_left.get_level(), m_master.m_meter_right.get_level()) * 14 / 32768;
 	int led_mask = 1 << master_leds;
 
+#ifdef HAVE_OSC	
 	lo_message reply = lo_message_new();
 	lo_message_add_int32(reply, led_mask - 1);
 	m_Worker.send_osc_all("/master/meter", reply);
 	lo_message_free(reply);
+#endif
 
 }
 
+#ifdef HAVE_OSC	
 void OMainWnd::notify_osc() {
 	m_Dispatcher_osc.emit();
 }
@@ -394,20 +402,18 @@ void OMainWnd::on_notification_from_osc_thread() {
 
 	oscMutex.lock();
 
-	osc_message* data = (osc_message*) g_async_queue_pop(gqueue);
+	osc_message* data = (osc_message*) g_async_queue_pop(m_osc_queue);
 
 	oscMutex.unlock();
 	if (data->path) {
 		printf("osc: %s\n", data->path);
-
 		on_osc_message(data->client_index, data->path, data->data);
-		//		m_Worker.dump_message(data->path, lo_message_get_types(data->data), lo_message_get_argv(data->data), lo_message_get_argc(data->data));
-
 		free(data->path);
 	}
 	lo_message_free(data->data);
 	delete data;
 }
+#endif
 
 void OMainWnd::on_menu_file_exit() {
 	this->hide();
@@ -696,6 +702,7 @@ void OMainWnd::load_values(Glib::ustring filename) {
 
 }
 
+#ifdef HAVE_OSC
 void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg) {
 	lo_arg** argv = lo_message_get_argv(msg);
 	lo_message reply;
@@ -932,24 +939,31 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
 		}
 	}
 }
+#endif
 
 void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label * label_) {
 
+#ifdef HAVE_OSC		
 	lo_message reply = lo_message_new();
+#endif		
 
 	if (!strcmp(control_name, CTL_NAME_FADER)) {
+#ifdef HAVE_OSC		
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, control->get_value() / 133.);
 		m_Worker.send_osc_all("/strip/fader", reply);
+#endif		
 		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			m_fader[n + 1].set_value(m_fader[n].get_value());
 		}
 	}
+#ifdef HAVE_OSC		
 	if (!strcmp(control_name, CTL_MASTER)) {
 		lo_message_add_float(reply, control->get_value() / 133.);
 		m_Worker.send_osc_all("/master/fader", reply);
 	}
 	lo_message_free(reply);
+#endif		
 
 	alsa->on_range_control_changed(n, control_name, control, label_);
 }
@@ -969,12 +983,14 @@ void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
 	}
 
 	if (!strcmp(control_name, CTL_NAME_PAN)) {
+#ifdef HAVE_OSC		
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, m_Pan[n].get_value() / 254.);
 		m_Worker.send_osc_all("/strip/pan_stereo_position", reply);
-		alsa->on_dial_control_changed(n, control_name, &m_Pan[n]);
 		lo_message_free(reply);
+#endif
+		alsa->on_dial_control_changed(n, control_name, &m_Pan[n]);
 	}
 	// compressor dial changed
 	{
@@ -1110,24 +1126,28 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 	}
 
 	if (!strcmp(control_name, CTL_NAME_MUTE)) {
+#ifdef HAVE_OSC		
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, m_MuteEnable[n].get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/strip/mute", reply);
+		lo_message_free(reply);
+#endif		
 		alsa->on_toggle_button_control_changed(n, control_name, &m_MuteEnable[n]);
 		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			usleep(RESET_VALUE_DELAY);
 			m_MuteEnable[n + 1].set_active(m_MuteEnable[n].get_active());
 		}
-		lo_message_free(reply);
 	}
 	if (!strcmp(control_name, CTL_NAME_SOLO)) {
 		if (m_solo_channel == n || m_solo_channel == -1) {
+#ifdef HAVE_OSC		
 			lo_message reply = lo_message_new();
 			lo_message_add_int32(reply, n);
 			lo_message_add_float(reply, m_SoloEnable[n].get_active() ? 1. : 0.);
 			m_Worker.send_osc_all("/strip/solo", reply);
 			lo_message_free(reply);
+#endif
 			if (m_SoloEnable[n].get_active())
 				set_solo_channel(n);
 			else
@@ -1135,26 +1155,32 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 		}
 	}
 	if (!strcmp(control_name, CTL_NAME_PHASE)) {
+#ifdef HAVE_OSC		
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, m_PhaseEnable[n].get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/strip/solo", reply);
-		alsa->on_toggle_button_control_changed(n, control_name, &m_PhaseEnable[n]);
 		lo_message_free(reply);
+#endif		
+		alsa->on_toggle_button_control_changed(n, control_name, &m_PhaseEnable[n]);
 	}
 	if (!strcmp(control_name, CTL_NAME_MASTER_MUTE)) {
+#ifdef HAVE_OSC		
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, m_master.m_mute.get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/master/mute", reply);
-		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_mute);
 		lo_message_free(reply);
+#endif		
+		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_mute);
 	}
 	if (!strcmp(control_name, CTL_NAME_BYPASS)) {
+#ifdef HAVE_OSC		
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, m_master.m_true_bypass.get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/master/mute", reply);
-		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_true_bypass);
 		lo_message_free(reply);
+#endif		
+		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_true_bypass);
 	}
 
 	if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {

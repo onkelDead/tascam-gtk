@@ -414,6 +414,7 @@ void OEq::load_values(Glib::ustring xml) {
 	}
 }
 
+#ifdef HAVE_OSC
 void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 	if (parameter_index == 0) {
 		lo_message_add_int32(reply, parameter_index + 1); // plugin parameter index
@@ -562,3 +563,4 @@ void OEq::get_parameter_decriptor(int parameter_index, lo_message reply) {
 		lo_message_add_double(reply, (double) m_low_freq_band->get_value());
 	}
 }
+#endif

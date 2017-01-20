@@ -22,6 +22,7 @@
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
 #include <gtk-3.0/gtk/gtkenums.h>
 
+#include "config.h"
 #include "OComp.h"
 #include "OMainWnd.h"
 
@@ -281,7 +282,7 @@ void OComp::load_values(Glib::ustring xml) {
 		return;
 	}
 }
-
+#ifdef HAVE_OSC
 void OComp::get_parameter_decriptor(int parameter_index, lo_message reply) {
 	if (parameter_index == 0) {
 		lo_message_add_int32(reply, 1); // plugin parameter index
@@ -351,3 +352,4 @@ void OComp::get_parameter_decriptor(int parameter_index, lo_message reply) {
 	}
 
 }
+#endif

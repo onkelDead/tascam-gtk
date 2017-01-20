@@ -18,6 +18,7 @@
 #ifndef OSTRIPLAYOUT_H
 #define OSTRIPLAYOUT_H
 
+#include "config.h"
 #include "OTypes.h"
 #include "ODial.h"
 #include "OComp.h"
