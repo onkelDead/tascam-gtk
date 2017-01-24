@@ -31,13 +31,9 @@ int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, l
 
 	OMeterWorker* worker = (OMeterWorker*) user_data;
 
-//	worker->dump_message(path, types, argv, argc);
-
 	client_index = worker->osc_client_exists(data);
     if (client_index == -1) {
         char* new_client_url = lo_address_get_url(lo_message_get_source(data));
-        fprintf(stdout, "new client: %s\n", new_client_url);
-        fflush (stdout);
         client_index = worker->new_osc_client(data);
         free(new_client_url);
     }
@@ -51,7 +47,6 @@ int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, l
 	
 	wnd->oscMutex.lock();
 	
-//	printf("send: %p\n", data);
 	g_async_queue_push (wnd->m_osc_queue, msg);
 	wnd->notify_osc();
 
@@ -98,6 +93,7 @@ void OMeterWorker::do_work(OMainWnd* caller) {
     }
     lo_server_thread_add_method(osc_server, NULL, NULL, osc_handler, this);
     lo_server_thread_start(osc_server);
+#endif	
 	
 	for (;;) // do until break
 	{
@@ -110,6 +106,7 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 
 		caller->notify();
 	}
+#ifdef HAVE_OSC
     lo_server_thread_free(osc_server);
 #endif	
 

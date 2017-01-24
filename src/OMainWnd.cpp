@@ -22,182 +22,196 @@
 #include <iostream>
 
 /// constructor implementation
-OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE::NORMAL), m_solo_channel(-1) {
+
+OMainWnd::OMainWnd() :
+Gtk::Window(),
+settings(0),
+alsa(new OAlsa),
+m_view(VIEW_TYPE::NORMAL),
+m_solo_channel(-1),
+m_dsp_channel(-1),
+m_block_ui(true),
+m_WorkerThread(nullptr) {
 	int i;
+	bool compact;
+
+	set_name("OMainWnd");
 	set_title("Tascam US-16x08 DSP Mixer");
 
-	m_block_ui = true;
-	m_last_dsp_active = -1;
+	if (Glib::file_test(PKGDATADIR "/icon.png", Glib::FILE_TEST_EXISTS))
+		this->set_icon_from_file(PKGDATADIR "/icon.png");
+	else
+		this->set_icon_from_file("data/icon.png");
 
-	alsa = new OAlsa();
+	GSettingsSchemaSource* source = g_settings_schema_source_get_default();
+	if (g_settings_schema_source_lookup(source, TASCAMGTK_SCHEMA_ID, true)) {
+		settings = Gio::Settings::create(TASCAMGTK_SCHEMA_ID);
+		compact = settings->get_boolean("view-compact");
+	}
 
 	create_menu();
 
-	m_grid.attach(m_menubox, 0, 0, 17, 1);
+	if (alsa->open_device())
+		exit(1);
 
-	m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
+	for (i = 0; i < NUM_CHANNELS + 1; i++) {
+		// compressor controls
+		{
+			m_comp_enable[i].set_label("Comp");
+			m_comp_enable[i].set_name("comp-button");
 
-	if (!alsa->open_device()) {
+			m_threshold[i].set_params(0, 32, 32, 1);
+			m_threshold[i].set_label("Thresh");
+			m_threshold[i].set_value_callback(cp_threshold_text);
+			m_threshold[i].set_knob_background_color(CREAD_NORMAL);
 
-		for (i = 0; i < NUM_CHANNELS + 1; i++) {
-			// compressor controls
-			{
-				m_comp_enable[i].set_label("Comp");
-				m_comp_enable[i].set_name("comp-button");
+			m_gain[i].set_params(0, 20, 0, 1);
+			m_gain[i].set_label("Gain");
+			m_gain[i].set_value_callback(cp_gain_text);
+			m_gain[i].set_knob_background_color(CREAD_NORMAL);
 
-				m_threshold[i].set_params(0, 32, 32, 1);
-				m_threshold[i].set_label("Thresh");
-				m_threshold[i].set_value_callback(cp_threshold_text);
-				m_threshold[i].set_knob_background_color(CREAD_NORMAL);
+			m_attack[i].set_params(0, 198, 0, 5);
+			m_attack[i].set_label("Attack");
+			m_attack[i].set_value_callback(cp_attack_text);
+			m_attack[i].set_knob_background_color(CREAD_LIGHT);
 
-				m_gain[i].set_params(0, 20, 0, 1);
-				m_gain[i].set_label("Gain");
-				m_gain[i].set_value_callback(cp_gain_text);
-				m_gain[i].set_knob_background_color(CREAD_NORMAL);
+			m_release[i].set_params(0, 99, 0, 1);
+			m_release[i].set_label("Release");
+			m_release[i].set_value_callback(cp_release_text);
+			m_release[i].set_knob_background_color(CREAD_LIGHT);
 
-				m_attack[i].set_params(0, 198, 0, 5);
-				m_attack[i].set_label("Attack");
-				m_attack[i].set_value_callback(cp_attack_text);
-				m_attack[i].set_knob_background_color(CREAD_LIGHT);
+			m_ratio[i].set_params(0, 14, 0, 1);
+			m_ratio[i].set_label("Ratio");
+			m_ratio[i].set_map(cp_ration_map);
+			m_ratio[i].set_knob_background_color(CREAD_NORMAL);
 
-				m_release[i].set_params(0, 99, 0, 1);
-				m_release[i].set_label("Release");
-				m_release[i].set_value_callback(cp_release_text);
-				m_release[i].set_knob_background_color(CREAD_LIGHT);
-
-				m_ratio[i].set_params(0, 14, 0, 1);
-				m_ratio[i].set_label("Ratio");
-				m_ratio[i].set_map(cp_ration_map);
-				m_ratio[i].set_knob_background_color(CREAD_NORMAL);
-
-				m_reduction[i].setLevel(32768);
-				m_reduction[i].set_size_request(10, -1);
-				m_reduction[i].set_level_direction(1);
-				m_reduction[i].set_level_color(1, .6, .6, 1);
-			}
-
-			// equalizer controls
-			{
-				m_eq_enable[i].set_label("EQ");
-				m_eq_enable[i].set_name("eq-button");
-				m_eq_enable[i].set_vexpand(false);
-				m_eq_enable[i].set_valign(Gtk::ALIGN_CENTER);
-
-				m_high_freq_gain[i].set_label("High");
-				m_high_freq_gain[i].set_value_callback(eq_level_text);
-				m_high_freq_gain[i].set_params(0, 24, 12, 1);
-				m_high_freq_gain[i].set_name("eq_high_gain");
-				m_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
-
-				m_high_freq_band[i].set_label("Freq");
-				m_high_freq_band[i].set_value_callback(eq_high_freq_text);
-				m_high_freq_band[i].set_params(0, 31, 15, 1);
-				m_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
-
-				m_mid_high_freq_gain[i].set_label("Mid H");
-				m_mid_high_freq_gain[i].set_params(0, 24, 12, 1);
-				m_mid_high_freq_gain[i].set_value_callback(eq_level_text);
-				m_mid_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
-
-				m_mid_high_freq_band[i].set_label("Freq");
-				m_mid_high_freq_band[i].set_params(0, 64, 27, 1);
-				m_mid_high_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
-				m_mid_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
-
-				m_mid_high_freq_width[i].set_label("Width");
-				m_mid_high_freq_width[i].set_value_callback(eq_width_text);
-				m_mid_high_freq_width[i].set_params(0, 6, 2, 1);
-				m_mid_high_freq_width[i].set_knob_background_color(EBLUE_LIGHT);
-				m_mid_high_freq_width[i].set_hexpand(false);
-				m_mid_high_freq_width[i].set_halign(Gtk::ALIGN_CENTER);
-
-				m_mid_low_freq_gain[i].set_label("Mid L");
-				m_mid_low_freq_gain[i].set_params(0, 24, 12, 1);
-				m_mid_low_freq_gain[i].set_value_callback(eq_level_text);
-				m_mid_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
-
-				m_mid_low_freq_band[i].set_label("Freq");
-				m_mid_low_freq_band[i].set_params(0, 64, 14, 1);
-				m_mid_low_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
-				m_mid_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
-
-				m_mid_low_freq_width[i].set_label("Width");
-				m_mid_low_freq_width[i].set_value_callback(eq_width_text);
-				m_mid_low_freq_width[i].set_params(0, 6, 2, 1);
-				m_mid_low_freq_width[i].set_knob_background_color(EBLUE_LIGHT);
-
-				m_low_freq_gain[i].set_label("Low");
-				m_low_freq_gain[i].set_params(0, 24, 12, 1);
-				m_low_freq_gain[i].set_value_callback(eq_level_text);
-				m_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
-
-				m_low_freq_band[i].set_label("Freq");
-				m_low_freq_band[i].set_params(0, 31, 5, 1);
-				m_low_freq_band[i].set_value_callback(eq_low_freq_text);
-				m_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
-			}
-
-			if (i < NUM_CHANNELS) {
-				m_Pan[i].set_params(0, 254, 127, 5);
-				m_Pan[i].set_label("L Pan R");
-				m_Pan[i].set_knob_background_color(1., .8, .3, 1.);
-
-
-				m_MuteEnable[i].set_label("Mute");
-				m_MuteEnable[i].set_name("mute-button");
-
-				m_SoloEnable[i].set_label("Solo");
-				m_SoloEnable[i].set_name("solo-button");
-
-				m_PhaseEnable[i].set_label("Phase");
-				m_PhaseEnable[i].set_name("phase-button");
-
-				m_fader[i].set_range(0, 133);
-				m_fader[i].set_name("fader");
-				m_fader[i].set_inverted(true);
-				m_fader[i].set_size_request(-1, 160);
-				m_fader[i].set_draw_value(false);
-				m_fader[i].set_increments(1, 5);
-				m_fader[i].add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
-				m_fader[i].add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
-				m_fader[i].add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
-				m_fader[i].add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
-				m_fader[i].add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
-				m_fader[i].add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
-				m_fader[i].add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
-				m_fader[i].add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
-				m_fader[i].add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
-				m_fader[i].set_tooltip_text("channel fader");
-				m_fader[i].set_vexpand(true);
-
-				m_stripLayouts[i].init(i, alsa, this);
-				m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_title_context), i));
-				m_stripLayouts[i].set_view_type(NORMAL);
-				m_grid.attach(m_stripLayouts[i], i, 2, 1, 1);
-			}
-
+			m_reduction[i].setLevel(32768);
+			m_reduction[i].set_size_request(10, -1);
+			m_reduction[i].set_level_direction(1);
+			m_reduction[i].set_level_color(1, .6, .6, 1);
 		}
-		m_dsp_layout.init(16, alsa, this);
 
+		// equalizer controls
+		{
+			m_eq_enable[i].set_label("EQ");
+			m_eq_enable[i].set_name("eq-button");
+			m_eq_enable[i].set_vexpand(false);
+			m_eq_enable[i].set_valign(Gtk::ALIGN_CENTER);
+
+			m_high_freq_gain[i].set_label("High");
+			m_high_freq_gain[i].set_value_callback(eq_level_text);
+			m_high_freq_gain[i].set_params(0, 24, 12, 1);
+			m_high_freq_gain[i].set_name("eq_high_gain");
+			m_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
+
+			m_high_freq_band[i].set_label("Freq");
+			m_high_freq_band[i].set_value_callback(eq_high_freq_text);
+			m_high_freq_band[i].set_params(0, 31, 15, 1);
+			m_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
+
+			m_mid_high_freq_gain[i].set_label("Mid H");
+			m_mid_high_freq_gain[i].set_params(0, 24, 12, 1);
+			m_mid_high_freq_gain[i].set_value_callback(eq_level_text);
+			m_mid_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
+
+			m_mid_high_freq_band[i].set_label("Freq");
+			m_mid_high_freq_band[i].set_params(0, 64, 27, 1);
+			m_mid_high_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
+			m_mid_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
+
+			m_mid_high_freq_width[i].set_label("Width");
+			m_mid_high_freq_width[i].set_value_callback(eq_width_text);
+			m_mid_high_freq_width[i].set_params(0, 6, 2, 1);
+			m_mid_high_freq_width[i].set_knob_background_color(EBLUE_LIGHT);
+			m_mid_high_freq_width[i].set_hexpand(false);
+			m_mid_high_freq_width[i].set_halign(Gtk::ALIGN_CENTER);
+
+			m_mid_low_freq_gain[i].set_label("Mid L");
+			m_mid_low_freq_gain[i].set_params(0, 24, 12, 1);
+			m_mid_low_freq_gain[i].set_value_callback(eq_level_text);
+			m_mid_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
+
+			m_mid_low_freq_band[i].set_label("Freq");
+			m_mid_low_freq_band[i].set_params(0, 64, 14, 1);
+			m_mid_low_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
+			m_mid_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
+
+			m_mid_low_freq_width[i].set_label("Width");
+			m_mid_low_freq_width[i].set_value_callback(eq_width_text);
+			m_mid_low_freq_width[i].set_params(0, 6, 2, 1);
+			m_mid_low_freq_width[i].set_knob_background_color(EBLUE_LIGHT);
+
+			m_low_freq_gain[i].set_label("Low");
+			m_low_freq_gain[i].set_params(0, 24, 12, 1);
+			m_low_freq_gain[i].set_value_callback(eq_level_text);
+			m_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
+
+			m_low_freq_band[i].set_label("Freq");
+			m_low_freq_band[i].set_params(0, 31, 5, 1);
+			m_low_freq_band[i].set_value_callback(eq_low_freq_text);
+			m_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
+		}
+
+		if (i < NUM_CHANNELS) {
+			m_Pan[i].set_params(0, 254, 127, 5);
+			m_Pan[i].set_label("L Pan R");
+			m_Pan[i].set_knob_background_color(1., .8, .3, 1.);
+
+
+			m_MuteEnable[i].set_label("Mute");
+			m_MuteEnable[i].set_name("mute-button");
+
+			m_SoloEnable[i].set_label("Solo");
+			m_SoloEnable[i].set_name("solo-button");
+
+			m_PhaseEnable[i].set_label("Phase");
+			m_PhaseEnable[i].set_name("phase-button");
+
+			m_fader[i].set_range(0, 133);
+			m_fader[i].set_name("fader");
+			m_fader[i].set_inverted(true);
+			m_fader[i].set_size_request(-1, 160);
+			m_fader[i].set_draw_value(false);
+			m_fader[i].set_increments(1, 5);
+			m_fader[i].add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
+			m_fader[i].add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
+			m_fader[i].add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
+			m_fader[i].add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
+			m_fader[i].add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
+			m_fader[i].add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
+			m_fader[i].add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
+			m_fader[i].add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
+			m_fader[i].add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
+			m_fader[i].set_tooltip_text("channel fader");
+			m_fader[i].set_vexpand(true);
+
+			m_stripLayouts[i].init(i, alsa, this);
+			m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_mouse_event), i));
+			m_stripLayouts[i].set_view_type(NORMAL);
+			m_grid.attach(m_stripLayouts[i], i, 2, 1, 1);
+		}
+	}
+
+	// create DSP layout
+	{
+		m_dsp_layout.init(16, alsa, this);
 		m_dsp_layout.set_view_type(PREPARE);
 		m_dsp_layout.set_sensitive(false);
+//		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
+	}
 
-		m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
-
+	m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
 #ifdef HAVE_OSC
-		m_osc_queue = g_async_queue_new();
-		m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
+	m_osc_queue = g_async_queue_new();
+	m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
 #endif
-		if (m_WorkerThread) {
-			std::cout << "Can't start a worker thread while another one is running." << std::endl;
-		} else {
-			// Start a new worker thread.
-			m_WorkerThread = new std::thread(
-					[this] {
-						m_Worker.do_work(this);
-					});
-		}
-
+	if (m_WorkerThread) {
+		std::cout << "Can't start a worker thread while another one is running." << std::endl;
+	} else {
+		// Start a new worker thread.
+		m_WorkerThread = new std::thread([this] {
+			m_Worker.do_work(this);
+		});
 	}
 
 	for (i = 0; i < NUM_CHANNELS / 2; i++) {
@@ -211,35 +225,67 @@ OMainWnd::OMainWnd() : Gtk::Window(), m_WorkerThread(nullptr), m_view(VIEW_TYPE:
 	m_master.init(alsa, this);
 	m_grid.attach(m_master, 16, 1, 1, 3);
 
-
-
-	set_name("OMainWnd");
 	add(m_grid);
+//	m_grid.remove(m_dsp_layout);
 
-	m_refCssProvider = Gtk::CssProvider::create();
-	auto refStyleContext = get_style_context();
-	refStyleContext->add_provider(m_refCssProvider,
-			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	// load style sheet 
+	{
+		m_refCssProvider = Gtk::CssProvider::create();
+		auto refStyleContext = get_style_context();
+		refStyleContext->add_provider(m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-	try {
-		m_refCssProvider->load_from_path("src/tascam-gtk.css");
-	} catch (const Gtk::CssProviderError& ex) {
-		std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
-				<< ex.what() << std::endl;
-	} catch (const Glib::Error& ex) {
-		std::cerr << "Error, Gtk::CssProvider::load_from_path() failed: "
-				<< ex.what() << std::endl;
+		try {
+			if (Glib::file_test(PKGDATADIR "/tascam-gtk.css", Glib::FILE_TEST_EXISTS))
+				m_refCssProvider->load_from_path(PKGDATADIR "/tascam-gtk.css");
+			else
+				m_refCssProvider->load_from_path("./data/tascam-gtk.css");
+		} catch (const Gtk::CssProviderError& ex) {
+			std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
+					<< ex.what() << std::endl;
+		} catch (const Glib::Error& ex) {
+			std::cerr << "Error, Gtk::CssProvider::load_from_path() failed: "
+					<< ex.what() << std::endl;
+		}
+
+		//	auto refStyleContext = get_style_context();
+		auto screen = Gdk::Screen::get_default();
+		refStyleContext->add_provider_for_screen(Gdk::Screen::get_default(), m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 	}
 
-	//	auto refStyleContext = get_style_context();
-	auto screen = Gdk::Screen::get_default();
-	refStyleContext->add_provider_for_screen(
-			Gdk::Screen::get_default(),
-			m_refCssProvider,
-			GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
-			);
+	// create abaout dialog
+	{
+		m_Dialog.set_transient_for(*this);
+
+		if (Glib::file_test(PKGDATADIR "/icon.png", Glib::FILE_TEST_EXISTS))
+			m_Dialog.set_logo(Gdk::Pixbuf::create_from_file(PKGDATADIR "/icon.png"));
+		else
+			m_Dialog.set_logo(Gdk::Pixbuf::create_from_file("data/icon.png"));
+
+		m_Dialog.set_program_name(PACKAGE_STRING);
+		m_Dialog.set_version(PACKAGE_VERSION);
+		m_Dialog.set_copyright("Copyright 2017 Detlef Urban");
+		m_Dialog.set_comments("Tascam US-16x08 DSP mixer application");
+		m_Dialog.set_license("LGPL");
+
+		m_Dialog.set_website("http://www.paraair.de/tascamgtk");
+		m_Dialog.set_website_label("http://www.paraair.de");
+
+		std::vector<Glib::ustring> list_authors;
+		list_authors.push_back("Detlef Urban (" PACKAGE_BUGREPORT ")");
+		m_Dialog.set_authors(list_authors);
+
+		m_Dialog.signal_response().connect(
+				sigc::mem_fun(*this, &OMainWnd::on_about_dialog_response));
+
+		show_all_children();
+	}
+
+	if (compact) 
+		on_menu_view_compact();
+	else
+		on_menu_view_normal();
+	
 	show_all_children(true);
-	m_grid.remove(m_dsp_layout);
 
 	m_block_ui = false;
 }
@@ -250,7 +296,7 @@ OMainWnd::~OMainWnd() {
 		sleep(1);
 	if (alsa)
 		delete alsa;
-#ifdef HAVE_OSC	
+#ifdef HAVE_OSC 
 	g_async_queue_unref(m_osc_queue);
 #endif
 }
@@ -268,6 +314,8 @@ void OMainWnd::create_menu() {
 			sigc::mem_fun(this, &OMainWnd::on_menu_file_reset));
 	m_refActionGroup->add(Gtk::Action::create("exit", Gtk::Stock::QUIT),
 			sigc::mem_fun(this, &OMainWnd::on_menu_file_exit));
+	m_refActionGroup->add(Gtk::Action::create("about", Gtk::Stock::ABOUT),
+			sigc::mem_fun(this, &OMainWnd::on_menu_file_about));
 	m_refActionGroup->add(Gtk::Action::create("View", "_View"));
 	m_refActionGroup->add(Gtk::Action::create("compact", Gtk::Stock::ZOOM_IN, "_Compact"),
 			sigc::mem_fun(this, &OMainWnd::on_menu_view_compact));
@@ -285,6 +333,8 @@ void OMainWnd::create_menu() {
 			"        <menuitem action='load'/>"
 			"        <menuitem action='save'/>"
 			"        <menuitem action='reset'/>"
+			"        <separator />"
+			"        <menuitem action='about'/>"
 			"        <separator />"
 			"        <menuitem action='exit' />"
 			"    </menu>"
@@ -316,11 +366,11 @@ void OMainWnd::create_menu() {
 	menu_popup.append(menu_popup_reset);
 
 	m_menubox.set_name("menu");
-
+	m_grid.attach(m_menubox, 0, 0, 17, 1);
 
 }
 
-bool OMainWnd::on_title_context(GdkEventButton* event, int channel_index) {
+bool OMainWnd::on_mouse_event(GdkEventButton* event, int channel_index) {
 	if (event->button == 3) {
 
 		if (!m_popup_load_connection.empty())
@@ -354,7 +404,7 @@ void OMainWnd::on_notification_from_worker_thread() {
 	for (int i = 0; i < NUM_CHANNELS; i++) {
 		int ch_meter = alsa->sliderTodB(alsa->meters[i] / 32768. * 133.) / 133. * 32768;
 		m_stripLayouts[i].m_fader.m_meter[0].setLevel(ch_meter);
-		
+
 		if (m_comp_enable[i].get_active())
 			m_reduction[i].setLevel(alsa->sliderTodB(alsa->meters[i + 18] / 32768. * 133.) / 133. * 32768);
 		else {
@@ -367,13 +417,13 @@ void OMainWnd::on_notification_from_worker_thread() {
 		}
 #ifdef HAVE_OSC
 		lo_message reply = lo_message_new();
-		int ch_leds = m_stripLayouts[i].m_fader.m_meter[i].get_level() * 14 / 32768;
+		int ch_leds = m_stripLayouts[i].m_fader.m_meter[0].get_level() * 14 / 32768;
 		int ch_led_mask = 1 << ch_leds;
 		lo_message_add_int32(reply, i);
 		lo_message_add_int32(reply, ch_led_mask - 1);
 		m_Worker.send_osc_all("/strip/meter", reply);
 		lo_message_free(reply);
-#endif		
+#endif  
 	}
 
 	int left_level = alsa->sliderTodB(alsa->meters[16] / 32768. * 133.) / 133. * 32768;
@@ -384,7 +434,7 @@ void OMainWnd::on_notification_from_worker_thread() {
 	int master_leds = MAX(m_master.m_meter_left.get_level(), m_master.m_meter_right.get_level()) * 14 / 32768;
 	int led_mask = 1 << master_leds;
 
-#ifdef HAVE_OSC	
+#ifdef HAVE_OSC 
 	lo_message reply = lo_message_new();
 	lo_message_add_int32(reply, led_mask - 1);
 	m_Worker.send_osc_all("/master/meter", reply);
@@ -393,7 +443,8 @@ void OMainWnd::on_notification_from_worker_thread() {
 
 }
 
-#ifdef HAVE_OSC	
+#ifdef HAVE_OSC 
+
 void OMainWnd::notify_osc() {
 	m_Dispatcher_osc.emit();
 }
@@ -406,7 +457,6 @@ void OMainWnd::on_notification_from_osc_thread() {
 
 	oscMutex.unlock();
 	if (data->path) {
-		printf("osc: %s\n", data->path);
 		on_osc_message(data->client_index, data->path, data->data);
 		free(data->path);
 	}
@@ -417,6 +467,10 @@ void OMainWnd::on_notification_from_osc_thread() {
 
 void OMainWnd::on_menu_file_exit() {
 	this->hide();
+}
+
+void OMainWnd::on_menu_file_about() {
+	m_Dialog.show();
 }
 
 void OMainWnd::on_menu_file_reset() {
@@ -492,11 +546,14 @@ void OMainWnd::on_menu_view_compact() {
 		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
 	m_dsp_layout.set_view_type(HIDDEN);
 	m_dsp_layout.set_view_type(SINGLE_DSP);
+	show_all_children(true);
+	if (settings)
+		settings->set_boolean("view-compact", true);
 }
 
 void OMainWnd::on_menu_view_normal() {
-	if (m_view == COMPACT && m_last_dsp_active != -1)
-		set_dsp_channel(m_last_dsp_active, false);
+	if (m_view == COMPACT && m_dsp_channel != -1)
+		set_dsp_channel(m_dsp_channel, false);
 
 	m_view = VIEW_TYPE::NORMAL;
 	m_dsp_layout.set_view_type(HIDDEN);
@@ -507,6 +564,10 @@ void OMainWnd::on_menu_view_normal() {
 	m_master.set_view_type(m_view);
 	if (m_dsp_layout.get_parent())
 		m_grid.remove(m_dsp_layout);
+	show_all_children(true);
+	if (settings)
+		settings->set_boolean("view-compact", false);
+
 }
 
 void OMainWnd::on_menu_popup_load(int channel_index) {
@@ -613,6 +674,14 @@ void OMainWnd::save_values(Glib::ustring filename) {
 	if (file) {
 		fprintf(file, "<values>\n");
 
+		for (int i = 0; i < 8; i++) {
+
+			fprintf(file, "\t<link index=\"%d\">", i);
+			fprintf(file, "%d", (int) m_link[i].get_active());
+			fprintf(file, "</link>\n");
+
+		}
+
 		fprintf(file, "\t<master>");
 		fprintf(file, "%d", (int) m_master.m_fader.get_value());
 		fprintf(file, "</master>\n");
@@ -643,6 +712,7 @@ void OMainWnd::save_values(Glib::ustring filename) {
 			fprintf(file, "\t</channel>\n");
 		}
 
+
 		fprintf(file, "</values>\n");
 		fclose(file);
 	}
@@ -655,6 +725,15 @@ void OMainWnd::load_values(Glib::ustring filename) {
 		xmlpp::TextReader reader(filename);
 
 		while (reader.read()) {
+			if (!strcmp(reader.get_name().c_str(), "link") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				if (reader.has_attributes()) {
+					reader.move_to_first_attribute();
+					int index = atoi(reader.get_value().c_str());
+					reader.read();
+					m_link[index].set_active(atoi(reader.get_value().c_str()));
+					usleep(RESET_VALUE_DELAY);
+				}
+			}
 			if (!strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
 				m_master.m_fader.set_value(atoi(reader.get_value().c_str()));
@@ -703,6 +782,7 @@ void OMainWnd::load_values(Glib::ustring filename) {
 }
 
 #ifdef HAVE_OSC
+
 void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg) {
 	lo_arg** argv = lo_message_get_argv(msg);
 	lo_message reply;
@@ -943,27 +1023,27 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
 
 void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label * label_) {
 
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 	lo_message reply = lo_message_new();
-#endif		
+#endif  
 
 	if (!strcmp(control_name, CTL_NAME_FADER)) {
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, control->get_value() / 133.);
 		m_Worker.send_osc_all("/strip/fader", reply);
-#endif		
+#endif  
 		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			m_fader[n + 1].set_value(m_fader[n].get_value());
 		}
 	}
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 	if (!strcmp(control_name, CTL_MASTER)) {
 		lo_message_add_float(reply, control->get_value() / 133.);
 		m_Worker.send_osc_all("/master/fader", reply);
 	}
 	lo_message_free(reply);
-#endif		
+#endif  
 
 	alsa->on_range_control_changed(n, control_name, control, label_);
 }
@@ -976,14 +1056,14 @@ void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
 	if (n == 16) { // singel dsp signal
 		org_index = n;
 
-		if (m_last_dsp_active != -1)
-			n = m_last_dsp_active;
+		if (m_dsp_channel != -1)
+			n = m_dsp_channel;
 		else
 			return;
 	}
 
 	if (!strcmp(control_name, CTL_NAME_PAN)) {
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, m_Pan[n].get_value() / 254.);
@@ -1126,13 +1206,13 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 	}
 
 	if (!strcmp(control_name, CTL_NAME_MUTE)) {
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, m_MuteEnable[n].get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/strip/mute", reply);
 		lo_message_free(reply);
-#endif		
+#endif  
 		alsa->on_toggle_button_control_changed(n, control_name, &m_MuteEnable[n]);
 		if (m_stripLayouts[n].get_channel_type() == STEREO) {
 			usleep(RESET_VALUE_DELAY);
@@ -1141,7 +1221,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 	}
 	if (!strcmp(control_name, CTL_NAME_SOLO)) {
 		if (m_solo_channel == n || m_solo_channel == -1) {
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 			lo_message reply = lo_message_new();
 			lo_message_add_int32(reply, n);
 			lo_message_add_float(reply, m_SoloEnable[n].get_active() ? 1. : 0.);
@@ -1155,31 +1235,31 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 		}
 	}
 	if (!strcmp(control_name, CTL_NAME_PHASE)) {
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 		lo_message reply = lo_message_new();
 		lo_message_add_int32(reply, n);
 		lo_message_add_float(reply, m_PhaseEnable[n].get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/strip/solo", reply);
 		lo_message_free(reply);
-#endif		
+#endif  
 		alsa->on_toggle_button_control_changed(n, control_name, &m_PhaseEnable[n]);
 	}
 	if (!strcmp(control_name, CTL_NAME_MASTER_MUTE)) {
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, m_master.m_mute.get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/master/mute", reply);
 		lo_message_free(reply);
-#endif		
+#endif  
 		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_mute);
 	}
 	if (!strcmp(control_name, CTL_NAME_BYPASS)) {
-#ifdef HAVE_OSC		
+#ifdef HAVE_OSC  
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, m_master.m_true_bypass.get_active() ? 1. : 0.);
 		m_Worker.send_osc_all("/master/mute", reply);
 		lo_message_free(reply);
-#endif		
+#endif  
 		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_true_bypass);
 	}
 
@@ -1190,11 +1270,11 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
 void OMainWnd::set_dsp_channel(int n, bool enable) {
 	if (enable) {
-		if (m_last_dsp_active != -1)
-			m_stripLayouts[m_last_dsp_active].m_DspEnable.set_active(false);
-		m_last_dsp_active = n;
+		if (m_dsp_channel != -1)
+			m_stripLayouts[m_dsp_channel].m_DspEnable.set_active(false);
+		m_dsp_channel = n;
 		m_block_ui = true;
-		m_dsp_layout.set_channel_type(m_stripLayouts[m_last_dsp_active].get_channel_type());
+		m_dsp_layout.set_channel_type(m_stripLayouts[m_dsp_channel].get_channel_type());
 		m_dsp_layout.set_view_type(HIDDEN);
 		m_dsp_layout.set_ref_index(n, this);
 		m_dsp_layout.set_view_type(SINGLE_DSP);
@@ -1202,7 +1282,7 @@ void OMainWnd::set_dsp_channel(int n, bool enable) {
 
 		m_block_ui = false;
 	} else {
-		m_last_dsp_active = -1;
+		m_dsp_channel = -1;
 		m_dsp_layout.set_channel_type(MONO);
 		m_dsp_layout.set_view_type(HIDDEN);
 		m_dsp_layout.set_ref_index(16, this);
@@ -1213,9 +1293,9 @@ void OMainWnd::set_dsp_channel(int n, bool enable) {
 
 void OMainWnd::on_ch_lb_changed(int n) {
 	char title[64];
-	if (m_last_dsp_active == n * 2) {
+	if (m_dsp_channel == n * 2) {
 		m_stripLayouts[n * 2].m_DspEnable.set_active(false);
-	} else if (m_last_dsp_active == n * 2 + 1)
+	} else if (m_dsp_channel == n * 2 + 1)
 		m_stripLayouts[n * 2 + 1].m_DspEnable.set_active(false);
 
 	if (m_link[n].get_active()) {
@@ -1248,7 +1328,6 @@ void OMainWnd::on_ch_lb_changed(int n) {
 		snprintf(title, 64, "Ch %d", n * 2 + 1);
 		m_stripLayouts[n * 2].m_title.set_label(title);
 	}
-	show_all_children(true);
 	resize(1, 1);
 }
 
@@ -1273,4 +1352,17 @@ void OMainWnd::release_solo_channel() {
 		usleep(RESET_VALUE_DELAY);
 	}
 	m_solo_channel = -1;
+}
+
+void OMainWnd::on_about_dialog_response(int response_id) {
+
+	switch (response_id) {
+		case Gtk::RESPONSE_CLOSE:
+		case Gtk::RESPONSE_CANCEL:
+		case Gtk::RESPONSE_DELETE_EVENT:
+			m_Dialog.hide();
+			break;
+		default:
+			break;
+	}
 }

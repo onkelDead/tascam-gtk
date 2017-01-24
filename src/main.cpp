@@ -19,7 +19,9 @@
 #include "OMainWnd.h"
 
 int main(int argc, char *argv[]) {
-	auto app = Gtk::Application::create(argc, argv, "de.paraair.tascam-us16x08");
+
+	  
+	auto app = Gtk::Application::create(argc, argv, TASCAMGTK_SCHEMA_ID);
 	OMainWnd window_obj;
-	return app->run(window_obj);;
+	return app->run(window_obj);
 }

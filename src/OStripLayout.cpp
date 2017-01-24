@@ -91,16 +91,14 @@ void OStripLayout::set_view_type(VIEW_TYPE view_type) {
 	if (view_type == COMPACT) {
 		m_grid.attach(m_event_box, 0, 0, 1, 1);
 		m_grid.attach(m_comp, 0, 3, 1, 1);
-		//		m_grid.attach(m_comp_sep, 0, 4, 1, 1);
 		m_grid.attach(m_eq, 0, 5, 1, 1);
-		//		m_grid.attach(m_eq_sep, 0, 6, 1, 1);
 
 		m_grid.attach(m_fader, 0, 7, 1, 1);
 		if (!m_DspEnable.get_parent())
 			m_grid.attach(m_DspEnable, 0, 1, 1, 1);
 		m_grid.attach(m_sep, 1, 0, 1, 8);
 	}
-
+	show_all_children(true);
 }
 
 void OStripLayout::set_channel_type(CHANNEL_TYPE num_channels) {
@@ -115,6 +113,8 @@ void OStripLayout::reset(OAlsa* alsa, int index) {
 }
 
 void OStripLayout::save_values(FILE* file, int indent) {
+
+	//	fprintf(file, "\t\t<type>%d</type>\n", (int)m_channel_type);
 
 
 	fprintf(file, "\t\t<compressor>\n");

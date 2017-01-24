@@ -73,19 +73,6 @@ char* eq_low_freq_text(int val, char* buf, size_t buf_size) {
 #define EBLUE_NORMAL .5, .55, 1., 1.
 #define EBLUE_LIGHT .78, .8, 1., 1.
 
-void OEq::set_sensitive(bool val){
-	m_is_active = val;
-
-	std::vector<Gtk::Widget*> childList = m_grid.get_children();
-	std::vector<Gtk::Widget*>::iterator it;
-
-	for (it = childList.begin(); it < childList.end(); it++) {
-		Gtk::Widget* w = (*it);
-		w->set_sensitive(val);
-	}
-	Gtk::VBox::set_sensitive(val);
-}
-
 OEq::OEq() : Gtk::VBox() {
 	
 	l_high.set_label("Hiqh");
@@ -98,6 +85,19 @@ OEq::OEq() : Gtk::VBox() {
 }
 
 OEq::~OEq() {
+}
+
+void OEq::set_sensitive(bool val){
+	m_is_active = val;
+
+	std::vector<Gtk::Widget*> childList = m_grid.get_children();
+	std::vector<Gtk::Widget*>::iterator it;
+
+	for (it = childList.begin(); it < childList.end(); it++) {
+		Gtk::Widget* w = (*it);
+		w->set_sensitive(val);
+	}
+	Gtk::VBox::set_sensitive(val);
 }
 
 void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {

@@ -72,21 +72,21 @@ int OAlsa::get_alsa_cardnum() {
 	cardnum = -1;
 
 	if (snd_card_next(&card) < 0 || card < 0) {
-		fprintf(stderr, "tascam.lv2: No sound card found.");
+		fprintf(stderr, "ERROR: No sound card found.\n");
 		return -1;
 	}
 	while (card >= 0) {
 		sprintf(name, "hw:%d", card);
 
 		if ((err = snd_ctl_open(&handle, name, 0)) < 0) {
-			fprintf(stderr, "tascam.lv2: Control %s open error: %s\n", name, snd_strerror(err));
+			fprintf(stderr, "ERROR: Control %s open error: %s\n", name, snd_strerror(err));
 			goto next_card;
 		}
 #ifdef DEBUG
 		fprintf(stdout, "card opened\n");
 #endif
 		if ((err = snd_ctl_card_info(handle, cinfo)) < 0) {
-			fprintf(stderr, "tascam.lv2: Control hardware info (%i): %s", card, snd_strerror(err));
+			fprintf(stderr, "ERROR: Control hardware info (%i): %s", card, snd_strerror(err));
 			snd_ctl_close(handle);
 			goto next_card;
 		}
@@ -104,12 +104,12 @@ int OAlsa::get_alsa_cardnum() {
 		}
 next_card:
 		if (snd_card_next(&card) < 0) {
-			fprintf(stderr, "tascam.lv2: snd_card_next failed");
+			fprintf(stderr, "ERROR: snd_card_next failed.\n");
 			break;
 		}
 	}
 	if (cardnum == -1) {
-		fprintf(stderr, "tascam.lv2: No proper sound card found.");
+		fprintf(stderr, "ERROR: No proper sound card found.\n");
 		return -1;
 	}
 	return cardnum;

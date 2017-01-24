@@ -4,13 +4,13 @@ AC_PREREQ([2.66])
 AC_PROG_CXX
 
 AC_ARG_ENABLE([osc], 
-    AS_HELP_STRING([--enable-osc], [Enable OSC server, default: no]),
+    AS_HELP_STRING([--enable-osc], [Enable OSC server, default: yes]),
         [case "${enableval}" in
                      yes) osc=yes ;;
                      no)  osc=no ;;
                      *)   AC_MSG_ERROR([bad value ${enableval} for --enable-osc]) ;;
         esac],
-        [osc=no])
+        [osc=yes])
 
 AS_IF([test "x$osc" != xno],
 	[
@@ -26,6 +26,7 @@ PKG_CHECK_MODULES([GTKMM3], [gtkmm-3.0])
 PKG_CHECK_MODULES([ALSA], [alsa])
 PKG_CHECK_MODULES([XML2], [libxml++-2.6])
 
+GLIB_GSETTINGS
 
 AC_CHECK_HEADER_STDBOOL
 
@@ -37,7 +38,6 @@ AC_TYPE_SIZE_T
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
-
 
 AC_OUTPUT
 

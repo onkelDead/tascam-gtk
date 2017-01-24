@@ -19,7 +19,7 @@
 
 #include "OFader.h"
 
-OFader::OFader() {
+OFader::OFader() : Gtk::VBox() {
 	m_dB.set_name("db-label");
 	for (int mi = 0; mi < 2; mi++) {
 		m_meter[mi].set_size_request(10, 160);
@@ -97,9 +97,8 @@ void OFader::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 			m_grid.attach(m_meter[1], 3, 5, 1, 1);
 		}
 	}
-	for (int ci = 0; ci < (view_type == 2 ? 2 : 1); ci++) {
-	}
-
+	show_all_children(true);
+	
 	m_view_type = view_type;
 }
 
@@ -188,9 +187,9 @@ void OFader::save_values(FILE * file) {
 	fprintf(file, "%d", (int) m_MuteEnable->get_active());
 	fprintf(file, "</mute>\n");
 
-	fprintf(file, "\t\t<solo>");
-	fprintf(file, "%d", (int) m_SoloEnable->get_active());
-	fprintf(file, "</solo>\n");
+//	fprintf(file, "\t\t<solo>");
+//	fprintf(file, "%d", (int) m_SoloEnable->get_active());
+//	fprintf(file, "</solo>\n");
 
 	fprintf(file, "\t\t<phase>");
 	fprintf(file, "%d", (int) m_PhaseEnable[0]->get_active());
@@ -214,18 +213,18 @@ void OFader::load_values(Glib::ustring xml) {
 				m_Pan[0]->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
+			if (!strcmp(reader.get_name().c_str(), "pan") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+				reader.read();
+				m_Pan[0]->set_value(atoi(reader.get_value().c_str()));
+				usleep(RESET_VALUE_DELAY);
+			}
 			if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
 				m_MuteEnable->set_active(atoi(reader.get_value().c_str()) == 1);
 				m_MuteEnable->toggled();
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "solo") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-				reader.read();
-				m_SoloEnable->set_active(atoi(reader.get_value().c_str()) == 1);
-				m_SoloEnable->toggled();
-				usleep(RESET_VALUE_DELAY);
-			}
+
 			if (!strcmp(reader.get_name().c_str(), "phase") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
 				reader.read();
 				m_PhaseEnable[0]->set_active(atoi(reader.get_value().c_str()) == 1);

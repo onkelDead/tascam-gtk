@@ -19,7 +19,7 @@
 #define OMAINWND_H
 
 #include <queue>
-
+#include <giomm-2.4/giomm/settingsschemasource.h>
 #include "OTypes.h"
 #include "OStripLayout.h"
 #include "ODspLayout.h"
@@ -31,6 +31,9 @@
 /**     Class OMainWnd, derived from Gtk::Window.
  *      It's the main UI element of this application.
  */
+
+#define TASCAMGTK_SCHEMA_ID "de.paraair.tascamgtk"
+
 class OMainWnd : public Gtk::Window {
 public:
     OMainWnd();
@@ -93,6 +96,7 @@ public:
     void on_menu_file_save();
     void on_menu_file_reset();
     void on_menu_file_exit();
+    void on_menu_file_about();
 
     void on_menu_view_compact();
     void on_menu_view_normal();
@@ -100,7 +104,7 @@ public:
     void on_menu_popup_load(int i);
     void on_menu_popup_save(int i);
     void on_menu_popup_reset(int i);
-    virtual bool on_title_context(GdkEventButton* event, int channel_index);
+    virtual bool on_mouse_event(GdkEventButton* event, int channel_index);
 
     void on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
     void on_ch_dial_changed(int n, const char* control_name);
@@ -116,8 +120,10 @@ protected:
 
 private:
 
+    Glib::RefPtr<Gio::Settings> settings;
+    
     bool m_block_ui;
-    int m_last_dsp_active;
+    int m_dsp_channel;
 
     VIEW_TYPE m_view;
 
@@ -164,6 +170,9 @@ private:
     std::thread* m_WorkerThread;
 
     void create_menu();
+    
+    Gtk::AboutDialog m_Dialog;
+    void on_about_dialog_response(int response_id);
 };
 
 #endif /* OMAINWND_H */

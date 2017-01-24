@@ -97,16 +97,16 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
-	$(am__configure_deps) $(dist_tascamgtk_DATA) \
-	$(tascamgtk_HEADERS) $(am__DIST_COMMON)
+	$(am__configure_deps) $(dist_data_DATA) $(noinst_HEADERS) \
+	$(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(tascamgtkdir)" \
-	"$(DESTDIR)$(tascamgtkdir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" \
+	"$(DESTDIR)$(datadir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_tascamgtk_OBJECTS = src/tascamgtk-main.$(OBJEXT) \
@@ -191,8 +191,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-DATA = $(dist_tascamgtk_DATA)
-HEADERS = $(tascamgtk_HEADERS)
+DATA = $(data_DATA) $(dist_data_DATA)
+HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
 # Read a list of newline-separated strings from the standard input,
@@ -259,7 +259,9 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GLIB_COMPILE_SCHEMAS = @GLIB_COMPILE_SCHEMAS@
 GREP = @GREP@
+GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
 GTKMM3_CFLAGS = @GTKMM3_CFLAGS@
 GTKMM3_LIBS = @GTKMM3_LIBS@
 INSTALL = @INSTALL@
@@ -307,14 +309,15 @@ am__untar = @am__untar@
 bindir = @bindir@
 build_alias = @build_alias@
 builddir = @builddir@
-datadir = @datadir@
+datadir = $(prefix)/share/tascamgtk-4.0/data
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+gsettingsschemadir = @gsettingsschemadir@
 host_alias = @host_alias@
 htmldir = @htmldir@
-includedir = @includedir@
+includedir = $(prefix)/include
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
@@ -339,12 +342,16 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 tascamgtkdir = src
 tascamgtk_SOURCES = src/main.cpp  src/OAlsa.cpp  src/OComp.cpp  src/ODial.cpp  src/OEq.cpp src/OFader.cpp src/OMainWnd.cpp  src/OMaster.cpp  src/ORoute.cpp  src/OMeter.cpp  src/OMeterWorker.cpp  src/OStripLayout.cpp src/ODspLayout.cpp
-tascamgtk_HEADERS = src/OMainWnd.h src/OTypes.h src/OComp.h src/OMaster.h src/OEq.h src/OFader.h src/OAlsa.h src/OMeterWorker.h src/OStripLayout.h src/ODial.h src/OMeter.h src/ODspLayout.h src/ORoute.h
-dist_tascamgtk_DATA = src/tascam-gtk.css
+noinst_HEADERS = src/OMainWnd.h src/OTypes.h src/OComp.h src/OMaster.h src/OEq.h src/OFader.h src/OAlsa.h src/OMeterWorker.h src/OStripLayout.h src/ODial.h src/OMeter.h src/ODspLayout.h src/ORoute.h
+data_DATA = data/tascam-gtk.css data/icon.png
+dist_data_DATA = data/tascam-gtk.css data/icon.png
 tascamgtk_CPPFLAGS = -O2 -std=c++11 ${GTK3_CFLAGS} ${GTKMM3_CFLAGS} \
-	${ALSA_CFLAGS} ${XML2_CFLAGS} ${LO_CFLAGS} $(am__append_1)
+	${ALSA_CFLAGS} ${XML2_CFLAGS} ${LO_CFLAGS} \
+	-DPKGDATADIR='"$(datadir)"' $(am__append_1)
 tascamgtk_LDADD = ${GTK2_LIBS} ${GTKMM3_LIBS} ${ALSA_LIBS} \
 	${XML2_LIBS} -lpthread $(am__append_2)
+gsettings_SCHEMAS = de.paraair.tascamgtk.gschema.xml
+EXTRA_DIST = $(gsettings_SCHEMAS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -695,48 +702,48 @@ src/tascamgtk-ODspLayout.obj: src/ODspLayout.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/ODspLayout.cpp' object='src/tascamgtk-ODspLayout.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tascamgtk_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/tascamgtk-ODspLayout.obj `if test -f 'src/ODspLayout.cpp'; then $(CYGPATH_W) 'src/ODspLayout.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ODspLayout.cpp'; fi`
-install-dist_tascamgtkDATA: $(dist_tascamgtk_DATA)
+install-dataDATA: $(data_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(dist_tascamgtk_DATA)'; test -n "$(tascamgtkdir)" || list=; \
+	@list='$(data_DATA)'; test -n "$(datadir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(tascamgtkdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(tascamgtkdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(datadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(datadir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(tascamgtkdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(tascamgtkdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(datadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(datadir)" || exit $$?; \
 	done
 
-uninstall-dist_tascamgtkDATA:
+uninstall-dataDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dist_tascamgtk_DATA)'; test -n "$(tascamgtkdir)" || list=; \
+	@list='$(data_DATA)'; test -n "$(datadir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(tascamgtkdir)'; $(am__uninstall_files_from_dir)
-install-tascamgtkHEADERS: $(tascamgtk_HEADERS)
+	dir='$(DESTDIR)$(datadir)'; $(am__uninstall_files_from_dir)
+install-dist_dataDATA: $(dist_data_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(tascamgtk_HEADERS)'; test -n "$(tascamgtkdir)" || list=; \
+	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(tascamgtkdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(tascamgtkdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(datadir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(datadir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(tascamgtkdir)'"; \
-	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(tascamgtkdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(datadir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(datadir)" || exit $$?; \
 	done
 
-uninstall-tascamgtkHEADERS:
+uninstall-dist_dataDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(tascamgtk_HEADERS)'; test -n "$(tascamgtkdir)" || list=; \
+	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(tascamgtkdir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(datadir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -964,7 +971,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(tascamgtkdir)" "$(DESTDIR)$(tascamgtkdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(datadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1022,7 +1029,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_tascamgtkDATA install-tascamgtkHEADERS
+install-data-am: install-dataDATA install-dist_dataDATA
 
 install-dvi: install-dvi-am
 
@@ -1069,8 +1076,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-dist_tascamgtkDATA \
-	uninstall-tascamgtkHEADERS
+uninstall-am: uninstall-binPROGRAMS uninstall-dataDATA \
+	uninstall-dist_dataDATA
 
 .MAKE: all install-am install-strip
 
@@ -1082,19 +1089,20 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_tascamgtkDATA \
 	distclean-hdr distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dist_tascamgtkDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip install-tascamgtkHEADERS installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-binPROGRAMS \
-	uninstall-dist_tascamgtkDATA uninstall-tascamgtkHEADERS
+	install-data-am install-dataDATA install-dist_dataDATA \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-dataDATA \
+	uninstall-dist_dataDATA
 
 .PRECIOUS: Makefile
 
+@GSETTINGS_RULES@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
