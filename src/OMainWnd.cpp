@@ -267,7 +267,7 @@ m_WorkerThread(nullptr) {
 		m_Dialog.set_comments("Tascam US-16x08 DSP mixer application");
 		m_Dialog.set_license("LGPL");
 
-		m_Dialog.set_website("http://www.paraair.de/tascamgtk");
+		m_Dialog.set_website(PACKAGE_URL);
 		m_Dialog.set_website_label("http://www.paraair.de");
 
 		std::vector<Glib::ustring> list_authors;

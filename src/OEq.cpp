@@ -80,6 +80,9 @@ OEq::OEq() : Gtk::VBox() {
 	l_midlow.set_label("Mid Low");
 	l_low.set_label("Low");
 
+	this->set_halign(Gtk::ALIGN_CENTER);
+	this->set_hexpand(true);
+
 	m_view_type = HIDDEN;
 	add(m_grid);
 }
@@ -112,6 +115,7 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 
 	if (view_type == NORMAL) {
+		this->set_halign(Gtk::ALIGN_CENTER);
 
 
 		if (channel_type == MONO) {
@@ -156,26 +160,35 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
 	}
 	if (view_type == COMPACT) {
+		this->set_halign(Gtk::ALIGN_FILL);
 		m_eq_enable->set_hexpand(true);
 		m_eq_enable->set_halign(Gtk::ALIGN_FILL);
 		m_grid.attach(*m_eq_enable, 0, 0, 1, 1);
 
 	}
 	if (view_type == SINGLE_DSP) {
+		m_grid.set_halign(Gtk::ALIGN_CENTER);
+		m_grid.set_hexpand(true);			
 		m_grid.attach(l_high, 0,0,1,1);
-		m_grid.attach(l_midhigh, 0,1,1,1);
-		m_grid.attach(l_midlow, 0,2,1,1);
-		m_grid.attach(l_low, 0,3,1,1);
+		m_grid.attach(l_midhigh, 0,2,1,1);
+		m_grid.attach(l_midlow, 0,4,1,1);
+		m_grid.attach(l_low, 0,6,1,1);
 		m_grid.attach(*m_high_freq_gain, 1, 0, 1, 1);
 		m_grid.attach(*m_high_freq_band, 2, 0, 1, 1);
-		m_grid.attach(*m_mid_high_freq_gain, 1, 1, 1, 1);
-		m_grid.attach(*m_mid_high_freq_band, 2, 1, 1, 1);
-		m_grid.attach(*m_mid_high_freq_width, 3, 1, 1, 1);
-		m_grid.attach(*m_mid_low_freq_gain, 1, 2, 1, 1);
-		m_grid.attach(*m_mid_low_freq_band, 2, 2, 1, 1);
-		m_grid.attach(*m_mid_low_freq_width, 3, 2, 1, 1);
-		m_grid.attach(*m_low_freq_gain, 1, 3, 1, 1);
-		m_grid.attach(*m_low_freq_band, 2, 3, 1, 1);
+		m_grid.attach(m_sephigh, 0, 1, 4, 1);
+		
+		m_grid.attach(*m_mid_high_freq_gain, 1, 2, 1, 1);
+		m_grid.attach(*m_mid_high_freq_band, 2, 2, 1, 1);
+		m_grid.attach(*m_mid_high_freq_width, 3, 2, 1, 1);
+		m_grid.attach(m_sepmidhigh, 0, 3, 4, 1);
+		
+		m_grid.attach(*m_mid_low_freq_gain, 1, 4, 1, 1);
+		m_grid.attach(*m_mid_low_freq_band, 2, 4, 1, 1);
+		m_grid.attach(*m_mid_low_freq_width, 3, 4, 1, 1);
+		m_grid.attach(m_sepmidlow, 0, 5, 4, 1);
+		
+		m_grid.attach(*m_low_freq_gain, 1, 6, 1, 1);
+		m_grid.attach(*m_low_freq_band, 2, 6, 1, 1);
 		
 		m_high_freq_gain->set_view_type(SINGLE_DSP);
 		m_mid_high_freq_gain->set_view_type(SINGLE_DSP);
@@ -190,9 +203,9 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 		
 	}
 
-	m_eq_enable->set_vexpand(false);
-	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);
+
 	
+	m_grid.show_all_children(true);
 	m_view_type = view_type;
 }
 
@@ -204,7 +217,8 @@ void OEq::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	if (index < NUM_CHANNELS) {
 		get_alsa_values(index, alsa);
 	}
-	
+	m_eq_enable->set_vexpand(false);
+	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);	
 }
 
 void OEq::set_ref_index(int index, Gtk::Window* wnd){

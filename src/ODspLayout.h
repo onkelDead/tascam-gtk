@@ -49,6 +49,7 @@ private:
     Gtk::Grid m_grid;
     CHANNEL_TYPE m_channel_type;
     Gtk::VSeparator m_eq_sep;
+    Gtk::VSeparator m_comp_sep;
     
     Gtk::HSeparator m_sep;
 

@@ -51,6 +51,8 @@ char* cp_release_text(int val, char* buf, size_t buf_size) {
 
 OComp::OComp() : Gtk::VBox() {
 	m_view_type = HIDDEN;
+	this->set_halign(Gtk::ALIGN_CENTER);
+	this->set_hexpand(true);	
 	add(m_grid);
 }
 
@@ -81,8 +83,8 @@ void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 
 	if (view_type == NORMAL) {
-		m_enable->set_hexpand(false);
-		m_enable->set_halign(Gtk::ALIGN_CENTER);
+
+		this->set_halign(Gtk::ALIGN_CENTER);
 
 		if (channel_type == MONO) {
 			m_grid.attach(*m_threshold, 0, 0, 1, 1);
@@ -106,11 +108,13 @@ void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 
 	if (view_type == COMPACT) {
+		this->set_halign(Gtk::ALIGN_FILL);
 		m_enable->set_hexpand(true);
-		m_enable->set_halign(Gtk::ALIGN_FILL);
+		m_enable->set_halign(Gtk::ALIGN_FILL);		
 		m_grid.attach(*m_enable, 0, 0, 1, 1);
 	}
 	if (view_type == SINGLE_DSP) {
+		set_valign(Gtk::ALIGN_CENTER);
 		m_grid.attach(*m_threshold, 0, 0, 1, 1);
 		m_grid.attach(*m_ratio, 1, 0, 1, 1);
 		m_grid.attach(*m_gain, 2, 0, 1, 1);
@@ -169,8 +173,10 @@ void OComp::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 		m_reduction[1]->set_halign(Gtk::ALIGN_CENTER);
 	}
 
-	m_enable->set_hexpand(false);
 	m_enable->set_vexpand(false);
+	m_enable->set_valign(Gtk::ALIGN_CENTER);	
+	
+	m_enable->set_hexpand(false);
 	m_enable->set_valign(Gtk::ALIGN_CENTER);
 	if (index < NUM_CHANNELS)
 		get_alsa_values(index, alsa);

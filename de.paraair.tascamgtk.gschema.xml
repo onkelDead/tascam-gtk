@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<schemalist>
+
+  <schema path="/de/paraair/tascamgtk/" id="de.paraair.tascamgtk">
+
+    <key name='view-compact' type='b'>
+      <default>false</default>
+      <summary>Compact view enabled</summary>
+      <description>
+        If enabled, the view will be in compact mode.
+      </description>
+    </key>
+
+  </schema>
+
+</schemalist>
+

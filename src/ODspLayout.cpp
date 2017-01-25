@@ -41,6 +41,11 @@ void ODspLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_comp.init(index, alsa, wnd);
 	m_eq.init(index, alsa, wnd);
 
+	m_eq.m_high_freq_gain->set_label("Gain");
+	m_eq.m_mid_high_freq_gain->set_label("Gain");
+	m_eq.m_mid_low_freq_gain->set_label("Gain");
+	m_eq.m_low_freq_gain->set_label("Gain");
+	
 }
 
 void ODspLayout::set_channel_type(CHANNEL_TYPE num_channels) {
@@ -66,7 +71,8 @@ void ODspLayout::set_view_type(VIEW_TYPE view_type) {
 		m_grid.attach(m_eq, 0, 0, 1, 1);
 		m_grid.attach(m_eq_sep, 1, 0, 1, 1);
 		m_grid.attach(m_comp, 2, 0, 1, 1);
-		m_grid.attach(*m_route, 3, 0, 1, 1);
+		m_grid.attach(m_comp_sep, 3, 0, 1, 1);
+		m_grid.attach(*m_route, 4, 0, 1, 1);
 	}
 	if(view_type == PREPARE) {
 		m_grid.attach(m_eq, 0, 0, 1, 1);
@@ -79,6 +85,7 @@ void ODspLayout::set_view_type(VIEW_TYPE view_type) {
 		m_comp.set_view_type(view_type, m_channel_type);
 		m_eq.set_view_type(view_type, m_channel_type);
 	}
+//	m_grid.show_all_children(true);
 }
 
 void ODspLayout::set_ref_index(int index, Gtk::Window* wnd) {
