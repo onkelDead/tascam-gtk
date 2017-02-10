@@ -102,7 +102,7 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 		if (m_shall_stop) {
 			break;
 		}
-		caller->alsa->getIntegers("name='Z Meter'", caller->alsa->meters, 34);
+		caller->alsa->getIntegers(CTL_NAME_METER, caller->alsa->meters, 34);
 
 		caller->notify();
 	}

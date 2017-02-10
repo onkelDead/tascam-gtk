@@ -28,8 +28,6 @@ OFader::OFader() : Gtk::VBox() {
 		m_meter[mi].set_halign(Gtk::ALIGN_CENTER);
 	}
 	m_view_type = HIDDEN;
-	m_grid.set_halign(Gtk::ALIGN_CENTER);
-	m_grid.set_hexpand(true);	
 	add(m_grid);
 }
 

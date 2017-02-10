@@ -20,9 +20,8 @@
 #include "OMainWnd.h"
 
 ORoute::ORoute() : Gtk::VBox() {
-	
-	m_grid.set_halign(Gtk::ALIGN_CENTER);
-	m_grid.set_hexpand(true);
+	set_halign(Gtk::ALIGN_END);
+	set_hexpand(true);
 	m_label.set_label("Routing");
 	
 }

@@ -33,9 +33,9 @@ const int eq_low_freq_map_size = 32;
 
 
 const char *eq_high_freq_map[] = {"1.7k", "1.8k", "1.9k", "2.0k", "2.2k", "2.4k", "2.6k", "2.8k", "3.0k", "3.2k", "3.4k", "3.6k", "3.8k", "4.0k",
-	"4.5k", "5.0k", "5.5k", "6.0k", "6.5k", "7.0k", "7.5k", "8.0k", "8.5k",
+	"4.5k", "5.0k", "5.5k", "6.0k", "6.5k", "7.0k", "7.5k", "8.0k",
 	"9.0k", "10k", "11k", "12k", "13k", "14k", "15k", "16k", "17k", "18k"};
-const int eq_high_freq_map_size = 33;
+const int eq_high_freq_map_size = 32;
 
 char* eq_width_text(int val, char* buf, size_t buf_size) {
 	int a = (1 << val);
@@ -80,9 +80,6 @@ OEq::OEq() : Gtk::VBox() {
 	l_midlow.set_label("Mid Low");
 	l_low.set_label("Low");
 
-	this->set_halign(Gtk::ALIGN_CENTER);
-	this->set_hexpand(true);
-
 	m_view_type = HIDDEN;
 	add(m_grid);
 }
@@ -115,7 +112,6 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 
 	if (view_type == NORMAL) {
-		this->set_halign(Gtk::ALIGN_CENTER);
 
 
 		if (channel_type == MONO) {
@@ -160,35 +156,26 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
 	}
 	if (view_type == COMPACT) {
-		this->set_halign(Gtk::ALIGN_FILL);
 		m_eq_enable->set_hexpand(true);
 		m_eq_enable->set_halign(Gtk::ALIGN_FILL);
 		m_grid.attach(*m_eq_enable, 0, 0, 1, 1);
 
 	}
 	if (view_type == SINGLE_DSP) {
-		m_grid.set_halign(Gtk::ALIGN_CENTER);
-		m_grid.set_hexpand(true);			
 		m_grid.attach(l_high, 0,0,1,1);
-		m_grid.attach(l_midhigh, 0,2,1,1);
-		m_grid.attach(l_midlow, 0,4,1,1);
-		m_grid.attach(l_low, 0,6,1,1);
+		m_grid.attach(l_midhigh, 0,1,1,1);
+		m_grid.attach(l_midlow, 0,2,1,1);
+		m_grid.attach(l_low, 0,3,1,1);
 		m_grid.attach(*m_high_freq_gain, 1, 0, 1, 1);
 		m_grid.attach(*m_high_freq_band, 2, 0, 1, 1);
-		m_grid.attach(m_sephigh, 0, 1, 4, 1);
-		
-		m_grid.attach(*m_mid_high_freq_gain, 1, 2, 1, 1);
-		m_grid.attach(*m_mid_high_freq_band, 2, 2, 1, 1);
-		m_grid.attach(*m_mid_high_freq_width, 3, 2, 1, 1);
-		m_grid.attach(m_sepmidhigh, 0, 3, 4, 1);
-		
-		m_grid.attach(*m_mid_low_freq_gain, 1, 4, 1, 1);
-		m_grid.attach(*m_mid_low_freq_band, 2, 4, 1, 1);
-		m_grid.attach(*m_mid_low_freq_width, 3, 4, 1, 1);
-		m_grid.attach(m_sepmidlow, 0, 5, 4, 1);
-		
-		m_grid.attach(*m_low_freq_gain, 1, 6, 1, 1);
-		m_grid.attach(*m_low_freq_band, 2, 6, 1, 1);
+		m_grid.attach(*m_mid_high_freq_gain, 1, 1, 1, 1);
+		m_grid.attach(*m_mid_high_freq_band, 2, 1, 1, 1);
+		m_grid.attach(*m_mid_high_freq_width, 3, 1, 1, 1);
+		m_grid.attach(*m_mid_low_freq_gain, 1, 2, 1, 1);
+		m_grid.attach(*m_mid_low_freq_band, 2, 2, 1, 1);
+		m_grid.attach(*m_mid_low_freq_width, 3, 2, 1, 1);
+		m_grid.attach(*m_low_freq_gain, 1, 3, 1, 1);
+		m_grid.attach(*m_low_freq_band, 2, 3, 1, 1);
 		
 		m_high_freq_gain->set_view_type(SINGLE_DSP);
 		m_mid_high_freq_gain->set_view_type(SINGLE_DSP);
@@ -203,9 +190,9 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 		
 	}
 
-
+	m_eq_enable->set_vexpand(false);
+	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);
 	
-	m_grid.show_all_children(true);
 	m_view_type = view_type;
 }
 
@@ -217,8 +204,7 @@ void OEq::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	if (index < NUM_CHANNELS) {
 		get_alsa_values(index, alsa);
 	}
-	m_eq_enable->set_vexpand(false);
-	m_eq_enable->set_valign(Gtk::ALIGN_CENTER);	
+	
 }
 
 void OEq::set_ref_index(int index, Gtk::Window* wnd){

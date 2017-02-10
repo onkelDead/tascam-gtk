@@ -1,9 +1,4 @@
-AC_INIT([tascamgtk], 
-    [0.4], 
-    [onkel@paraair.de], 
-    [], 
-    [http://www.paraair.de/tascamgtk])
-
+AC_INIT([tascamgtk], [0.4], [onkel@paraair.de])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_PREREQ([2.66])
 AC_PROG_CXX

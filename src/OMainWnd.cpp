@@ -115,7 +115,7 @@ m_WorkerThread(nullptr) {
 			m_mid_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
 
 			m_mid_high_freq_band[i].set_label("Freq");
-			m_mid_high_freq_band[i].set_params(0, 64, 27, 1);
+			m_mid_high_freq_band[i].set_params(0, 63, 27, 1);
 			m_mid_high_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
 			m_mid_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
 
@@ -132,7 +132,7 @@ m_WorkerThread(nullptr) {
 			m_mid_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
 
 			m_mid_low_freq_band[i].set_label("Freq");
-			m_mid_low_freq_band[i].set_params(0, 64, 14, 1);
+			m_mid_low_freq_band[i].set_params(0, 63, 14, 1);
 			m_mid_low_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
 			m_mid_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
 
@@ -267,7 +267,7 @@ m_WorkerThread(nullptr) {
 		m_Dialog.set_comments("Tascam US-16x08 DSP mixer application");
 		m_Dialog.set_license("LGPL");
 
-		m_Dialog.set_website(PACKAGE_URL);
+		m_Dialog.set_website("http://www.paraair.de/tascamgtk");
 		m_Dialog.set_website_label("http://www.paraair.de");
 
 		std::vector<Glib::ustring> list_authors;
@@ -280,12 +280,13 @@ m_WorkerThread(nullptr) {
 		show_all_children();
 	}
 
+	show_all_children(true);
+        
 	if (compact) 
 		on_menu_view_compact();
 	else
 		on_menu_view_normal();
 	
-	show_all_children(true);
 
 	m_block_ui = false;
 }
@@ -567,6 +568,8 @@ void OMainWnd::on_menu_view_normal() {
 	show_all_children(true);
 	if (settings)
 		settings->set_boolean("view-compact", false);
+        
+        alsa->on_active_button_control_changed(0, CTL_NAME_METER, &m_stripLayouts[0].m_DspEnable);    
 
 }
 
@@ -1265,6 +1268,11 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
 	if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {
 		set_dsp_channel(n, m_stripLayouts[n].m_DspEnable.get_active());
+                if (m_stripLayouts[n].get_channel_type() == STEREO) {
+                    alsa->on_active_button_control_changed(n + 32, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
+                }
+                else 
+                    alsa->on_active_button_control_changed(n, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
 	}
 }
 

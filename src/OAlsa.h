@@ -26,36 +26,37 @@
 #define CTL_ROUTE                           "name='Route'"
 #define CTL_NAME_BYPASS                     "name='Bypass'"
 #define CTL_NAME_BUS_OUT                    "name='Buss out'"
-#define CTL_NAME_MASTER_MUTE                "name='Master Mute'"
+#define CTL_NAME_MASTER_MUTE                "name='Master mute'"
 #define CTL_MASTER                          "name='Master'"
 
 #define CTL_NAME_FADER                      "name='Fader'"
-#define CTL_NAME_PAN                        "name='4 Pan'"
-#define CTL_NAME_MUTE                       "name='3 Mute'"
-#define CTL_NAME_SOLO                       "name='31 Solo'"
-#define CTL_NAME_PAN                        "name='4 Pan'"
+#define CTL_NAME_PAN                        "name='Pan'"
+#define CTL_NAME_MUTE                       "name='Mute'"
+#define CTL_NAME_SOLO                       "name='Solo'"
+#define CTL_NAME_PAN                        "name='Pan'"
 #define CTL_NAME_PHASE                      "name='Phase'"
-#define CTL_NAME_EQ_ENABLE                  "name='9 EQ'"
-#define CTL_NAME_EQ_LOW_LEVEL               "name='5 Low'"
-#define CTL_NAME_EQ_LOW_FREQ                "name='51 LowFreq'"
-#define CTL_NAME_EQ_MIDLOW_LEVEL            "name='6 MLow'"
-#define CTL_NAME_EQ_MIDLOW_FREQ             "name='61 MLowFreq'"
-#define CTL_NAME_EQ_MIDLOWWIDTH_FREQ        "name='62 MLowWidth'"
-#define CTL_NAME_EQ_MIDHIGH_LEVEL           "name='7 MHigh'"
-#define CTL_NAME_EQ_MIDHIGH_FREQ            "name='71 MHiFreq'"
-#define CTL_NAME_EQ_MIDHIGHWIDTH_FREQ       "name='72 MHiWidth'"
-#define CTL_NAME_EQ_HIGH_LEVEL              "name='8 High'"
-#define CTL_NAME_EQ_HIGH_FREQ               "name='81 HighFreq'"
-#define CTL_NAME_CP_THRESHOLD               "name='B Thresh'"
-#define CTL_NAME_CP_GAIN                    "name='F Gain'"
-#define CTL_NAME_CP_ATTACK                  "name='D Attack'"
-#define CTL_NAME_CP_RELEASE                 "name='E Release'"
-#define CTL_NAME_CP_RATIO                   "name='C Ratio'"
-#define CTL_NAME_CP_ENABLE                  "name='A Comp'"
+#define CTL_NAME_EQ_ENABLE                  "name='EQ enable'"
+#define CTL_NAME_EQ_LOW_LEVEL               "name='Low gain'"
+#define CTL_NAME_EQ_LOW_FREQ                "name='Low freq'"
+#define CTL_NAME_EQ_MIDLOW_LEVEL            "name='Mid low gain'"
+#define CTL_NAME_EQ_MIDLOW_FREQ             "name='Mid low freq'"
+#define CTL_NAME_EQ_MIDLOWWIDTH_FREQ        "name='Mid low Q'"
+#define CTL_NAME_EQ_MIDHIGH_LEVEL           "name='Mid high gain'"
+#define CTL_NAME_EQ_MIDHIGH_FREQ            "name='Mid high freq'"
+#define CTL_NAME_EQ_MIDHIGHWIDTH_FREQ       "name='Mid high Q'"
+#define CTL_NAME_EQ_HIGH_LEVEL              "name='High gain'"
+#define CTL_NAME_EQ_HIGH_FREQ               "name='High freq'"
+#define CTL_NAME_CP_THRESHOLD               "name='Threshold'"
+#define CTL_NAME_CP_GAIN                    "name='Gain'"
+#define CTL_NAME_CP_ATTACK                  "name='Attack'"
+#define CTL_NAME_CP_RELEASE                 "name='Release'"
+#define CTL_NAME_CP_RATIO                   "name='Ratio'"
+#define CTL_NAME_CP_ENABLE                  "name='Comp enable'"
 
 #define RESET_VALUE_DELAY                   1000
 
 #define CTL_NAME_CHANNEL_ACTIVE             "channel_active"
+#define CTL_NAME_METER                      "name='Meter'"
 
 class OAlsa {
 public:
@@ -91,6 +92,9 @@ public:
     
 //    ToggleButton set boolean value slot
     void on_toggle_button_control_changed (int n, const char* control_name, Gtk::ToggleButton* control);    
+    
+//    ToggleButton set boolean value slot
+    void on_active_button_control_changed (int n, const char* control_name, Gtk::ToggleButton* control);    
     
 //    Slot for comboBox change event
     void on_combo_control_changed (int n, const char* control_name, Gtk::ComboBoxText* control);

@@ -583,7 +583,7 @@ PACKAGE_TARNAME='tascamgtk'
 PACKAGE_VERSION='0.4'
 PACKAGE_STRING='tascamgtk 0.4'
 PACKAGE_BUGREPORT='onkel@paraair.de'
-PACKAGE_URL='http://www.paraair.de/tascamgtk'
+PACKAGE_URL=''
 
 # Factoring default headers for most tests.
 ac_includes_default="\
@@ -1430,7 +1430,6 @@ Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
 
 Report bugs to <onkel@paraair.de>.
-tascamgtk home page: <http://www.paraair.de/tascamgtk>.
 _ACEOF
 ac_status=$?
 fi
@@ -2285,7 +2284,6 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
-
 
 
 am__api_version='1.15'
@@ -6229,8 +6227,7 @@ $config_headers
 Configuration commands:
 $config_commands
 
-Report bugs to <onkel@paraair.de>.
-tascamgtk home page: <http://www.paraair.de/tascamgtk>."
+Report bugs to <onkel@paraair.de>."
 
 _ACEOF
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1

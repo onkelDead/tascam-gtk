@@ -311,6 +311,14 @@ void OAlsa::on_toggle_button_control_changed (int n, const char* control_name, G
 	setBoolean(control_name, n, control->get_active());
 }
 
+void OAlsa::on_active_button_control_changed (int n, const char* control_name, Gtk::ToggleButton* control) {
+    if( control->get_active() )
+            setInteger(control_name, 0, n+1);
+    else
+            setInteger(control_name, 0, 0);        
+}
+
+
 void OAlsa::on_range_control_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label) {
 	char l_title[64];
 	int val = control->get_value();

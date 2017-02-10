@@ -89,6 +89,7 @@ public:
     Gtk::ToggleButton m_MuteEnable[NUM_CHANNELS + 1];
     Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS + 1];
     Gtk::VScale m_fader[NUM_CHANNELS + 1];
+    
 
     ORoute m_route;
 

@@ -75,11 +75,6 @@ public:
     void set_sensitive(bool val);
     bool get_active() {return m_is_active;}
     
-    Gtk::Separator m_sephigh;
-    Gtk::Separator m_sepmidhigh;
-    Gtk::Separator m_sepmidlow;
-    
-    
     Gtk::ToggleButton* m_eq_enable;
     ODial* m_high_freq_gain;
     ODial* m_high_freq_band;
