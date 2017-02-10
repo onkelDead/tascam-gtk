@@ -1267,10 +1267,20 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 #ifdef HAVE_OSC  
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, m_master.m_true_bypass.get_active() ? 1. : 0.);
-		m_Worker.send_osc_all("/master/mute", reply);
+		m_Worker.send_osc_all("/master/bypass", reply);
 		lo_message_free(reply);
 #endif  
 		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_true_bypass);
+	}
+
+	if (!strcmp(control_name, CTL_NAME_BUS_OUT)) {
+#ifdef HAVE_OSC  
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, m_master.m_comp_to_stereo.get_active() ? 1. : 0.);
+		m_Worker.send_osc_all("/master/bussout", reply);
+		lo_message_free(reply);
+#endif  
+		alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_comp_to_stereo);
 	}
 
 	if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {
