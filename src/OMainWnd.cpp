@@ -31,6 +31,7 @@ m_view(VIEW_TYPE::NORMAL),
 m_solo_channel(-1),
 m_dsp_channel(-1),
 m_block_ui(true),
+m_menubar(nullptr),
 m_WorkerThread(nullptr) {
 	int i;
 	bool compact;
@@ -197,7 +198,7 @@ m_WorkerThread(nullptr) {
 		m_dsp_layout.init(16, alsa, this);
 		m_dsp_layout.set_view_type(PREPARE);
 		m_dsp_layout.set_sensitive(false);
-//		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
+		//		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
 	}
 
 	m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
@@ -226,7 +227,7 @@ m_WorkerThread(nullptr) {
 	m_grid.attach(m_master, 16, 1, 1, 3);
 
 	add(m_grid);
-//	m_grid.remove(m_dsp_layout);
+	//	m_grid.remove(m_dsp_layout);
 
 	// load style sheet 
 	{
@@ -281,12 +282,12 @@ m_WorkerThread(nullptr) {
 	}
 
 	show_all_children(true);
-        
-	if (compact) 
+
+	if (compact)
 		on_menu_view_compact();
 	else
 		on_menu_view_normal();
-	
+
 
 	m_block_ui = false;
 }
@@ -295,15 +296,21 @@ OMainWnd::~OMainWnd() {
 	m_Worker.stop_work();
 	while (!m_Worker.has_stopped())
 		sleep(1);
+	if (m_WorkerThread->joinable())
+		m_WorkerThread->join();
+	delete m_WorkerThread;
+	m_WorkerThread = nullptr;
 	if (alsa)
 		delete alsa;
+	if (m_menubar)
+		delete m_menubar;
 #ifdef HAVE_OSC 
 	g_async_queue_unref(m_osc_queue);
 #endif
 }
 
 void OMainWnd::create_menu() {
-	Gtk::MenuBar* menubar = Gtk::manage(new Gtk::MenuBar);
+	m_menubar = Gtk::manage(new Gtk::MenuBar);
 
 	m_refActionGroup = Gtk::ActionGroup::create();
 	m_refActionGroup->add(Gtk::Action::create("File", "_File"));
@@ -568,8 +575,8 @@ void OMainWnd::on_menu_view_normal() {
 	show_all_children(true);
 	if (settings)
 		settings->set_boolean("view-compact", false);
-        
-        alsa->on_active_button_control_changed(0, CTL_NAME_METER, &m_stripLayouts[0].m_DspEnable);    
+
+	alsa->on_active_button_control_changed(0, CTL_NAME_METER, &m_stripLayouts[0].m_DspEnable);
 
 }
 
@@ -1268,11 +1275,10 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
 	if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {
 		set_dsp_channel(n, m_stripLayouts[n].m_DspEnable.get_active());
-                if (m_stripLayouts[n].get_channel_type() == STEREO) {
-                    alsa->on_active_button_control_changed(n + 32, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
-                }
-                else 
-                    alsa->on_active_button_control_changed(n, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
+		if (m_stripLayouts[n].get_channel_type() == STEREO) {
+			alsa->on_active_button_control_changed(n + 32, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
+		} else
+			alsa->on_active_button_control_changed(n, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
 	}
 }
 

@@ -170,6 +170,7 @@ private:
     OMeterWorker m_Worker;
     std::thread* m_WorkerThread;
 
+    Gtk::MenuBar* m_menubar;
     void create_menu();
     
     Gtk::AboutDialog m_Dialog;
