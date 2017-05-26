@@ -172,9 +172,9 @@ int OAlsa::getInteger(const char* name, int channel_index) {
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_t *elem;
 	
-	char elem_name[32];
+	char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
 	
-	sprintf(elem_name, "%s,index=%d", name, channel_index);
+	sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
 	
     int err = snd_ctl_ascii_elem_id_parse(id, elem_name);
     if (err) {
@@ -201,8 +201,8 @@ void OAlsa::setInteger(const char* name, int channel_index, int value) {
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_t *elem;
 
-	char elem_name[32];
-	sprintf(elem_name, "%s,index=%d", name, channel_index);
+	char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
+	sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
 	
     int err = snd_ctl_ascii_elem_id_parse(id, elem_name);
     elem = snd_hctl_find_elem(hctl, id);
@@ -228,8 +228,8 @@ bool OAlsa::getBoolean(const char* name, int channel_index) {
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_t *elem;
 	
-	char elem_name[32];
-	sprintf(elem_name, "%s,index=%d", name, channel_index);
+	char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
+	sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
 	
     int err = snd_ctl_ascii_elem_id_parse(id, elem_name);
     if (err) {
@@ -256,8 +256,8 @@ void OAlsa::setBoolean( const char* name, int channel_index, bool value) {
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_t *elem;
 	
-	char elem_name[32];
-	sprintf(elem_name, "%s,index=%d", name, channel_index);
+	char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
+	sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
 
     int err = snd_ctl_ascii_elem_id_parse(id, elem_name);
     elem = snd_hctl_find_elem(hctl, id);
