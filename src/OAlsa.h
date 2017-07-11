@@ -39,7 +39,7 @@
 #define CTL_NAME_EQ_LOW_FREQ                "name='EQ Low Frequence'"
 #define CTL_NAME_EQ_MIDLOW_LEVEL            "name='EQ MidLow Volume'"
 #define CTL_NAME_EQ_MIDLOW_FREQ             "name='EQ MidLow Frequence'"
-#define CTL_NAME_EQ_MIDLOWWIDTH_FREQ        "name='EQ MidQLow Q'"
+#define CTL_NAME_EQ_MIDLOWWIDTH_FREQ        "name='EQ MidLow Q'"
 #define CTL_NAME_EQ_MIDHIGH_LEVEL           "name='EQ MidHigh Volume'"
 #define CTL_NAME_EQ_MIDHIGH_FREQ            "name='EQ MidHigh Frequence'"
 #define CTL_NAME_EQ_MIDHIGHWIDTH_FREQ       "name='EQ MidHigh Q'"
