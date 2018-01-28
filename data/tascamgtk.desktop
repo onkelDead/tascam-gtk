@@ -1,11 +1,10 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=TascamGtk
-Name[fr]=TascamGtk
 GenericName=Tascam US-16x08 DSP mixer application
-GenericName[fr]=contrôle du DSP de la Tascam US-16x08
-Comment=controls the hardware mixer of the Tascam US-16x08 sound card
-Comment[fr]=contrôle le mixeur matériel de la carte son Tascam US-16x08
+GenericName[fr]=Contrôle du DSP de la Tascam US-16x08
+Comment=Controls the hardware mixer of the Tascam US-16x08 sound card
+Comment[fr]=Contrôle le mixeur matériel de la carte son Tascam US-16x08
 Keywords=audio;mixer;hardware;DSP
 Keywords[fr]=audio;mixeur;matériel;DSP
 Exec=tascamgtk
