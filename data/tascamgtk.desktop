@@ -11,4 +11,4 @@ Exec=tascamgtk
 Icon=tascamgtk
 Terminal=false
 Type=Application
-Categories=Audio;ALSA;Gtk+
+Categories=Audio;AudioVideo;ALSA;Gtk+
