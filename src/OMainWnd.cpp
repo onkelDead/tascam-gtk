@@ -52,8 +52,12 @@ m_WorkerThread(nullptr) {
 
 	create_menu();
 
-	if (alsa->open_device())
+	if (alsa->open_device()) {
+		auto dialog = new Gtk::MessageDialog(*this, "Unable to access sound card.\nPlease check terminal shell output for more details.", false, Gtk::MessageType::MESSAGE_ERROR);
+		dialog->run();
+		delete dialog;
 		exit(1);
+	}
 
 	for (i = 0; i < NUM_CHANNELS + 1; i++) {
 		// compressor controls
