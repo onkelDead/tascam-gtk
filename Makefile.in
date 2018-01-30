@@ -106,7 +106,8 @@ CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" \
-	"$(DESTDIR)$(datadir)"
+	"$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(datadir)" \
+	"$(DESTDIR)$(pixmapsdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_tascamgtk_OBJECTS = src/tascamgtk-main.$(OBJEXT) \
@@ -191,7 +192,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-DATA = $(data_DATA) $(dist_data_DATA)
+DATA = $(data_DATA) $(desktop_DATA) $(dist_data_DATA) $(pixmaps_DATA)
 HEADERS = $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
@@ -340,18 +341,25 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+desktopdir = $(prefix)/share/applications
+pixmapsdir = $(prefix)/share/pixmaps
 tascamgtkdir = src
 tascamgtk_SOURCES = src/main.cpp  src/OAlsa.cpp  src/OComp.cpp  src/ODial.cpp  src/OEq.cpp src/OFader.cpp src/OMainWnd.cpp  src/OMaster.cpp  src/ORoute.cpp  src/OMeter.cpp  src/OMeterWorker.cpp  src/OStripLayout.cpp src/ODspLayout.cpp
 noinst_HEADERS = src/OMainWnd.h src/OTypes.h src/OComp.h src/OMaster.h src/OEq.h src/OFader.h src/OAlsa.h src/OMeterWorker.h src/OStripLayout.h src/ODial.h src/OMeter.h src/ODspLayout.h src/ORoute.h
 data_DATA = data/tascam-gtk.css data/icon.png
 dist_data_DATA = data/tascam-gtk.css data/icon.png
+desktop_DATA = data/tascamgtk.desktop
+pixmaps_DATA = data/tascamgtk.png
 tascamgtk_CPPFLAGS = -O2 -std=c++11 ${GTK3_CFLAGS} ${GTKMM3_CFLAGS} \
 	${ALSA_CFLAGS} ${XML2_CFLAGS} ${LO_CFLAGS} \
 	-DPKGDATADIR='"$(datadir)"' $(am__append_1)
 tascamgtk_LDADD = ${GTK2_LIBS} ${GTKMM3_LIBS} ${ALSA_LIBS} \
 	${XML2_LIBS} -lpthread $(am__append_2)
 gsettings_SCHEMAS = de.paraair.tascamgtk.gschema.xml
-EXTRA_DIST = $(gsettings_SCHEMAS)
+EXTRA_DIST = $(gsettings_SCHEMAS) \
+	     $(pixmaps_DATA) \
+	     $(desktop_DATA)
+
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -723,6 +731,27 @@ uninstall-dataDATA:
 	@list='$(data_DATA)'; test -n "$(datadir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(datadir)'; $(am__uninstall_files_from_dir)
+install-desktopDATA: $(desktop_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(desktop_DATA)'; test -n "$(desktopdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(desktopdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(desktopdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(desktopdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(desktopdir)" || exit $$?; \
+	done
+
+uninstall-desktopDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(desktop_DATA)'; test -n "$(desktopdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(desktopdir)'; $(am__uninstall_files_from_dir)
 install-dist_dataDATA: $(dist_data_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
@@ -744,6 +773,27 @@ uninstall-dist_dataDATA:
 	@list='$(dist_data_DATA)'; test -n "$(datadir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(datadir)'; $(am__uninstall_files_from_dir)
+install-pixmapsDATA: $(pixmaps_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(pixmaps_DATA)'; test -n "$(pixmapsdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pixmapsdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pixmapsdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pixmapsdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pixmapsdir)" || exit $$?; \
+	done
+
+uninstall-pixmapsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pixmaps_DATA)'; test -n "$(pixmapsdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(pixmapsdir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -971,7 +1021,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(datadir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(datadir)" "$(DESTDIR)$(pixmapsdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1029,7 +1079,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dataDATA install-dist_dataDATA
+install-data-am: install-dataDATA install-desktopDATA \
+	install-dist_dataDATA install-pixmapsDATA
 
 install-dvi: install-dvi-am
 
@@ -1077,7 +1128,8 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-dataDATA \
-	uninstall-dist_dataDATA
+	uninstall-desktopDATA uninstall-dist_dataDATA \
+	uninstall-pixmapsDATA
 
 .MAKE: all install-am install-strip
 
@@ -1089,16 +1141,17 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dataDATA \
 	distclean-hdr distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dataDATA install-dist_dataDATA \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
-	ps ps-am tags tags-am uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-dataDATA \
-	uninstall-dist_dataDATA
+	install-data-am install-dataDATA install-desktopDATA \
+	install-dist_dataDATA install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-pixmapsDATA install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-dataDATA \
+	uninstall-desktopDATA uninstall-dist_dataDATA \
+	uninstall-pixmapsDATA
 
 .PRECIOUS: Makefile
 
