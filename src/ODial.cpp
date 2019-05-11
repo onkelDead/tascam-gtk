@@ -146,16 +146,26 @@ bool ODial::on_button_press_event(GdkEventButton* event) {
 	if (event->button == 1) {
 		m_in_motion = true;
 		m_last_y = abs(event->y);
+
+		return true;
 	}
 	if (event->button == 3) {
 		set_value(m_default);
+
+		return true;
 	}
+
+	return false;
 }
 
 bool ODial::on_button_release_event(GdkEventButton* event) {
 	if (event->button == 1) {
 		m_in_motion = false;
+
+		return true;
 	}
+
+	return false;
 }
 
 bool ODial::on_motion_notify_event(GdkEventMotion* event) {
@@ -167,7 +177,11 @@ bool ODial::on_motion_notify_event(GdkEventMotion* event) {
 		if (m_value > m_max)
 			m_value = m_max;
 		set_value(m_value);
+
+		return true;
 	}
+
+	return false;
 }
 
 bool ODial::on_scroll_event(GdkEventScroll* event) {
@@ -177,6 +191,8 @@ bool ODial::on_scroll_event(GdkEventScroll* event) {
 	if (m_value > m_max)
 		m_value = m_max;
 	set_value(m_value);
+
+	return true;
 }
 
 bool ODial::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {

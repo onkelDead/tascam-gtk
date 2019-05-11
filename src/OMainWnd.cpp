@@ -399,7 +399,11 @@ bool OMainWnd::on_mouse_event(GdkEventButton* event, int channel_index) {
 
 		menu_popup.show_all();
 		menu_popup.popup(3, event->time);
+
+		return true;
 	}
+
+	return false;
 }
 
 void OMainWnd::notify() {
