@@ -49,27 +49,16 @@ void OFader::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	}
 
 	if (view_type == NORMAL) {
-		if (channel_type == MONO) {
-			m_grid.attach(*m_MuteEnable, 0, 0, 1, 1);
-			m_grid.attach(*m_SoloEnable, 0, 1, 1, 1);
-			m_grid.attach(*m_Pan[0], 1, 0, 1, 2);
-			m_grid.attach(*m_PhaseEnable[0], 1, 2, 1, 1);
-			m_grid.attach(m_dB, 0, 2, 1, 1);
-			m_grid.attach(*m_fader, 0, 3, 1, 1);
-			m_grid.attach(m_meter[0], 1, 3, 1, 1);
-
-		}
+                m_grid.attach(*m_MuteEnable, 0, 0, 1, 1);
+                m_grid.attach(*m_SoloEnable, 0, 1, 1, 1);
+                m_grid.attach(*m_Pan[0], 1, 0, 1, 2);
+                m_grid.attach(*m_PhaseEnable[0], 1, 2, 1, 1);
+                m_grid.attach(m_dB, 0, 2, 1, 1);
+                m_grid.attach(*m_fader, 0, 3, 1, 1);
+                m_grid.attach(m_meter[0], 1, 3, 1, 1);
 		if (channel_type == STEREO) {
-
-			m_grid.attach(*m_MuteEnable, 0, 0, 1, 1);
-			m_grid.attach(*m_SoloEnable, 0, 1, 1, 1);
-			m_grid.attach(*m_Pan[0], 1, 0, 1, 2);
 			m_grid.attach(*m_Pan[1], 2, 0, 1, 2);
-			m_grid.attach(*m_PhaseEnable[0], 1, 2, 1, 1);
 			m_grid.attach(*m_PhaseEnable[1], 2, 2, 1, 1);
-			m_grid.attach(m_dB, 0, 2, 1, 1);
-			m_grid.attach(*m_fader, 0, 3, 1, 1);
-			m_grid.attach(m_meter[0], 1, 3, 1, 1);
 			m_grid.attach(m_meter[1], 2, 3, 1, 1);
 		}
 	}
@@ -186,10 +175,6 @@ void OFader::save_values(FILE * file) {
 	fprintf(file, "\t\t<mute>");
 	fprintf(file, "%d", (int) m_MuteEnable->get_active());
 	fprintf(file, "</mute>\n");
-
-//	fprintf(file, "\t\t<solo>");
-//	fprintf(file, "%d", (int) m_SoloEnable->get_active());
-//	fprintf(file, "</solo>\n");
 
 	fprintf(file, "\t\t<phase>");
 	fprintf(file, "%d", (int) m_PhaseEnable[0]->get_active());

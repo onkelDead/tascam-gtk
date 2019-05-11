@@ -114,11 +114,11 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 	if (view_type == NORMAL) {
 
 
-		if (channel_type == MONO) {
-			m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
-			m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
-			m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
-			m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
+                m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
+                m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
+                m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
+                m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
+                if (channel_type == MONO) {
 			m_grid.attach(*m_mid_high_freq_width, 0, 2, 2, 1);
 			m_grid.attach(*m_mid_low_freq_gain, 0, 3, 1, 1);
 			m_grid.attach(*m_mid_low_freq_band, 1, 3, 1, 1);
@@ -128,13 +128,9 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 			m_grid.attach(*m_low_freq_band, 1, 5, 1, 1);
 		}
 		if (channel_type == STEREO) {
-			m_grid.attach(*m_high_freq_gain, 0, 0, 1, 1);
-			m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
 			m_grid.attach(*m_mid_low_freq_gain, 0, 2, 1, 1);
 			m_grid.attach(*m_low_freq_gain, 0, 3, 1, 1);
 
-			m_grid.attach(*m_high_freq_band, 1, 0, 1, 1);
-			m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
 			m_grid.attach(*m_mid_low_freq_band, 1, 2, 1, 1);
 			m_grid.attach(*m_low_freq_band, 1, 3, 1, 1);
 

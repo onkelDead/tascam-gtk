@@ -14,10 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-#include <gtkmm-2.4/gtkmm/scale.h>
-#include <gtkmm-2.4/gtkmm/togglebutton.h>
-#include <gtkmm-2.4/gtkmm/comboboxtext.h>
+#include <gtkmm-3.0/gtkmm.h>
+//#include <gtkmm-2.4/gtkmm/scale.h>
+//#include <gtkmm-2.4/gtkmm/togglebutton.h>
+//#include <gtkmm-2.4/gtkmm/comboboxtext.h>
 #include "ODial.h"
 #include "OAlsa.h"
 
