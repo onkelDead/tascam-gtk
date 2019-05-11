@@ -84,21 +84,16 @@ void OComp::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 		m_enable->set_hexpand(false);
 		m_enable->set_halign(Gtk::ALIGN_CENTER);
 
-		if (channel_type == MONO) {
-			m_grid.attach(*m_threshold, 0, 0, 1, 1);
-			m_grid.attach(*m_gain, 1, 0, 1, 1);
-			m_grid.attach(*m_attack, 0, 1, 1, 1);
-			m_grid.attach(*m_release, 1, 1, 1, 1);
-			m_grid.attach(*m_ratio, 0, 2, 1, 1);
+                m_grid.attach(*m_threshold, 0, 0, 1, 1);
+                m_grid.attach(*m_gain, 1, 0, 1, 1);
+                m_grid.attach(*m_attack, 0, 1, 1, 1);
+                m_grid.attach(*m_release, 1, 1, 1, 1);
+                m_grid.attach(*m_ratio, 0, 2, 1, 1);
+                if (channel_type == MONO) {
 			m_grid.attach(*m_enable, 0, 3, 1, 1);
 			m_grid.attach(*m_reduction[0], 1, 2, 1, 2);
 		}
 		if (channel_type == STEREO) {
-			m_grid.attach(*m_threshold, 0, 0, 1, 1);
-			m_grid.attach(*m_gain, 1, 0, 1, 1);
-			m_grid.attach(*m_attack, 0, 1, 1, 1);
-			m_grid.attach(*m_release, 1, 1, 1, 1);
-			m_grid.attach(*m_ratio, 0, 2, 1, 1);
 			m_grid.attach(*m_enable, 1, 2, 1, 1);
 			m_grid.attach(*m_reduction[0], 2, 0, 1, 3);
 			m_grid.attach(*m_reduction[1], 3, 0, 1, 3);
