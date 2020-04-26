@@ -15,11 +15,70 @@
  */
 
 #include <gtkmm-3.0/gtkmm.h>
-//#include <gtkmm-2.4/gtkmm/scale.h>
-//#include <gtkmm-2.4/gtkmm/togglebutton.h>
-//#include <gtkmm-2.4/gtkmm/comboboxtext.h>
+#include "OMainWnd.h"
 #include "ODial.h"
 #include "OAlsa.h"
+
+static struct snd_mixer_selem_regopt selem_regopt = {
+	.ver = 1,
+	.abstract = SND_MIXER_SABSTRACT_NONE,
+	.device = "default",
+};
+snd_mixer_t *mixer;
+snd_mixer_selem_id_t *current_selem_id;
+
+bool control_values_changed;
+bool controls_changed;
+
+static int elem_callback(snd_mixer_elem_t *elem, unsigned int mask)
+{
+	if (mask == SND_CTL_EVENT_MASK_REMOVE) {
+		controls_changed = TRUE;
+	} else {
+		if (mask & SND_CTL_EVENT_MASK_VALUE)
+			control_values_changed = TRUE;
+
+		if (mask & SND_CTL_EVENT_MASK_INFO)
+			controls_changed = TRUE;
+	}
+
+	return 0;
+}
+
+
+static int mixer_callback(snd_mixer_t *mixer, unsigned int mask, snd_mixer_elem_t *elem)
+{
+	if (mask & SND_CTL_EVENT_MASK_ADD) {
+		snd_mixer_elem_set_callback(elem, elem_callback);
+		controls_changed = TRUE;
+	}
+	return 0;
+}
+
+
+void create_mixer_object(struct snd_mixer_selem_regopt *selem_regopt)
+{
+	int err;
+
+	err = snd_mixer_open(&mixer, 0);
+	if (err < 0)
+		fprintf(stderr, "cannot open mixer: %d\n", err);
+	err = snd_mixer_selem_register(mixer, selem_regopt, NULL);
+	if (err < 0)
+		fprintf(stderr, "cannot register mixer: %d\n", err);
+        
+	snd_mixer_set_callback(mixer, mixer_callback);
+
+	err = snd_mixer_load(mixer);
+	if (err < 0)
+		fprintf(stderr, "cannot load mixer: %d\n", err);
+
+	err = snd_mixer_selem_id_malloc(&current_selem_id);
+	if (err < 0)
+		fprintf(stderr, "cannot malloc mixer: %d\n", err);
+
+}
+
 
 //* EQ control element names.
 const char* eq_control_path[] = {
@@ -48,7 +107,10 @@ const char* comp_control_path[] = {
 	NULL
 };
 
-OAlsa::OAlsa() {
+OAlsa::OAlsa() : 
+m_Mutex(),
+m_shall_stop(false),
+m_has_stopped(false) {
 	cardnum = -1;
 }
 
@@ -115,6 +177,7 @@ next_card:
 	return cardnum;
 }
 
+
 int OAlsa::open_device() {
 	int err = 0;
 	int i = 0, j;
@@ -126,6 +189,7 @@ int OAlsa::open_device() {
 			return -1;
 	}
 
+        
 	sprintf(name, "hw:%d", cardnum);
 	if ((err = snd_hctl_open(&hctl, name, 0)) < 0) {
 		fprintf(stderr, "Control %s open error: %s\n", name, snd_strerror(err));
@@ -135,6 +199,9 @@ int OAlsa::open_device() {
 		fprintf(stderr, "Control %s load error: %s\n", name, snd_strerror(err));
 		return -1;
 	}
+
+	selem_regopt.device = name;
+	create_mixer_object(&selem_regopt);
 
 
 
@@ -339,4 +406,34 @@ int OAlsa::sliderTodB(int pos) {
 
 int OAlsa::dBToSlider(int dB) {
 	return 127 * log10( 146.3 / (146.2 - dB));
+}
+
+
+void OAlsa::stop_work() {
+	std::lock_guard<std::mutex> lock(m_Mutex);
+	m_shall_stop = true;
+}
+
+bool OAlsa::has_stopped() const {
+	std::lock_guard<std::mutex> lock(m_Mutex);
+	return m_has_stopped;
+}
+
+
+void OAlsa::do_work(OMainWnd* caller) {
+	m_has_stopped = false;
+
+	m_caller = caller;
+
+	
+	for (;;) // do until break
+	{
+
+		if (m_shall_stop) {
+			break;
+		}
+	}
+
+	m_shall_stop = false;
+	m_has_stopped = true;
 }

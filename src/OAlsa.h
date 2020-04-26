@@ -20,6 +20,7 @@
 
 #include <alsa/asoundlib.h>
 
+
 // number of input channels
 #define NUM_CHANNELS 16
 
@@ -59,10 +60,18 @@
 
 #define CTL_NAME_INDEX_SUFFIX		    "%s,index=%d"
 
+class OMainWnd;
+
 class OAlsa {
 public:
     OAlsa();
     virtual ~OAlsa();
+    
+//      worker thread function    
+    void do_work(OMainWnd* caller);
+    
+    void stop_work();
+    bool has_stopped() const;    
     
 //     open alsa device
     int open_device();
@@ -110,6 +119,8 @@ public:
     int meters[34];
 private:
 
+    Gtk::Window* m_caller;
+        
 //    * Id of the Tascam US-16x08 alsa card 
     int cardnum;
     
@@ -122,6 +133,12 @@ private:
 //     create control name including its index
     char* create_ctrl_elem_name(const char* name, int index, char* result[], size_t size);
 
+    // Synchronizes access to member data.
+    mutable std::mutex m_Mutex;
+
+    // Data used by both GUI thread and worker thread.
+    bool m_shall_stop;
+    bool m_has_stopped;    
     
 };
 
