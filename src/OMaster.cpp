@@ -42,15 +42,15 @@ OMaster::OMaster() : Gtk::VBox() {
     m_fader.set_size_request(-1, 160);
     m_fader.set_draw_value(false);
     m_fader.set_increments(1, 5);
-    m_fader.add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
-    m_fader.add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
-    m_fader.add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
-    m_fader.add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
-    m_fader.add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
-    m_fader.add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
-    m_fader.add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
-    m_fader.add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
-    m_fader.add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
+//    m_fader.add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
+//    m_fader.add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
+//    m_fader.add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
+//    m_fader.add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
+//    m_fader.add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
+//    m_fader.add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
+//    m_fader.add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
+//    m_fader.add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
+//    m_fader.add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
     m_fader.set_vexpand(true);
 
 

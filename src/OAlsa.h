@@ -64,7 +64,7 @@ class OMainWnd;
 
 class OAlsa {
 public:
-    OAlsa();
+    OAlsa(OMainWnd*);
     virtual ~OAlsa();
     
 //      worker thread function    

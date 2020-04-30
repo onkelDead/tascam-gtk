@@ -20,38 +20,11 @@
 #include "ODial.h"
 #include "OAlsa.h"
 
-
-std::map<std::string, snd_ctl_elem_value_t *> m_control_map;
-
-snd_mixer_t *mixer;
-snd_mixer_selem_id_t *current_selem_id;
 snd_hctl_t *g_hctl; 
-    
-bool control_values_changed;
-bool controls_changed;
 
-static int elem_callback(snd_mixer_elem_t *elem, unsigned int mask) {
-    if (mask == SND_CTL_EVENT_MASK_REMOVE) {
-        controls_changed = TRUE;
-    } else {
-        if (mask & SND_CTL_EVENT_MASK_VALUE)
-            control_values_changed = TRUE;
+OMainWnd* g_main_wnd;
 
-        if (mask & SND_CTL_EVENT_MASK_INFO)
-            controls_changed = TRUE;
-    }
-
-    return 0;
-}
-
-static int mixer_callback(snd_mixer_t *mixer, unsigned int mask, snd_mixer_elem_t *elem) {
-    if (mask & SND_CTL_EVENT_MASK_ADD) {
-        snd_mixer_elem_set_callback(elem, elem_callback);
-        controls_changed = TRUE;
-    }
-    return 0;
-}
-
+#if 0
 static void show_control_id(snd_ctl_elem_id_t *id) {
     char *str;
     snd_hctl_elem_t *elem;
@@ -77,26 +50,40 @@ static void show_control_id(snd_ctl_elem_id_t *id) {
     if (str)
         printf("%s %s val:%d idx:%d", str, snd_ctl_elem_type_name(snd_ctl_elem_info_get_type(info)), val, snd_ctl_elem_value_get_index(control));
     }
-    m_control_map[str] = control;
     free(str);
+    return;
 }
+#endif
 
 static void events_value(snd_hctl_elem_t *helem) {
     snd_ctl_elem_id_t *id;
     snd_ctl_elem_id_alloca(&id);
-    snd_hctl_elem_get_id(helem, id);
-    printf("event value: ");
-    show_control_id(id);
-    printf("\n");
+    snd_ctl_elem_info_t *info;
+    snd_ctl_elem_info_alloca(&info);
+    int val = 0;
+    int err = 0;
+
+    snd_ctl_elem_value_t *control;
+    
+    snd_ctl_elem_value_alloca(&control);
+    
+    if ((err = snd_hctl_elem_read(helem, control)) < 0) {
+        fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+        return;
+    }    
+    val = snd_ctl_elem_value_get_integer(control, 0);    
+    g_main_wnd->alsa_update_control(helem, val);
 }
 
 static void events_info(snd_hctl_elem_t *helem) {
+#if 0
     snd_ctl_elem_id_t *id;
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_get_id(helem, id);
     printf("event info: ");
     show_control_id(id);
     printf("\n");
+#endif
 }
 
 static int element_callback(snd_hctl_elem_t *elem, unsigned int mask) {
@@ -112,13 +99,8 @@ static int element_callback(snd_hctl_elem_t *elem, unsigned int mask) {
 }
 
 static void events_add(snd_hctl_elem_t *helem) {
-    snd_ctl_elem_id_t *id;
-    snd_ctl_elem_id_alloca(&id);
-    snd_hctl_elem_get_id(helem, id);
-    printf("event add: ");
-    show_control_id(id);
-    printf("\n");
     snd_hctl_elem_set_callback(helem, element_callback);
+    g_main_wnd->alsa_add_control(helem);
 }
 
 static int ctl_callback(snd_hctl_t *ctl, unsigned int mask,
@@ -127,7 +109,6 @@ static int ctl_callback(snd_hctl_t *ctl, unsigned int mask,
         events_add(elem);
     return 0;
 }
-
 
 //* EQ control element names.
 const char* eq_control_path[] = {
@@ -156,11 +137,12 @@ const char* comp_control_path[] = {
     NULL
 };
 
-OAlsa::OAlsa() :
+OAlsa::OAlsa(OMainWnd* main_wnd) :
 m_Mutex(),
 m_shall_stop(false),
 m_has_stopped(false) {
     cardnum = -1;
+    g_main_wnd = main_wnd;
 }
 
 OAlsa::~OAlsa() {
@@ -488,7 +470,6 @@ void OAlsa::do_work(OMainWnd* caller) {
     while (!m_shall_stop) {
         res = snd_hctl_wait(hctl, 1000);
         if (res >= 0) {
-            printf("Poll ok: %i\n", res);
             res = snd_hctl_handle_events(hctl);
             assert(res > 0);
         }

@@ -34,6 +34,24 @@
 
 #define TASCAMGTK_SCHEMA_ID "de.paraair.tascamgtk"
 
+enum WIDGET_TYPE {
+    ToggleButton,
+    Dial,
+    Fader,
+    ComboBox
+};
+
+
+typedef struct alsa_control {
+    WIDGET_TYPE type;
+    Gtk::ToggleButton* tbwidget;
+    Gtk::VScale* faderwidget;
+    Gtk::ComboBoxText* combo;
+    ODial* dial;
+    int value;
+  
+} alsa_control;
+
 class OMainWnd : public Gtk::Window {
 public:
     OMainWnd();
@@ -47,6 +65,11 @@ public:
 
     virtual ~OMainWnd();
 
+    void alsa_add_control(snd_hctl_elem_t *helem);
+    void alsa_update_control(snd_hctl_elem_t *helem, int val);
+    
+    bool block_events;
+    
     /// Member variable of class MainWndUI, array of elements for the channel controls. 
     OStripLayout m_stripLayouts[16];
     /// UI element to display the DSP controls if view type is compact.
@@ -66,9 +89,10 @@ public:
     
     /// handler function called by< the worker thread, if OSC messages are available
     void notify();
-    /// dispaatcher callback on OSC massage arrived.
+    /// dispatcher callback on OSC massage arrived.
     void on_notification_from_worker_thread();
-
+    void on_notification_from_alsa_thread();
+    
     /// Pointer to the ALSA device.
     OAlsa *alsa;
 
@@ -185,6 +209,12 @@ private:
     
     Gtk::AboutDialog m_Dialog;
     void on_about_dialog_response(int response_id);
+    
+    alsa_control* get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t);
+    std::map<snd_hctl_elem_t*, alsa_control*> m_mixer_elems;
+    
+    std::queue<alsa_control*> m_alsa_queue;
+    Glib::Dispatcher m_Dispatcher_alsa;
 };
 
 #endif /* OMAINWND_H */

@@ -25,13 +25,14 @@
 OMainWnd::OMainWnd() :
 Gtk::Window(),
 settings(0),
-alsa(new OAlsa),
+alsa(0),
 m_view(VIEW_TYPE::NORMAL),
 m_solo_channel(-1),
 m_dsp_channel(-1),
 m_block_ui(true),
 m_menubar(nullptr),
 m_WorkerThread(nullptr),
+block_events(0),
 m_WorkerAlsaThread(nullptr) {
 
     bool compact;
@@ -59,7 +60,7 @@ m_WorkerAlsaThread(nullptr) {
     // create about dialog
     create_aboutdlg();
 
-
+    alsa = new OAlsa(this);
     if (alsa->open_device()) {
         auto dialog = new Gtk::MessageDialog(*this, "Unable to access sound card.\nPlease check terminal shell output for more details.", false, Gtk::MessageType::MESSAGE_ERROR);
         dialog->run();
@@ -295,15 +296,15 @@ void OMainWnd::create_controls() {
             m_fader[i].set_size_request(-1, 160);
             m_fader[i].set_draw_value(false);
             m_fader[i].set_increments(1, 5);
-            m_fader[i].add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
-            m_fader[i].add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
-            m_fader[i].add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
-            m_fader[i].add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
-            m_fader[i].add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
-            m_fader[i].add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
-            m_fader[i].add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
-            m_fader[i].add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
-            m_fader[i].add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
+//            m_fader[i].add_mark(133, Gtk::PositionType::POS_RIGHT, "+6 dB");
+//            m_fader[i].add_mark(123, Gtk::PositionType::POS_RIGHT, "+3 dB");
+//            m_fader[i].add_mark(113, Gtk::PositionType::POS_RIGHT, "0 dB");
+//            m_fader[i].add_mark(89, Gtk::PositionType::POS_RIGHT, "-10 dB");
+//            m_fader[i].add_mark(73, Gtk::PositionType::POS_RIGHT, "-20 dB");
+//            m_fader[i].add_mark(50, Gtk::PositionType::POS_RIGHT, "-40 dB");
+//            m_fader[i].add_mark(34, Gtk::PositionType::POS_RIGHT, "-60 dB");
+//            m_fader[i].add_mark(16, Gtk::PositionType::POS_RIGHT, "-90 dB");
+//            m_fader[i].add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
             m_fader[i].set_tooltip_text("channel fader");
             m_fader[i].set_vexpand(true);
 
@@ -391,6 +392,7 @@ void OMainWnd::apply_gdk_style() {
 
 void OMainWnd::create_worker_threads(){
     m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
+    m_Dispatcher_alsa.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_alsa_thread));
 #ifdef HAVE_OSC
     m_osc_queue = g_async_queue_new();
     m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
@@ -411,6 +413,212 @@ void OMainWnd::create_worker_threads(){
             alsa->do_work(this);
         });
     }
+}
+
+alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t) {
+    alsa_control* ac = 0;
+    if (strcmp(info_name, "Master Mute Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_master.m_mute;
+    }
+    else if (strcmp(info_name, "Master Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Fader;
+        ac->faderwidget = &m_master.m_fader;        
+    }
+    else if (strcmp(info_name, "DSP Bypass Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_master.m_true_bypass;
+    }
+    else if (strcmp(info_name, "Buss Out Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_master.m_comp_to_stereo;
+    }
+    else if (strcmp(info_name, "Line Out Route") == 0) {
+        ac = new alsa_control;
+        ac->type = ComboBox;
+        ac->combo = &m_route.m_route[index];        
+    }   
+    else if (strcmp(info_name, "Line Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Fader;
+        ac->faderwidget = &m_fader[index];
+    }   
+    else if (strcmp(info_name, "Compressor Attack") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_attack[index];
+    }  
+    else if (strcmp(info_name, "Compressor Ratio") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_ratio[index];
+    }
+    else if (strcmp(info_name, "Compressor Release") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_release[index];
+    }
+    else if (strcmp(info_name, "Compressor Volume") == 0) {
+        if (t == SND_CTL_ELEM_TYPE_INTEGER) {
+            ac = new alsa_control;
+            ac->type = Dial;
+            ac->dial = &m_gain[index];
+        }
+    }
+    else if (strcmp(info_name, "Compressor Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_comp_enable[index];
+    }
+    else if (strcmp(info_name, "Compressor Threshold Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_threshold[index];
+    }
+    else if (strcmp(info_name, "EQ High Frequence") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_high_freq_band[index];
+    }
+    else if (strcmp(info_name, "EQ High Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_high_freq_gain[index];
+    }
+    else if (strcmp(info_name, "EQ Low Frequence") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_low_freq_band[index];
+    }
+    else if (strcmp(info_name, "EQ Low Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_low_freq_gain[index];
+    }    
+    else if (strcmp(info_name, "EQ MidHigh Frequence") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_mid_high_freq_band[index];
+    }
+    else if (strcmp(info_name, "EQ MidHigh Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_mid_high_freq_gain[index];
+    }
+    else if (strcmp(info_name, "EQ MidHigh Q") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_mid_high_freq_width[index];
+    }
+    else if (strcmp(info_name, "EQ MidLow Frequence") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_mid_low_freq_band[index];
+    }
+    else if (strcmp(info_name, "EQ MidLow Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_mid_low_freq_gain[index];
+    }
+    else if (strcmp(info_name, "EQ MidLow Q") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_mid_low_freq_width[index];
+    }
+    else if (strcmp(info_name, "EQ Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_eq_enable[index];
+    }
+    else if (strcmp(info_name, "Mute Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_MuteEnable[index];
+    }
+    else if (strcmp(info_name, "Pan Left-Right Volume") == 0) {
+        ac = new alsa_control;
+        ac->type = Dial;
+        ac->dial = &m_Pan[index];
+    }
+    else if (strcmp(info_name, "Phase Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_PhaseEnable[index];
+    }
+    else {
+        printf("unknown control %s\n", info_name);
+    }
+    return ac;
+}
+
+void OMainWnd::alsa_update_control(snd_hctl_elem_t *helem, int val) {
+    alsa_control* widget = m_mixer_elems[helem];
+    if (widget) {
+
+        widget->value = val;
+        m_alsa_queue.push(widget);
+        m_Dispatcher_alsa.emit();
+    }
+}
+
+void OMainWnd::alsa_add_control(snd_hctl_elem_t *helem) {
+    int err = 0;
+    snd_ctl_elem_id_t *id;
+    snd_ctl_elem_info_t *info;
+    snd_ctl_elem_value_t *control;
+    const char *info_name;
+    int control_index;
+    
+    snd_ctl_elem_id_alloca(&id);
+    snd_ctl_elem_info_alloca(&info);
+    snd_ctl_elem_value_alloca(&control);
+
+    if ((err = snd_hctl_elem_info(helem, info)) < 0) {
+        fprintf(stderr, "Info %s element read error: %s\n", "hw:0", snd_strerror(err));
+        return;
+    }
+    if ((err = snd_hctl_elem_read(helem, control)) < 0) {
+        fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+        return;
+    }
+    info_name = snd_ctl_elem_info_get_name(info);
+    control_index = snd_ctl_elem_value_get_index(control);
+    alsa_control* widget = get_alsa_widget(info_name, control_index, snd_ctl_elem_info_get_type(info));
+    if (widget) {
+        m_mixer_elems[helem] = widget;
+    }
+}
+
+void OMainWnd::on_notification_from_alsa_thread() {
+    alsa_control *cv = m_alsa_queue.front();
+    m_alsa_queue.pop();
+    
+    alsa_control* widget = cv;
+    if (widget) {
+        block_events = true;
+        m_block_ui = true;
+        switch(widget->type) {
+            case ToggleButton:
+                widget->tbwidget->set_active(cv->value);
+                break;
+            case Fader:
+                widget->faderwidget->set_value(alsa->dBToSlider(cv->value) + 1);
+                break;    
+            case ComboBox:
+                widget->combo->set_active(cv->value);
+                break;
+            case Dial:
+                widget->dial->set_value(cv->value);
+                break;
+        }
+        block_events = false;
+        m_block_ui = false;
+    }        
+    ;
 }
 
 void OMainWnd::notify() {
@@ -1068,7 +1276,10 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
 #endif
 
 void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label * label_) {
-
+ 
+    if (block_events)
+        return;   
+    
 #ifdef HAVE_OSC  
     lo_message reply = lo_message_new();
 #endif  
@@ -1091,6 +1302,7 @@ void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale*
     lo_message_free(reply);
 #endif  
 
+    
     alsa->on_range_control_changed(n, control_name, control, label_);
 }
 
@@ -1234,7 +1446,9 @@ void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
 
 void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
-
+    if (block_events)
+        return;
+    
     if (!strcmp(control_name, CTL_NAME_CP_ENABLE)) {
         alsa->on_toggle_button_control_changed(n, control_name, &m_comp_enable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
@@ -1326,6 +1540,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
         } else
             alsa->on_active_button_control_changed(n, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
     }
+
 }
 
 void OMainWnd::set_dsp_channel(int n, bool enable) {
