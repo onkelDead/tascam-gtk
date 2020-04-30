@@ -257,8 +257,8 @@ void OEq::get_alsa_values(int channel_index, OAlsa* alsa) {
 
 void OEq::reset(OAlsa* alsa, int index) {
 
-	alsa->setBoolean(CTL_NAME_EQ_ENABLE, 0, 0);
-	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_MUTE, 0));
+	alsa->setBoolean(CTL_NAME_EQ_ENABLE, index, 0);
+	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, index));
 	usleep(RESET_VALUE_DELAY);
 
 	m_high_freq_gain->reset();

@@ -110,6 +110,7 @@ void OStripLayout::reset(OAlsa* alsa, int index) {
 	m_comp.reset(alsa, index);
 	m_eq.reset(alsa, index);
 	m_fader.reset(alsa, index);
+        
 }
 
 void OStripLayout::save_values(FILE* file, int indent) {

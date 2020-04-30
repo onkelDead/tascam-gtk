@@ -148,15 +148,15 @@ void OFader::reset(OAlsa* alsa, int index) {
 	usleep(RESET_VALUE_DELAY);
 
 
-	alsa->setBoolean(CTL_NAME_MUTE, 0, 0);
+	alsa->setBoolean(CTL_NAME_MUTE, index, 0);
 	m_MuteEnable->set_active(alsa->getBoolean(CTL_NAME_MUTE, index));
 	usleep(RESET_VALUE_DELAY);
 
-	alsa->setBoolean(CTL_NAME_SOLO, 0, 0);
+	alsa->setBoolean(CTL_NAME_SOLO, index, 0);
 	m_SoloEnable->set_active(alsa->getBoolean(CTL_NAME_SOLO, index));
 	usleep(RESET_VALUE_DELAY);
 
-	alsa->setBoolean(CTL_NAME_PHASE, 0, 0);
+	alsa->setBoolean(CTL_NAME_PHASE, index, 0);
 	m_PhaseEnable[0]->set_active(alsa->getBoolean(CTL_NAME_PHASE, index));
 	usleep(RESET_VALUE_DELAY);
 
