@@ -22,7 +22,6 @@
 #include <iostream>
 
 /// constructor implementation
-
 OMainWnd::OMainWnd() :
 Gtk::Window(),
 settings(0),
@@ -34,7 +33,7 @@ m_block_ui(true),
 m_menubar(nullptr),
 m_WorkerThread(nullptr),
 m_WorkerAlsaThread(nullptr) {
-    int i;
+
     bool compact;
 
     set_name("OMainWnd");
@@ -53,6 +52,14 @@ m_WorkerAlsaThread(nullptr) {
 
     create_menu();
 
+
+    // load style sheet 
+    apply_gdk_style();
+
+    // create about dialog
+    create_aboutdlg();
+
+
     if (alsa->open_device()) {
         auto dialog = new Gtk::MessageDialog(*this, "Unable to access sound card.\nPlease check terminal shell output for more details.", false, Gtk::MessageType::MESSAGE_ERROR);
         dialog->run();
@@ -60,7 +67,116 @@ m_WorkerAlsaThread(nullptr) {
         exit(1);
     }
 
-    for (i = 0; i < NUM_CHANNELS + 1; i++) {
+    create_controls();
+
+    show_all_children(true);
+    
+    create_worker_threads(); 
+    
+    if (compact)
+        on_menu_view_compact();
+    else
+        on_menu_view_normal();
+    
+    m_block_ui = false;
+}
+
+OMainWnd::~OMainWnd() {
+    m_Worker.stop_work();
+    while (!m_Worker.has_stopped())
+        sleep(1);
+    if (m_WorkerThread->joinable())
+        m_WorkerThread->join();
+    delete m_WorkerThread;
+    m_WorkerThread = nullptr;
+
+
+    if (alsa) {
+        alsa->close_device();
+        alsa->stop_work();
+        //        while (!alsa->has_stopped()) {
+        //            sleep(1);
+        //        }
+        delete alsa;
+    }
+    if (m_menubar)
+        delete m_menubar;
+#ifdef HAVE_OSC 
+    g_async_queue_unref(m_osc_queue);
+#endif
+}
+
+void OMainWnd::create_menu() {
+    m_menubar = Gtk::manage(new Gtk::MenuBar);
+
+    m_refActionGroup = Gtk::ActionGroup::create();
+    m_refActionGroup->add(Gtk::Action::create("File", "_File"));
+    m_refActionGroup->add(Gtk::Action::create("load", Gtk::Stock::OPEN, "_Load values..."),
+            sigc::mem_fun(this, &OMainWnd::on_menu_file_load));
+    m_refActionGroup->add(Gtk::Action::create("save", Gtk::Stock::SAVE, "_Save values..."),
+            sigc::mem_fun(this, &OMainWnd::on_menu_file_save));
+    m_refActionGroup->add(Gtk::Action::create("reset", Gtk::Stock::REVERT_TO_SAVED, "_Reset all"),
+            sigc::mem_fun(this, &OMainWnd::on_menu_file_reset));
+    m_refActionGroup->add(Gtk::Action::create("exit", Gtk::Stock::QUIT),
+            sigc::mem_fun(this, &OMainWnd::on_menu_file_exit));
+    m_refActionGroup->add(Gtk::Action::create("about", Gtk::Stock::ABOUT),
+            sigc::mem_fun(this, &OMainWnd::on_menu_file_about));
+    m_refActionGroup->add(Gtk::Action::create("View", "_View"));
+    m_refActionGroup->add(Gtk::Action::create("compact", Gtk::Stock::ZOOM_IN, "_Compact"),
+            sigc::mem_fun(this, &OMainWnd::on_menu_view_compact));
+    m_refActionGroup->add(Gtk::Action::create("normal", Gtk::Stock::ZOOM_OUT, "_Normal"),
+            sigc::mem_fun(this, &OMainWnd::on_menu_view_normal));
+
+    m_refUIManager = Gtk::UIManager::create();
+    m_refUIManager->insert_action_group(m_refActionGroup);
+
+    //Layout the actions in a menubar and toolbar:
+    Glib::ustring ui_info =
+            "<ui>"
+            "  <menubar name='MenuBar'>"
+            "    <menu action='File'>"
+            "        <menuitem action='load'/>"
+            "        <menuitem action='save'/>"
+            "        <menuitem action='reset'/>"
+            "        <separator />"
+            "        <menuitem action='about'/>"
+            "        <separator />"
+            "        <menuitem action='exit' />"
+            "    </menu>"
+            "    <menu action='View'>"
+            "        <menuitem action='compact'/>"
+            "        <menuitem action='normal'/>"
+            "    </menu>"
+            "  </menubar>"
+            "</ui>";
+
+    try {
+        m_refUIManager->add_ui_from_string(ui_info);
+    } catch (const Glib::Error& ex) {
+        std::cerr << "building menus failed: " << ex.what();
+    }
+
+    Gtk::Widget* pMenubar = m_refUIManager->get_widget("/MenuBar");
+    if (!(pMenubar)) {
+        g_warning("GMenu or AppMenu not found");
+    } else {
+        m_menubox.pack_start(*pMenubar, false, false);
+    }
+
+    menu_popup_load.set_label("Load channel values");
+    menu_popup.append(menu_popup_load);
+    menu_popup_save.set_label("Save channel values");
+    menu_popup.append(menu_popup_save);
+    menu_popup_reset.set_label("Reset channel values");
+    menu_popup.append(menu_popup_reset);
+
+    m_menubox.set_name("menu");
+    m_grid.attach(m_menubox, 0, 0, 17, 1);
+
+}
+
+void OMainWnd::create_controls() {
+    for (int i = 0; i < NUM_CHANNELS + 1; i++) {
         // compressor controls
         {
             m_comp_enable[i].set_label("Comp");
@@ -197,6 +313,12 @@ m_WorkerAlsaThread(nullptr) {
             m_grid.attach(m_stripLayouts[i], i, 2, 1, 1);
         }
     }
+    for (int i = 0; i < NUM_CHANNELS / 2; i++) {
+        m_link[i].set_label("Link");
+        m_link[i].set_name("link-button");
+        m_link[i].signal_toggled().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_ch_lb_changed), i));
+        m_grid.attach(m_link[i], i * 2, 3, 2, 1);
+    }
 
     // create DSP layout
     {
@@ -205,68 +327,15 @@ m_WorkerAlsaThread(nullptr) {
         m_dsp_layout.set_sensitive(false);
         //		m_grid.attach(m_dsp_layout, 0, 1, 16, 1);
     }
-
-    m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
-#ifdef HAVE_OSC
-    m_osc_queue = g_async_queue_new();
-    m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
-#endif
-    if (m_WorkerThread) {
-        std::cout << "Can't start a worker thread while another one is running." << std::endl;
-    } else {
-        // Start a new worker thread.
-        m_WorkerThread = new std::thread([this] {
-            m_Worker.do_work(this);
-        });
-    }
-
-    if (m_WorkerAlsaThread) {
-        std::cout << "Can't start a worker thread while another one is running." << std::endl;
-    } else {
-        m_WorkerAlsaThread = new std::thread([this]{
-            alsa->do_work(this);
-        });
-    }
-
-    for (i = 0; i < NUM_CHANNELS / 2; i++) {
-        m_link[i].set_label("Link");
-        m_link[i].set_name("link-button");
-        m_link[i].signal_toggled().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_ch_lb_changed), i));
-        m_grid.attach(m_link[i], i * 2, 3, 2, 1);
-    }
-
+    
     m_route.init(alsa, this);
     m_master.init(alsa, this);
     m_grid.attach(m_master, 16, 1, 1, 3);
 
     add(m_grid);
-    //	m_grid.remove(m_dsp_layout);
+}
 
-    // load style sheet 
-    {
-        m_refCssProvider = Gtk::CssProvider::create();
-        auto refStyleContext = get_style_context();
-        refStyleContext->add_provider(m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-        try {
-            if (Glib::file_test(PKGDATADIR "/tascam-gtk.css", Glib::FILE_TEST_EXISTS))
-                m_refCssProvider->load_from_path(PKGDATADIR "/tascam-gtk.css");
-            else
-                m_refCssProvider->load_from_path("./data/tascam-gtk.css");
-        } catch (const Gtk::CssProviderError& ex) {
-            std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
-                    << ex.what() << std::endl;
-        } catch (const Glib::Error& ex) {
-            std::cerr << "Error, Gtk::CssProvider::load_from_path() failed: "
-                    << ex.what() << std::endl;
-        }
-
-        //	auto refStyleContext = get_style_context();
-        auto screen = Gdk::Screen::get_default();
-        refStyleContext->add_provider_for_screen(Gdk::Screen::get_default(), m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    }
-
-    // create about dialog
+void OMainWnd::create_aboutdlg() {
     {
         m_Dialog.set_transient_for(*this);
 
@@ -293,108 +362,59 @@ m_WorkerAlsaThread(nullptr) {
 
         show_all_children();
     }
-
-    show_all_children(true);
-
-    if (compact)
-        on_menu_view_compact();
-    else
-        on_menu_view_normal();
-
-
-    m_block_ui = false;
 }
 
-OMainWnd::~OMainWnd() {
-    m_Worker.stop_work();
-    while (!m_Worker.has_stopped())
-        sleep(1);
-    if (m_WorkerThread->joinable())
-        m_WorkerThread->join();
-    delete m_WorkerThread;
-    m_WorkerThread = nullptr;
-    
-    if (alsa) {
-        alsa->stop_work();
-        while (!alsa->has_stopped()) {
-            sleep(1);
+void OMainWnd::apply_gdk_style() {
+    {
+        m_refCssProvider = Gtk::CssProvider::create();
+        auto refStyleContext = get_style_context();
+        refStyleContext->add_provider(m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+        try {
+            if (Glib::file_test(PKGDATADIR "/tascam-gtk.css", Glib::FILE_TEST_EXISTS))
+                m_refCssProvider->load_from_path(PKGDATADIR "/tascam-gtk.css");
+            else
+                m_refCssProvider->load_from_path("./data/tascam-gtk.css");
+        } catch (const Gtk::CssProviderError& ex) {
+            std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
+                    << ex.what() << std::endl;
+        } catch (const Glib::Error& ex) {
+            std::cerr << "Error, Gtk::CssProvider::load_from_path() failed: "
+                    << ex.what() << std::endl;
         }
-        delete alsa;
+
+        //	auto refStyleContext = get_style_context();
+        auto screen = Gdk::Screen::get_default();
+        refStyleContext->add_provider_for_screen(Gdk::Screen::get_default(), m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
-    if (m_menubar)
-        delete m_menubar;
-#ifdef HAVE_OSC 
-    g_async_queue_unref(m_osc_queue);
-#endif
 }
 
-void OMainWnd::create_menu() {
-    m_menubar = Gtk::manage(new Gtk::MenuBar);
-
-    m_refActionGroup = Gtk::ActionGroup::create();
-    m_refActionGroup->add(Gtk::Action::create("File", "_File"));
-    m_refActionGroup->add(Gtk::Action::create("load", Gtk::Stock::OPEN, "_Load values..."),
-            sigc::mem_fun(this, &OMainWnd::on_menu_file_load));
-    m_refActionGroup->add(Gtk::Action::create("save", Gtk::Stock::SAVE, "_Save values..."),
-            sigc::mem_fun(this, &OMainWnd::on_menu_file_save));
-    m_refActionGroup->add(Gtk::Action::create("reset", Gtk::Stock::REVERT_TO_SAVED, "_Reset all"),
-            sigc::mem_fun(this, &OMainWnd::on_menu_file_reset));
-    m_refActionGroup->add(Gtk::Action::create("exit", Gtk::Stock::QUIT),
-            sigc::mem_fun(this, &OMainWnd::on_menu_file_exit));
-    m_refActionGroup->add(Gtk::Action::create("about", Gtk::Stock::ABOUT),
-            sigc::mem_fun(this, &OMainWnd::on_menu_file_about));
-    m_refActionGroup->add(Gtk::Action::create("View", "_View"));
-    m_refActionGroup->add(Gtk::Action::create("compact", Gtk::Stock::ZOOM_IN, "_Compact"),
-            sigc::mem_fun(this, &OMainWnd::on_menu_view_compact));
-    m_refActionGroup->add(Gtk::Action::create("normal", Gtk::Stock::ZOOM_OUT, "_Normal"),
-            sigc::mem_fun(this, &OMainWnd::on_menu_view_normal));
-
-    m_refUIManager = Gtk::UIManager::create();
-    m_refUIManager->insert_action_group(m_refActionGroup);
-
-    //Layout the actions in a menubar and toolbar:
-    Glib::ustring ui_info =
-            "<ui>"
-            "  <menubar name='MenuBar'>"
-            "    <menu action='File'>"
-            "        <menuitem action='load'/>"
-            "        <menuitem action='save'/>"
-            "        <menuitem action='reset'/>"
-            "        <separator />"
-            "        <menuitem action='about'/>"
-            "        <separator />"
-            "        <menuitem action='exit' />"
-            "    </menu>"
-            "    <menu action='View'>"
-            "        <menuitem action='compact'/>"
-            "        <menuitem action='normal'/>"
-            "    </menu>"
-            "  </menubar>"
-            "</ui>";
-
-    try {
-        m_refUIManager->add_ui_from_string(ui_info);
-    } catch (const Glib::Error& ex) {
-        std::cerr << "building menus failed: " << ex.what();
-    }
-
-    Gtk::Widget* pMenubar = m_refUIManager->get_widget("/MenuBar");
-    if (!(pMenubar)) {
-        g_warning("GMenu or AppMenu not found");
+void OMainWnd::create_worker_threads(){
+    m_Dispatcher.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_worker_thread));
+#ifdef HAVE_OSC
+    m_osc_queue = g_async_queue_new();
+    m_Dispatcher_osc.connect(sigc::mem_fun(*this, &OMainWnd::on_notification_from_osc_thread));
+#endif
+    if (m_WorkerThread) {
+        std::cout << "Can't start a worker thread while another one is running." << std::endl;
     } else {
-        m_menubox.pack_start(*pMenubar, false, false);
+        // Start a new worker thread.
+        m_WorkerThread = new std::thread([this] {
+            m_Worker.do_work(this);
+        });
     }
+    
+    if (m_WorkerAlsaThread) {
+        std::cout << "Can't start a worker thread while another one is running." << std::endl;
+    } else {
+        m_WorkerAlsaThread = new std::thread([this] {
+            alsa->do_work(this);
+        });
+    }
+}
 
-    menu_popup_load.set_label("Load channel values");
-    menu_popup.append(menu_popup_load);
-    menu_popup_save.set_label("Save channel values");
-    menu_popup.append(menu_popup_save);
-    menu_popup_reset.set_label("Reset channel values");
-    menu_popup.append(menu_popup_reset);
-
-    m_menubox.set_name("menu");
-    m_grid.attach(m_menubox, 0, 0, 17, 1);
-
+void OMainWnd::notify() {
+    m_Dispatcher.emit();
 }
 
 bool OMainWnd::on_mouse_event(GdkEventButton* event, int channel_index) {
@@ -419,10 +439,6 @@ bool OMainWnd::on_mouse_event(GdkEventButton* event, int channel_index) {
     }
 
     return false;
-}
-
-void OMainWnd::notify() {
-    m_Dispatcher.emit();
 }
 
 void OMainWnd::on_notification_from_worker_thread() {
@@ -473,28 +489,6 @@ void OMainWnd::on_notification_from_worker_thread() {
 #endif
 
 }
-
-#ifdef HAVE_OSC 
-
-void OMainWnd::notify_osc() {
-    m_Dispatcher_osc.emit();
-}
-
-void OMainWnd::on_notification_from_osc_thread() {
-
-    oscMutex.lock();
-
-    osc_message* data = (osc_message*) g_async_queue_pop(m_osc_queue);
-
-    oscMutex.unlock();
-    if (data->path) {
-        on_osc_message(data->client_index, data->path, data->data);
-        free(data->path);
-    }
-    lo_message_free(data->data);
-    delete data;
-}
-#endif
 
 void OMainWnd::on_menu_file_exit() {
     this->hide();
@@ -815,6 +809,25 @@ void OMainWnd::load_values(Glib::ustring filename) {
 }
 
 #ifdef HAVE_OSC
+
+void OMainWnd::notify_osc() {
+    m_Dispatcher_osc.emit();
+}
+
+void OMainWnd::on_notification_from_osc_thread() {
+
+    oscMutex.lock();
+
+    osc_message* data = (osc_message*) g_async_queue_pop(m_osc_queue);
+
+    oscMutex.unlock();
+    if (data->path) {
+        on_osc_message(data->client_index, data->path, data->data);
+        free(data->path);
+    }
+    lo_message_free(data->data);
+    delete data;
+}
 
 void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg) {
     lo_arg** argv = lo_message_get_argv(msg);

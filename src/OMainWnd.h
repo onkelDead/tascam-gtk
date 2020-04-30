@@ -37,6 +37,14 @@
 class OMainWnd : public Gtk::Window {
 public:
     OMainWnd();
+    void create_worker_threads();
+
+    void create_aboutdlg();
+
+    void apply_gdk_style();
+
+    void create_controls();
+
     virtual ~OMainWnd();
 
     /// Member variable of class MainWndUI, array of elements for the channel controls. 

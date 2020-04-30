@@ -140,6 +140,7 @@ private:
     bool m_shall_stop;
     bool m_has_stopped;    
     
+    
 };
 
 #endif /* OALSA_H */
