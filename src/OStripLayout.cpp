@@ -33,9 +33,6 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 
 	m_channel_type = MONO;
 
-
-	//	m_grid.attach(m_sep, 1, 0, 1, 8);
-
 	add(m_grid);
 }
 

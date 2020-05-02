@@ -68,6 +68,8 @@ public:
     void alsa_add_control(snd_hctl_elem_t *helem);
     void alsa_update_control(snd_hctl_elem_t *helem, int val);
     
+    bool on_delete(GdkEventAny* event);
+    
     bool block_events;
     
     /// Member variable of class MainWndUI, array of elements for the channel controls. 
