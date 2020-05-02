@@ -20,6 +20,7 @@
 #include <libxml++-2.6/libxml++/libxml++.h>
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
 #include <iostream>
+#include <gtkmm-3.0/gtkmm/widget.h>
 
 /// constructor implementation
 OMainWnd::OMainWnd() :
@@ -53,6 +54,7 @@ m_WorkerAlsaThread(nullptr) {
 
     create_menu();
 
+    this->signal_delete_event().connect(sigc::mem_fun(this, &OMainWnd::on_delete));
 
     // load style sheet 
     apply_gdk_style();
@@ -80,6 +82,13 @@ m_WorkerAlsaThread(nullptr) {
         on_menu_view_normal();
     
     m_block_ui = false;
+}
+
+bool OMainWnd::on_delete(GdkEventAny* event) {
+    if (settings)
+        settings->set_boolean("view-compact", m_view == COMPACT);
+    usleep(1000);
+    return false;
 }
 
 OMainWnd::~OMainWnd() {
@@ -549,9 +558,9 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         ac->type = ToggleButton;
         ac->tbwidget = &m_PhaseEnable[index];
     }
-    else {
-        printf("unknown control %s\n", info_name);
-    }
+//    else {
+//         printf("unknown control %s\n", info_name);
+//    }
     return ac;
 }
 
@@ -780,8 +789,8 @@ void OMainWnd::on_menu_view_compact() {
     m_dsp_layout.set_view_type(HIDDEN);
     m_dsp_layout.set_view_type(SINGLE_DSP);
     show_all_children(true);
-    if (settings)
-        settings->set_boolean("view-compact", true);
+//    if (settings)
+//        settings->set_boolean("view-compact", true);
 }
 
 void OMainWnd::on_menu_view_normal() {
@@ -798,8 +807,8 @@ void OMainWnd::on_menu_view_normal() {
     if (m_dsp_layout.get_parent())
         m_grid.remove(m_dsp_layout);
     show_all_children(true);
-    if (settings)
-        settings->set_boolean("view-compact", false);
+//    if (settings)
+//        settings->set_boolean("view-compact", false);
 
     alsa->on_active_button_control_changed(0, CTL_NAME_METER, &m_stripLayouts[0].m_DspEnable);
 
@@ -1613,6 +1622,9 @@ void OMainWnd::set_solo_channel(int solo_channel) {
             m_MuteEnable[i].set_active(true);
             usleep(RESET_VALUE_DELAY);
             m_SoloEnable[i].set_sensitive(false);
+        }
+        if (m_stripLayouts[i].get_channel_type() == STEREO ) {
+            i++;
         }
     }
     m_solo_channel = solo_channel;
