@@ -1,6 +1,6 @@
 # Tascam US-16x08 DSP mixer
 
-This application is based on GTK+ and relies on the custom kernel driver https://github.com/onkelDead/tascam-driver-patch.
+This application is based on GTK+ and relies on [US16x08 support](https://github.com/torvalds/linux/blob/master/sound/usb/mixer_us16x08.c) in the Linux snd-usb-audio driver, available in Linux 4.11 and newer. 
 
 ![screenshot.png](/screenshot.png?raw=true)
 
