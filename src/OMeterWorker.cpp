@@ -128,7 +128,7 @@ const int OMeterWorker::new_osc_client(lo_message client) {
 }
 
 
-const int OMeterWorker::osc_client_exists(lo_address client) {
+const int OMeterWorker::osc_client_exists(lo_message client) {
     int i;
     int ret = -1;
     char* new_client_url = lo_address_get_url(lo_message_get_source(client));
@@ -170,7 +170,7 @@ void OMeterWorker::send_osc_all(const char* path, lo_message msg)  {
 	
 	for( int i = 0; i < MAX_OSC_CLIENTS; i++) {
 		if( osc_client[i] )
-			lo_send_message_from(osc_client[i], osc_server, path, msg);
+			lo_send_message_from(osc_client[i], osc_server_out, path, msg);
 	}
 	
 }

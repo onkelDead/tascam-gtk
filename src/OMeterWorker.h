@@ -51,9 +51,9 @@ public:
 #ifdef HAVE_OSC
     lo_address osc_client[MAX_OSC_CLIENTS];
     lo_server_thread osc_server;
-    lo_address osc_server_out;
+    lo_server osc_server_out;
     const int new_osc_client(lo_message client);
-    const int osc_client_exists(lo_address client);
+    const int osc_client_exists(lo_message client);
     void send_osc(int client_index, const char* path, lo_message msg);
     void send_osc_all(const char* path, lo_message msg);
     void dump_message(const char* path, const char *types, lo_arg ** argv, int argc);
