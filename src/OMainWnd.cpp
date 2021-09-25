@@ -358,7 +358,7 @@ void OMainWnd::create_aboutdlg() {
         m_Dialog.set_version(PACKAGE_VERSION);
         m_Dialog.set_copyright("Copyright 2017 Detlef Urban");
         m_Dialog.set_comments("Tascam US-16x08 DSP mixer application");
-        m_Dialog.set_license("LGPL");
+        m_Dialog.set_license("MIT");
 
         m_Dialog.set_website("http://www.paraair.de/tascamgtk");
         m_Dialog.set_website_label("http://www.paraair.de");
