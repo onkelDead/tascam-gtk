@@ -19,6 +19,7 @@
 #define OALSA_H
 
 #include <alsa/asoundlib.h>
+#include <linux/version.h>
 
 
 // number of input channels
@@ -37,15 +38,31 @@
 #define CTL_NAME_PHASE                      "name='Phase Switch'"
 #define CTL_NAME_EQ_ENABLE                  "name='EQ Switch'"
 #define CTL_NAME_EQ_LOW_LEVEL               "name='EQ Low Volume'"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
 #define CTL_NAME_EQ_LOW_FREQ                "name='EQ Low Frequency'"
+#else
+#define CTL_NAME_EQ_LOW_FREQ                "name='EQ Low Frequence'"
+#endif
 #define CTL_NAME_EQ_MIDLOW_LEVEL            "name='EQ MidLow Volume'"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
 #define CTL_NAME_EQ_MIDLOW_FREQ             "name='EQ MidLow Frequency'"
+#else
+#define CTL_NAME_EQ_MIDLOW_FREQ             "name='EQ MidLow Frequence'"
+#endif
 #define CTL_NAME_EQ_MIDLOWWIDTH_FREQ        "name='EQ MidLow Q'"
 #define CTL_NAME_EQ_MIDHIGH_LEVEL           "name='EQ MidHigh Volume'"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
 #define CTL_NAME_EQ_MIDHIGH_FREQ            "name='EQ MidHigh Frequency'"
+#else
+#define CTL_NAME_EQ_MIDHIGH_FREQ            "name='EQ MidHigh Frequence'"
+#endif
 #define CTL_NAME_EQ_MIDHIGHWIDTH_FREQ       "name='EQ MidHigh Q'"
 #define CTL_NAME_EQ_HIGH_LEVEL              "name='EQ High Volume'"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
 #define CTL_NAME_EQ_HIGH_FREQ               "name='EQ High Frequency'"
+#else
+#define CTL_NAME_EQ_HIGH_FREQ               "name='EQ High Frequence'"
+#endif
 #define CTL_NAME_CP_THRESHOLD               "name='Compressor Threshold Volume'"
 #define CTL_NAME_CP_GAIN                    "name='Compressor Volume'"
 #define CTL_NAME_CP_ATTACK                  "name='Compressor Attack'"

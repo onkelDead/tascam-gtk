@@ -488,7 +488,11 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         ac->type = Dial;
         ac->dial = &m_threshold[index];
     }
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
+    else if (strcmp(info_name, "EQ High Frequency") == 0) {
+#else
     else if (strcmp(info_name, "EQ High Frequence") == 0) {
+#endif
         ac = new alsa_control;
         ac->type = Dial;
         ac->dial = &m_high_freq_band[index];
@@ -498,7 +502,11 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         ac->type = Dial;
         ac->dial = &m_high_freq_gain[index];
     }
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
+    else if (strcmp(info_name, "EQ Low Frequency") == 0) {
+#else
     else if (strcmp(info_name, "EQ Low Frequence") == 0) {
+#endif
         ac = new alsa_control;
         ac->type = Dial;
         ac->dial = &m_low_freq_band[index];
@@ -508,7 +516,11 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         ac->type = Dial;
         ac->dial = &m_low_freq_gain[index];
     }    
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
+    else if (strcmp(info_name, "EQ MidHigh Frequency") == 0) {
+#else
     else if (strcmp(info_name, "EQ MidHigh Frequence") == 0) {
+#endif
         ac = new alsa_control;
         ac->type = Dial;
         ac->dial = &m_mid_high_freq_band[index];
@@ -523,7 +535,11 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         ac->type = Dial;
         ac->dial = &m_mid_high_freq_width[index];
     }
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
+    else if (strcmp(info_name, "EQ MidLow Frequency") == 0) {
+#else
     else if (strcmp(info_name, "EQ MidLow Frequence") == 0) {
+#endif
         ac = new alsa_control;
         ac->type = Dial;
         ac->dial = &m_mid_low_freq_band[index];
