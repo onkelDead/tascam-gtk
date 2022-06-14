@@ -12,3 +12,7 @@ Because this device contains about 280 control elements, working with traditiona
 So I started to develop my own mixer application to get comfortable access to the DSP effects the device has build in.
 
 Another option is to use the LV2 plugin (https://github.com/onkelDead/tascam.lv2) I have developed, that give me control to the EQ and compressor from any LV2 capable DAW software (in my case Ardour). Please keep in mind, this LV2 plugin do not operate on the stream ports, it's intention is to control hardware effects of the Tascam interface via USB.
+
+## Compilation Notes for Arch Linux
+
+If you are compiling tascam-gtk on Arch or Arch Linux-based distros, you will need [automake-1.15](https://aur.archlinux.org/packages/automake-1.15).
