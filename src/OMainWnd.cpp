@@ -17,8 +17,8 @@
 #include <gtkmm.h>
 #include <giomm/simpleactiongroup.h>
 #include "OMainWnd.h"
-#include <libxml++-2.6/libxml++/libxml++.h>
-#include <libxml++-2.6/libxml++/parsers/textreader.h>
+#include <libxml++-3.0/libxml++/libxml++.h>
+#include <libxml++-3.0/libxml++/parsers/textreader.h>
 #include <iostream>
 #include <gtkmm-3.0/gtkmm/widget.h>
 
@@ -912,7 +912,7 @@ void OMainWnd::load_channel_values(Glib::ustring filename, int channel_index) {
         xmlpp::TextReader reader(filename);
 
         while (reader.read()) {
-            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 m_stripLayouts[channel_index].load_values(reader.read_outer_xml());
             }
         }
@@ -985,7 +985,7 @@ void OMainWnd::load_values(Glib::ustring filename) {
         xmlpp::TextReader reader(filename);
 
         while (reader.read()) {
-            if (!strcmp(reader.get_name().c_str(), "link") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "link") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 if (reader.has_attributes()) {
                     reader.move_to_first_attribute();
                     int index = atoi(reader.get_value().c_str());
@@ -994,30 +994,30 @@ void OMainWnd::load_values(Glib::ustring filename) {
                     usleep(RESET_VALUE_DELAY);
                 }
             }
-            if (!strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 reader.read();
                 m_master.m_fader.set_value(atoi(reader.get_value().c_str()));
                 usleep(RESET_VALUE_DELAY);
             }
-            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 reader.read();
                 m_master.m_mute.set_active(atoi(reader.get_value().c_str()) == 1);
                 m_master.m_mute.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
-            if (!strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 reader.read();
                 m_master.m_true_bypass.set_active(atoi(reader.get_value().c_str()) == 1);
                 m_master.m_true_bypass.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
-            if (!strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 reader.read();
                 m_master.m_comp_to_stereo.set_active(atoi(reader.get_value().c_str()) == 1);
                 m_master.m_comp_to_stereo.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
-            if (!strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 if (reader.has_attributes()) {
                     reader.move_to_first_attribute();
                     int index = atoi(reader.get_value().c_str());
@@ -1026,7 +1026,7 @@ void OMainWnd::load_values(Glib::ustring filename) {
                     usleep(RESET_VALUE_DELAY);
                 }
             }
-            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
                 if (reader.has_attributes()) {
                     reader.move_to_first_attribute();
                     int index = atoi(reader.get_value().c_str());

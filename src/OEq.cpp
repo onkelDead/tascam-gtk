@@ -19,8 +19,8 @@
 
 #include <gtkmm.h>
 #include <stdbool.h>
-#include <libxml++-2.6/libxml++/libxml++.h>
-#include <libxml++-2.6/libxml++/parsers/textreader.h>
+#include <libxml++-3.0/libxml++/libxml++.h>
+#include <libxml++-3.0/libxml++/parsers/textreader.h>
 
 #include "OEq.h"
 #include "ODial.h"
@@ -346,58 +346,58 @@ void OEq::load_values(Glib::ustring xml) {
 		xmlpp::TextReader reader((const unsigned char*) xml.c_str(), xml.size());
 
 		while (reader.read()) {
-			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_eq_enable->set_active(atoi(reader.get_value().c_str()) == 1);
 				m_eq_enable->toggled();
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_high_freq_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "high_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "high_freq_band") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_high_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_gain") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_mid_high_freq_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_band") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_mid_high_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_width") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_high_freq_width") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_mid_high_freq_width->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_mid_low_freq_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_band") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_mid_low_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_width") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "mid_low_freq_width") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_mid_low_freq_width->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "low_freq_gain") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_low_freq_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
-			if (!strcmp(reader.get_name().c_str(), "low_freq_band") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+			if (!strcmp(reader.get_name().c_str(), "low_freq_band") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
 				reader.read();
 				m_low_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);

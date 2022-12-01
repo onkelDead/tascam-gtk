@@ -14,8 +14,8 @@
 #include <iostream>
 
 #include <gtkmm.h>
-#include <libxml++-2.6/libxml++/libxml++.h>
-#include <libxml++-2.6/libxml++/parsers/textreader.h>
+#include <libxml++-3.0/libxml++/libxml++.h>
+#include <libxml++-3.0/libxml++/parsers/textreader.h>
 #include "ODspLayout.h"
 #include "OMainWnd.h"
 

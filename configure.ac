@@ -24,7 +24,7 @@ AS_IF([test "x$osc" != xno],
 
 PKG_CHECK_MODULES([GTKMM3], [gtkmm-3.0])
 PKG_CHECK_MODULES([ALSA], [alsa])
-PKG_CHECK_MODULES([XML2], [libxml++-2.6])
+PKG_CHECK_MODULES([XML2], [libxml++-3.0])
 
 GLIB_GSETTINGS
 
