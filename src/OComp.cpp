@@ -18,11 +18,18 @@
 
 #include <gtkmm.h>
 #include <stdbool.h>
-#include <libxml++-3.0/libxml++/libxml++.h>
-#include <libxml++-3.0/libxml++/parsers/textreader.h>
-#include <gtk-3.0/gtk/gtkenums.h>
 
 #include "config.h"
+
+#ifdef HAVE_XML3
+#include <libxml++-3.0/libxml++/libxml++.h>
+#include <libxml++-3.0/libxml++/parsers/textreader.h>
+#else
+#include <libxml++-2.6/libxml++/libxml++.h>
+#include <libxml++-2.6/libxml++/parsers/textreader.h>
+#endif
+#include <gtk-3.0/gtk/gtkenums.h>
+
 #include "OComp.h"
 #include "OMainWnd.h"
 
@@ -240,33 +247,57 @@ void OComp::load_values(Glib::ustring xml) {
 		xmlpp::TextReader reader((const unsigned char*) xml.c_str(), xml.size());
 
 		while (reader.read()) {
+#ifdef HAVE_XML3
 			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
+			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				reader.read();
 				m_enable->set_active(atoi(reader.get_value().c_str()) == 1);
 				m_enable->toggled();
 				usleep(RESET_VALUE_DELAY);
 			}
+#ifdef HAVE_XML3
 			if (!strcmp(reader.get_name().c_str(), "threshold") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
+			if (!strcmp(reader.get_name().c_str(), "threshold") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				reader.read();
 				m_threshold->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
+#ifdef HAVE_XML3
 			if (!strcmp(reader.get_name().c_str(), "gain") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
+			if (!strcmp(reader.get_name().c_str(), "gain") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				reader.read();
 				m_gain->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
+#ifdef HAVE_XML3
 			if (!strcmp(reader.get_name().c_str(), "attack") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
+			if (!strcmp(reader.get_name().c_str(), "attack") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				reader.read();
 				m_attack->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
+#ifdef HAVE_XML3
 			if (!strcmp(reader.get_name().c_str(), "release") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
+			if (!strcmp(reader.get_name().c_str(), "release") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				reader.read();
 				m_release->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
+#ifdef HAVE_XML3
 			if (!strcmp(reader.get_name().c_str(), "ratio") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
+			if (!strcmp(reader.get_name().c_str(), "ratio") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				reader.read();
 				m_ratio->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
