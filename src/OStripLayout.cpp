@@ -18,8 +18,14 @@
 #include <iostream>
 
 #include <gtkmm.h>
+#include "config.h"
+#ifdef HAVE_XML3
+#include <libxml++-3.0/libxml++/libxml++.h>
+#include <libxml++-3.0/libxml++/parsers/textreader.h>
+#else
 #include <libxml++-2.6/libxml++/libxml++.h>
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
+#endif
 #include "OStripLayout.h"
 #include "OMainWnd.h"
 
@@ -136,13 +142,25 @@ void OStripLayout::load_values(Glib::ustring xml) {
 
 		while (reader.read()) {
 
+#ifdef HAVE_XML3
+			if (!strcmp(reader.get_name().c_str(), "compressor") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
 			if (!strcmp(reader.get_name().c_str(), "compressor") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				m_comp.load_values(reader.read_outer_xml());
 			}
+#ifdef HAVE_XML3
+			if (!strcmp(reader.get_name().c_str(), "equalizer") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
 			if (!strcmp(reader.get_name().c_str(), "equalizer") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				m_eq.load_values(reader.read_outer_xml());
 			}
+#ifdef HAVE_XML3
+			if (!strcmp(reader.get_name().c_str(), "fader") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
+#else
 			if (!strcmp(reader.get_name().c_str(), "fader") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
+#endif
 				m_fader.load_values(reader.read_outer_xml());
 			}
 		}
