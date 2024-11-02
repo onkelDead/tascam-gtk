@@ -21,9 +21,11 @@
 #ifdef HAVE_XML3
 #include <libxml++-3.0/libxml++/libxml++.h>
 #include <libxml++-3.0/libxml++/parsers/textreader.h>
+#define XML_ENDELEMENT XML_ENDELEMENT
 #else
 #include <libxml++-2.6/libxml++/libxml++.h>
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
+#define XML_ENDELEMENT xmlpp::TextReader::xmlNodeType::EndElement
 #endif
 #include <iostream>
 #include <gtkmm-3.0/gtkmm/widget.h>
@@ -617,6 +619,7 @@ void OMainWnd::alsa_add_control(snd_hctl_elem_t *helem) {
         return;
     }
     info_name = snd_ctl_elem_info_get_name(info);
+    fprintf(stdout, "add callback to '%s'\n", info_name);
     control_index = snd_ctl_elem_value_get_index(control);
     alsa_control* widget = get_alsa_widget(info_name, control_index, snd_ctl_elem_info_get_type(info));
     if (widget) {
@@ -918,11 +921,7 @@ void OMainWnd::load_channel_values(Glib::ustring filename, int channel_index) {
         xmlpp::TextReader reader(filename);
 
         while (reader.read()) {
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != XML_ENDELEMENT) {
                 m_stripLayouts[channel_index].load_values(reader.read_outer_xml());
             }
         }
@@ -995,11 +994,7 @@ void OMainWnd::load_values(Glib::ustring filename) {
         xmlpp::TextReader reader(filename);
 
         while (reader.read()) {
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "link") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "link") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "link") && reader.get_node_type() != XML_ENDELEMENT) {
                 if (reader.has_attributes()) {
                     reader.move_to_first_attribute();
                     int index = atoi(reader.get_value().c_str());
@@ -1008,50 +1003,30 @@ void OMainWnd::load_values(Glib::ustring filename) {
                     usleep(RESET_VALUE_DELAY);
                 }
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "master") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_master.m_fader.set_value(atoi(reader.get_value().c_str()));
                 usleep(RESET_VALUE_DELAY);
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_master.m_mute.set_active(atoi(reader.get_value().c_str()) == 1);
                 m_master.m_mute.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_master.m_true_bypass.set_active(atoi(reader.get_value().c_str()) == 1);
                 m_master.m_true_bypass.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_master.m_comp_to_stereo.set_active(atoi(reader.get_value().c_str()) == 1);
                 m_master.m_comp_to_stereo.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != XML_ENDELEMENT) {
                 if (reader.has_attributes()) {
                     reader.move_to_first_attribute();
                     int index = atoi(reader.get_value().c_str());
@@ -1060,11 +1035,7 @@ void OMainWnd::load_values(Glib::ustring filename) {
                     usleep(RESET_VALUE_DELAY);
                 }
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "channel") && reader.get_node_type() != XML_ENDELEMENT) {
                 if (reader.has_attributes()) {
                     reader.move_to_first_attribute();
                     int index = atoi(reader.get_value().c_str());

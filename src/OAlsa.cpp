@@ -377,6 +377,33 @@ void OAlsa::setBoolean(const char* name, int channel_index, bool value) {
     }
 }
 
+int OAlsa::getControlIntegers(snd_hctl_elem_t *elem, int vals[], int count) {
+    int val = 0;
+    int err;
+    
+    snd_ctl_elem_value_t *control;
+    snd_ctl_elem_value_alloca(&control);
+
+    if ((err = snd_hctl_elem_read(elem, control)) < 0) {
+        fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+        return -5;
+    }
+    for (val = 0; val < count; val++)
+        vals[val] = snd_ctl_elem_value_get_integer(control, val); 
+    return val;
+}
+
+snd_hctl_elem_t* OAlsa::getElement(const char* name) {
+    snd_ctl_elem_id_t *id;
+    snd_ctl_elem_id_alloca(&id);    
+    int err = snd_ctl_ascii_elem_id_parse(id, name);
+    if (err) {
+        fprintf(stderr, "Wrong control identifier: %s (%d)\n", name, err);
+        return NULL;
+    }    
+    return snd_hctl_find_elem(hctl, id);
+}
+
 int OAlsa::getIntegers(const char* name, int vals[], int count) {
     int val = 0;
     snd_ctl_elem_id_t *id;
@@ -468,7 +495,7 @@ void OAlsa::do_work(OMainWnd* caller) {
     int res;
 
     while (!m_shall_stop) {
-        res = snd_hctl_wait(hctl, 1000);
+        res = snd_hctl_wait(hctl, 10000);
         if (res >= 0) {
             res = snd_hctl_handle_events(hctl);
             assert(res > 0);

@@ -17,9 +17,11 @@
 #ifdef HAVE_XML3
 #include <libxml++-3.0/libxml++/libxml++.h>
 #include <libxml++-3.0/libxml++/parsers/textreader.h>
+#define XML_ENDELEMENT XML_ENDELEMENT
 #else
 #include <libxml++-2.6/libxml++/libxml++.h>
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
+#define XML_ENDELEMENT xmlpp::TextReader::xmlNodeType::EndElement
 #endif
 #include "OMainWnd.h"
 
@@ -198,49 +200,29 @@ void OFader::load_values(Glib::ustring xml) {
         xmlpp::TextReader reader((const unsigned char*) xml.c_str(), xml.size());
 
         while (reader.read()) {
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "fader") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "fader") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "fader") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_fader->set_value(atoi(reader.get_value().c_str()));
                 usleep(RESET_VALUE_DELAY);
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "pan") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "pan") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "pan") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_Pan[0]->set_value(atoi(reader.get_value().c_str()));
                 usleep(RESET_VALUE_DELAY);
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "pan") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "pan") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "pan") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_Pan[0]->set_value(atoi(reader.get_value().c_str()));
                 usleep(RESET_VALUE_DELAY);
             }
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_MuteEnable->set_active(atoi(reader.get_value().c_str()) == 1);
                 m_MuteEnable->toggled();
                 usleep(RESET_VALUE_DELAY);
             }
 
-#ifdef HAVE_XML3
-            if (!strcmp(reader.get_name().c_str(), "phase") && reader.get_node_type() != xmlpp::TextReader::NodeType::EndElement) {
-#else
-            if (!strcmp(reader.get_name().c_str(), "phase") && reader.get_node_type() != xmlpp::TextReader::xmlNodeType::EndElement) {
-#endif
+            if (!strcmp(reader.get_name().c_str(), "phase") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_PhaseEnable[0]->set_active(atoi(reader.get_value().c_str()) == 1);
                 m_PhaseEnable[0]->toggled();

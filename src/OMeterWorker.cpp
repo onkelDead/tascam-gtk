@@ -95,23 +95,25 @@ void OMeterWorker::do_work(OMainWnd* caller) {
     lo_server_thread_start(osc_server);
 #endif	
 	
-	for (;;) // do until break
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+ 
+    elem = caller->alsa->getElement(CTL_NAME_METER);
+    
+    for (;;) // do until break
+    {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            if (m_shall_stop) {
+                    break;
+            }
+            caller->alsa->getControlIntegers(elem, caller->alsa->meters, 34);
 
-		if (m_shall_stop) {
-			break;
-		}
-		caller->alsa->getIntegers(CTL_NAME_METER, caller->alsa->meters, 34);
-
-		caller->notify();
-	}
+            caller->notify();
+    }
 #ifdef HAVE_OSC
-    lo_server_thread_free(osc_server);
+lo_server_thread_free(osc_server);
 #endif	
 
-	m_shall_stop = false;
-	m_has_stopped = true;
+    m_shall_stop = false;
+    m_has_stopped = true;
 
 }
 

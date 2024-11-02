@@ -22,6 +22,7 @@
 #include <gtkmm.h>
 #include <thread>
 #include <mutex>
+#include <alsa/asoundlib.h>
 
 #ifdef HAVE_OSC
 #include <lo/lo.h>
@@ -65,7 +66,9 @@ private:
     // Synchronizes access to member data.
     mutable std::mutex m_Mutex;
 
-
+    snd_ctl_elem_id_t *id;
+    snd_hctl_elem_t *elem;
+    
     // Data used by both GUI thread and worker thread.
     bool m_shall_stop;
     bool m_has_stopped;

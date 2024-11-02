@@ -96,6 +96,8 @@ public:
 //     close alsa device
     void close_device();
     
+    snd_hctl_elem_t* getElement(const char* name);
+    
 //     get control element current value
     int getInteger(const char* name, int channel_index);
     
@@ -110,6 +112,8 @@ public:
     
 //    get an array of integers (meter values)
     int getIntegers(const char* name, int vals[], int count);
+    
+    int getControlIntegers(snd_hctl_elem_t *elem, int vals[], int count);
     
     // VScale value change slot
     void on_range_control_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
