@@ -51,7 +51,7 @@ void ORoute::init(OAlsa* alsa, Gtk::Window* wnd) {
 	for (int ri = 0; ri < 8; ri++) {
 		val = alsa->getInteger(CTL_ROUTE, ri);
 		m_route[ri].set_active(val);
-		m_route[ri].signal_changed().connect(sigc::bind<>(sigc::mem_fun(alsa, &OAlsa::on_combo_control_changed), ri, CTL_ROUTE, &m_route[ri]));
+		m_route[ri].signal_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_cb_changed), ri, CTL_ROUTE));
 	}
 	add(m_label);
 	add(m_grid);

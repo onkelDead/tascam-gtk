@@ -77,6 +77,8 @@
 
 #define CTL_NAME_INDEX_SUFFIX		    "%s,index=%d"
 
+#define CTL_LINK                            "link"
+
 class OMainWnd;
 
 class OAlsa {
@@ -136,6 +138,7 @@ public:
     
 //* HCTL handle of the Tascam card 
     snd_hctl_t *hctl;    
+    snd_ctl_t *handle;
 
     int meters[34];
 private:

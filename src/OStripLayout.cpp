@@ -19,15 +19,6 @@
 
 #include <gtkmm.h>
 #include "config.h"
-#ifdef HAVE_XML3
-#include <libxml++-3.0/libxml++/libxml++.h>
-#include <libxml++-3.0/libxml++/parsers/textreader.h>
-#define XML_ENDELEMENT XML_ENDELEMENT
-#else
-#include <libxml++-2.6/libxml++/libxml++.h>
-#include <libxml++-2.6/libxml++/parsers/textreader.h>
-#define XML_ENDELEMENT xmlpp::TextReader::xmlNodeType::EndElement
-#endif
 #include "OStripLayout.h"
 #include "OMainWnd.h"
 

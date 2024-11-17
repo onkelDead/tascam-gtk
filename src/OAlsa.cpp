@@ -20,59 +20,24 @@
 #include "ODial.h"
 #include "OAlsa.h"
 
-snd_hctl_t *g_hctl; 
+snd_hctl_t *g_hctl;
 
 OMainWnd* g_main_wnd;
 
-#if 0
-static void show_control_id(snd_ctl_elem_id_t *id) {
-    char *str;
-    snd_hctl_elem_t *elem;
-    snd_ctl_elem_info_t *info;
-    snd_ctl_elem_value_t *control;
-    int val = 0;
-    int err = 0;
-    
-    str = snd_ctl_ascii_elem_id_get(id);
-    if (g_hctl) {
-        snd_ctl_elem_info_alloca(&info);
-        elem = snd_hctl_find_elem(g_hctl, id);
-        if (elem) {
-            snd_ctl_elem_value_alloca(&control);
-            snd_hctl_elem_info(elem, info);
-            if ((err = snd_hctl_elem_read(elem, control)) < 0) {
-                fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
-                return;
-            }
-            val = snd_ctl_elem_value_get_integer(control, 0);
-    //  str = snd_ctl_elem_value_get_name(control);      
-        }
-    if (str)
-        printf("%s %s val:%d idx:%d", str, snd_ctl_elem_type_name(snd_ctl_elem_info_get_type(info)), val, snd_ctl_elem_value_get_index(control));
-    }
-    free(str);
-    return;
-}
-#endif
-
 static void events_value(snd_hctl_elem_t *helem) {
-    snd_ctl_elem_id_t *id;
-    snd_ctl_elem_id_alloca(&id);
-    snd_ctl_elem_info_t *info;
-    snd_ctl_elem_info_alloca(&info);
     int val = 0;
     int err = 0;
 
     snd_ctl_elem_value_t *control;
-    
+
     snd_ctl_elem_value_alloca(&control);
-    
+
     if ((err = snd_hctl_elem_read(helem, control)) < 0) {
         fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
         return;
-    }    
-    val = snd_ctl_elem_value_get_integer(control, 0);    
-    g_main_wnd->alsa_update_control(helem, val);
+    }
+    val = snd_ctl_elem_value_get_integer(control, 0);
+    g_main_wnd->alsa_update_control(helem, val, snd_ctl_elem_value_get_index(control));
 }
 
 static void events_info(snd_hctl_elem_t *helem) {
@@ -88,7 +53,6 @@ static void events_info(snd_hctl_elem_t *helem) {
 
 static int element_callback(snd_hctl_elem_t *elem, unsigned int mask) {
     if (mask == SND_CTL_EVENT_MASK_REMOVE) {
-        //		events_remove(elem);
         return 0;
     }
     if (mask & SND_CTL_EVENT_MASK_INFO)
@@ -154,7 +118,6 @@ int OAlsa::get_alsa_cardnum() {
     int card = -1;
     int err = 0;
     char name[32];
-    snd_ctl_t *handle;
     snd_ctl_card_info_t *cinfo;
 
     if (cardnum != -1)
@@ -173,32 +136,31 @@ int OAlsa::get_alsa_cardnum() {
 
         if ((err = snd_ctl_open(&handle, name, 0)) < 0) {
             fprintf(stderr, "ERROR: Control %s open error: %s\n", name, snd_strerror(err));
-            goto next_card;
-        }
-#ifdef DEBUG
-        fprintf(stdout, "card opened\n");
-#endif
-        if ((err = snd_ctl_card_info(handle, cinfo)) < 0) {
-            fprintf(stderr, "ERROR: Control hardware info (%i): %s", card, snd_strerror(err));
-            snd_ctl_close(handle);
-            goto next_card;
-        }
-#ifdef DEBUG
-        fprintf(stdout, "device: [%s] %s\n", snd_ctl_card_info_get_id(cinfo), snd_ctl_card_info_get_name(cinfo));
-#endif
-        if (strcmp("US16x08", snd_ctl_card_info_get_id(cinfo)) == 0) {
-            cardnum = card;
-            return cardnum;
         } else {
-            snd_ctl_close(handle);
 #ifdef DEBUG
-            fprintf(stderr, "card closed\n");
+            fprintf(stdout, "card opened\n");
 #endif
-        }
-next_card:
-        if (snd_card_next(&card) < 0) {
-            fprintf(stderr, "ERROR: snd_card_next failed.\n");
-            break;
+            if ((err = snd_ctl_card_info(handle, cinfo)) < 0) {
+                fprintf(stderr, "ERROR: Control hardware info (%i): %s", card, snd_strerror(err));
+                snd_ctl_close(handle);
+            } else {
+#ifdef DEBUG
+                fprintf(stdout, "device: [%s] %s\n", snd_ctl_card_info_get_id(cinfo), snd_ctl_card_info_get_name(cinfo));
+#endif
+                if (strcmp("US16x08", snd_ctl_card_info_get_id(cinfo)) == 0) {
+                    cardnum = card;
+                    return cardnum;
+                } else {
+                    snd_ctl_close(handle);
+#ifdef DEBUG
+                    fprintf(stderr, "card closed\n");
+#endif
+                }
+            }
+            if (snd_card_next(&card) < 0) {
+                fprintf(stderr, "ERROR: snd_card_next failed.\n");
+                break;
+            }
         }
     }
     if (cardnum == -1) {
@@ -233,10 +195,6 @@ int OAlsa::open_device() {
         fprintf(stderr, "Control %s load error: %s\n", name, snd_strerror(err));
         return -1;
     }
-    //
-    //    selem_regopt.device = name;
-    //    create_mixer_object(&selem_regopt);
-
 
     return 0;
 }
@@ -274,7 +232,7 @@ int OAlsa::getInteger(const char* name, int channel_index) {
 
     if (!hctl)
         return 0;
-    
+
     char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
 
     sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
@@ -330,9 +288,9 @@ bool OAlsa::getBoolean(const char* name, int channel_index) {
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_t *elem;
 
-    if(!hctl)
+    if (!hctl)
         return false;
-    
+
     char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
     sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
 
@@ -380,7 +338,7 @@ void OAlsa::setBoolean(const char* name, int channel_index, bool value) {
 int OAlsa::getControlIntegers(snd_hctl_elem_t *elem, int vals[], int count) {
     int val = 0;
     int err;
-    
+
     snd_ctl_elem_value_t *control;
     snd_ctl_elem_value_alloca(&control);
 
@@ -389,18 +347,18 @@ int OAlsa::getControlIntegers(snd_hctl_elem_t *elem, int vals[], int count) {
         return -5;
     }
     for (val = 0; val < count; val++)
-        vals[val] = snd_ctl_elem_value_get_integer(control, val); 
+        vals[val] = snd_ctl_elem_value_get_integer(control, val);
     return val;
 }
 
 snd_hctl_elem_t* OAlsa::getElement(const char* name) {
     snd_ctl_elem_id_t *id;
-    snd_ctl_elem_id_alloca(&id);    
+    snd_ctl_elem_id_alloca(&id);
     int err = snd_ctl_ascii_elem_id_parse(id, name);
     if (err) {
         fprintf(stderr, "Wrong control identifier: %s (%d)\n", name, err);
         return NULL;
-    }    
+    }
     return snd_hctl_find_elem(hctl, id);
 }
 
@@ -473,7 +431,6 @@ int OAlsa::dBToSlider(int dB) {
 
 void OAlsa::stop_work() {
     std::lock_guard<std::mutex> lock(m_Mutex);
-    //snd_mixer_close(mixer);
     m_shall_stop = true;
 }
 
@@ -495,10 +452,10 @@ void OAlsa::do_work(OMainWnd* caller) {
     int res;
 
     while (!m_shall_stop) {
-        res = snd_hctl_wait(hctl, 10000);
+        res = snd_hctl_wait(hctl, 1000);
         if (res >= 0) {
             res = snd_hctl_handle_events(hctl);
-            assert(res > 0);
+            m_shall_stop = true;
         }
     }
     free(pollfds);

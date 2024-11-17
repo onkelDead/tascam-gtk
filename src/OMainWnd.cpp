@@ -18,17 +18,41 @@
 #include <giomm/simpleactiongroup.h>
 #include "OMainWnd.h"
 #include "config.h"
-#ifdef HAVE_XML3
-#include <libxml++-3.0/libxml++/libxml++.h>
-#include <libxml++-3.0/libxml++/parsers/textreader.h>
-#define XML_ENDELEMENT XML_ENDELEMENT
-#else
-#include <libxml++-2.6/libxml++/libxml++.h>
-#include <libxml++-2.6/libxml++/parsers/textreader.h>
-#define XML_ENDELEMENT xmlpp::TextReader::xmlNodeType::EndElement
-#endif
 #include <iostream>
 #include <gtkmm-3.0/gtkmm/widget.h>
+
+#ifdef HAVE_OSC
+#define OSC_STRIP_INDEX (argv[0]->i - 1)
+#define OSC_STRIP_I0 (argv[0]->i32)
+#define OSC_STRIP_I1 (argv[1]->i32)
+#define OSC_STRIP_B0 (argv[0]->i32 != 0)
+#define OSC_STRIP_B1 (argv[1]->i32 != 0)
+
+#define OSC_MASTER_MSG(path, value) \
+{   \
+    lo_message reply = lo_message_new();  \
+    lo_message_add_int32(reply, value);   \
+    m_Worker.send_osc_all(path, reply);    \
+    lo_message_free(reply); \
+}
+
+#define OSC_STRIP_MSG(path, index, value) \
+    lo_message reply = lo_message_new();  \
+    lo_message_add_int32(reply, index);   \
+    lo_message_add_int32(reply, value);   \
+    m_Worker.send_osc_all(path, reply);    \
+    lo_message_free(reply);
+
+#else
+#define OSC_STRIP_INDEX 
+#define OSC_STRIP_I0 
+#define OSC_STRIP_I1
+#define OSC_STRIP_B0
+#define OSC_STRIP_B1
+#define OSC_MASTER_MSG(path, value)
+#define OSC_STRIP_MSG(path, index, value)
+#endif
+
 
 /// constructor implementation
 OMainWnd::OMainWnd() :
@@ -334,7 +358,7 @@ void OMainWnd::create_controls() {
     for (int i = 0; i < NUM_CHANNELS / 2; i++) {
         m_link[i].set_label("Link");
         m_link[i].set_name("link-button");
-        m_link[i].signal_toggled().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_ch_lb_changed), i));
+        m_link[i].signal_toggled().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_ch_tb_changed), i, CTL_LINK));
         m_grid.attach(m_link[i], i * 2, 3, 2, 1);
     }
 
@@ -428,6 +452,7 @@ void OMainWnd::create_worker_threads(){
     } else {
         m_WorkerAlsaThread = new std::thread([this] {
             alsa->do_work(this);
+            this->hide();
         });
     }
 }
@@ -582,13 +607,10 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         ac->type = ToggleButton;
         ac->tbwidget = &m_PhaseEnable[index];
     }
-//    else {
-//         printf("unknown control %s\n", info_name);
-//    }
     return ac;
 }
 
-void OMainWnd::alsa_update_control(snd_hctl_elem_t *helem, int val) {
+void OMainWnd::alsa_update_control(snd_hctl_elem_t *helem, int val, unsigned int index) {
     alsa_control* widget = m_mixer_elems[helem];
     if (widget) {
 
@@ -619,7 +641,6 @@ void OMainWnd::alsa_add_control(snd_hctl_elem_t *helem) {
         return;
     }
     info_name = snd_ctl_elem_info_get_name(info);
-    fprintf(stdout, "add callback to '%s'\n", info_name);
     control_index = snd_ctl_elem_value_get_index(control);
     alsa_control* widget = get_alsa_widget(info_name, control_index, snd_ctl_elem_info_get_type(info));
     if (widget) {
@@ -704,15 +725,7 @@ void OMainWnd::on_notification_from_worker_thread() {
             ch_meter = alsa->sliderTodB(alsa->meters[i + 1] / 32768. * 133.) / 133. * 32768;
             m_stripLayouts[i].m_fader.m_meter[1].setLevel(ch_meter);
         }
-#ifdef HAVE_OSC
-        lo_message reply = lo_message_new();
-        int ch_leds = m_stripLayouts[i].m_fader.m_meter[0].get_level() * 14 / 32768;
-        int ch_led_mask = 1 << ch_leds;
-        lo_message_add_int32(reply, i);
-        lo_message_add_int32(reply, ch_led_mask - 1);
-        m_Worker.send_osc_all("/strip/meter", reply);
-        lo_message_free(reply);
-#endif  
+        OSC_STRIP_MSG("/strip/meter", i + 1, m_stripLayouts[i].m_fader.m_meter[0].get_level());
     }
 
     int left_level = alsa->sliderTodB(alsa->meters[16] / 32768. * 133.) / 133. * 32768;
@@ -723,13 +736,8 @@ void OMainWnd::on_notification_from_worker_thread() {
     int master_leds = MAX(m_master.m_meter_left.get_level(), m_master.m_meter_right.get_level()) * 14 / 32768;
     int led_mask = 1 << master_leds;
 
-#ifdef HAVE_OSC 
-    lo_message reply = lo_message_new();
-    lo_message_add_int32(reply, led_mask - 1);
-    m_Worker.send_osc_all("/master/meter", reply);
-    lo_message_free(reply);
-#endif
-
+    OSC_MASTER_MSG("/master/meter/left", m_master.m_meter_left.get_level());
+    OSC_MASTER_MSG("/master/meter/right", m_master.m_meter_right.get_level());
 }
 
 void OMainWnd::on_menu_file_exit() {
@@ -1075,238 +1083,67 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
     lo_arg** argv = lo_message_get_argv(msg);
     lo_message reply;
 
-    if (!strcmp(path, "/strip/list")) {
-        for (int i = 0; i < NUM_CHANNELS; i++) {
-            reply = lo_message_new();
-            lo_message_add_string(reply, "AT");
-            lo_message_add_string(reply, m_stripLayouts[i].m_title.get_label().c_str());
-            lo_message_add_int32(reply, 1);
-            lo_message_add_int32(reply, 1);
-            lo_message_add_int32(reply, m_stripLayouts[i].m_fader.m_MuteEnable->get_active() ? 1 : 0);
-            lo_message_add_int32(reply, m_stripLayouts[i].m_fader.m_SoloEnable->get_active() ? 1 : 0);
-            lo_message_add_int32(reply, i);
-            lo_message_add_int32(reply, (int32_t) 1);
-            m_Worker.send_osc(client_index, "#reply", reply);
-            lo_message_free(reply);
-        }
-
-        reply = lo_message_new();
-        lo_message_add_string(reply, "M");
-        lo_message_add_string(reply, "Master");
-        lo_message_add_int32(reply, 1);
-        lo_message_add_int32(reply, 1);
-        lo_message_add_int32(reply, m_master.m_mute.get_active() ? 1 : 0);
-        lo_message_add_int32(reply, 0);
-        lo_message_add_int32(reply, 17);
-        lo_message_add_int32(reply, 0);
-        m_Worker.send_osc(client_index, "#reply", reply);
-        lo_message_free(reply);
-
-        reply = lo_message_new();
-        lo_message_add_string(reply, "end_route_list");
-        lo_message_add_int64(reply, 0);
-        lo_message_add_int64(reply, 0);
-        m_Worker.send_osc(client_index, "#reply", reply);
-        lo_message_free(reply);
-
-        reply = lo_message_new();
-        lo_message_add_float(reply, m_master.m_fader.get_value() / 133.);
-        m_Worker.send_osc_all("/master/fader", reply);
-        lo_message_free(reply);
-        for (int i = 0; i < NUM_CHANNELS; i++) {
-            reply = lo_message_new();
-            lo_message_add_int32(reply, i);
-            lo_message_add_float(reply, m_stripLayouts[i].m_fader.m_fader->get_value() / 133.);
-            m_Worker.send_osc_all("/strip/fader", reply);
-            lo_message_free(reply);
-
-            reply = lo_message_new();
-            lo_message_add_int32(reply, i);
-            lo_message_add_float(reply, m_stripLayouts[i].m_fader.m_Pan[0]->get_value() / 254.);
-            m_Worker.send_osc_all("/strip/pan_stereo_position", reply);
-            lo_message_free(reply);
-
-        }
-    }
+// Master 
     if (!strcmp(path, "/strip/fader")) {
-        int channel_index = argv[0]->i;
-        float val = argv[1]->f;
+        int channel_index = argv[0]->i - 1;
+        float val = argv[1]->i;
 
-        m_stripLayouts[channel_index].m_fader.m_fader->set_value(133. * val);
+        m_stripLayouts[channel_index].m_fader.m_fader->set_value(val);
     }
-    if (!strcmp(path, "/master/fader")) {
-        float val = argv[0]->f;
+    if (!strcmp(path, "/master/fader"))         m_master.m_fader.set_value(OSC_STRIP_I0);
+    if (!strcmp(path, "/master/mute"))          m_master.m_mute.set_active(OSC_STRIP_B0);
+    if (!strcmp(path, "/master/bypass"))        m_master.m_true_bypass.set_active(OSC_STRIP_B0);
+    if (!strcmp(path, "/master/busout"))        m_master.m_comp_to_stereo.set_active(OSC_STRIP_B0);
 
-        m_master.m_fader.set_value(133. * val);
-    }
-    if (!strcmp(path, "/strip/pan_stereo_position")) {
-        int channel_index = argv[0]->i;
-        float val = argv[1]->f;
+// Routing
+    if (!strcmp(path, "/master/route")) {
+        int route_index = argv[0]->i - 1;
+        int val = argv[1]->i;
 
-        m_stripLayouts[channel_index].m_fader.m_Pan[0]->set_value((int) (254 * val));
-    }
-    if (!strcmp(path, "/strip/mute")) {
-        int channel_index = argv[0]->i;
-        float val = argv[1]->f;
-        m_stripLayouts[channel_index].m_fader.m_MuteEnable->set_active(val != 0);
-    }
-    if (!strcmp(path, "/master/mute")) {
-        float val = argv[0]->f;
-        m_master.m_mute.set_active(val != 0);
-    }
+        m_route.m_route[route_index].set_active(val);
+    }    
+    
+// Link    
+    if (!strcmp(path, "/link")) {
+        int link_index = argv[0]->i - 1;
+        int val = argv[1]->i;
+
+        m_link[link_index].set_active(val);
+    }   
+    
+// strip
+    if (!strcmp(path, "/strip/pan"))            m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_Pan[0]->set_value(OSC_STRIP_I1 + 127);
+    if (!strcmp(path, "/strip/mute"))           m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_MuteEnable->set_active(OSC_STRIP_B1);
     if (!strcmp(path, "/strip/solo")) {
-        int channel_index = argv[0]->i;
-        if (channel_index == m_solo_channel || m_solo_channel == -1) {
-            float val = argv[1]->f;
-            m_stripLayouts[channel_index].m_fader.m_SoloEnable->set_active(val != 0);
+        if (OSC_STRIP_INDEX == m_solo_channel || m_solo_channel == -1) {
+            m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_SoloEnable->set_active(OSC_STRIP_B1);
+            m_solo_channel = OSC_STRIP_B1 ? OSC_STRIP_INDEX : -1;
         }
     }
-    if (!strcmp(path, "/strip/plugin/list")) {
-        int channel_index = argv[0]->i;
-        if (channel_index < NUM_CHANNELS) {
+    if (!strcmp(path, "/strip/phase"))         m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_PhaseEnable[0]->set_active(OSC_STRIP_B1);
+    
+// EQ    
+    if (!strcmp(path, "/strip/eq/active"))         m_eq_enable[OSC_STRIP_INDEX].set_active(OSC_STRIP_B1);
+    if (!strcmp(path, "/strip/eq/highgain"))        m_high_freq_gain[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/highfreq"))        m_high_freq_band[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/midhighgain"))        m_mid_high_freq_gain[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/midhighfreq"))        m_mid_high_freq_band[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/midhighwidth"))        m_mid_high_freq_width[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/midlowgain"))        m_mid_low_freq_gain[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/midlowfreq"))        m_mid_low_freq_band[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/midlowwidth"))        m_mid_low_freq_width[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/lowgain"))        m_low_freq_gain[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/lowfreq"))        m_low_freq_band[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
 
-            lo_message reply = lo_message_new();
-
-            lo_message_add_int32(reply, channel_index);
-            lo_message_add_int32(reply, 1);
-            lo_message_add_string(reply, "Compressor");
-            lo_message_add_int32(reply, m_comp_enable[channel_index].get_active() ? 1 : 0);
-
-            lo_message_add_int32(reply, 2);
-            lo_message_add_string(reply, "Equalizer");
-            lo_message_add_int32(reply, m_eq_enable[channel_index].get_active() ? 1 : 0);
-
-            m_Worker.send_osc(client_index, "/strip/plugin/list", reply);
-            lo_message_free(reply);
-        }
-    }
-    if (!strcmp(path, "/strip/plugin/descriptor")) {
-        int channel_index = argv[0]->i32;
-        int plugin_index = argv[1]->i32;
-        lo_message reply;
-        int flags;
-        if (channel_index < NUM_CHANNELS) {
-
-            OStripLayout* sl = &m_stripLayouts[channel_index];
-
-            if (plugin_index == 1) { // compressor
-                for (int i = 0; i < sl->m_comp.get_parameter_count(); i++) {
-                    reply = lo_message_new();
-                    lo_message_add_int32(reply, channel_index); // channel index
-                    lo_message_add_int32(reply, plugin_index); // plugin index
-                    sl->m_comp.get_parameter_decriptor(i, reply);
-                    m_Worker.send_osc(client_index, "/strip/plugin/descriptor", reply);
-                    lo_message_free(reply);
-                }
-            }
-            if (plugin_index == 2) { // equalizer
-                for (int i = 0; i < sl->m_eq.get_parameter_count(); i++) {
-                    reply = lo_message_new();
-                    lo_message_add_int32(reply, channel_index); // channel index
-                    lo_message_add_int32(reply, plugin_index); // plugin index
-                    sl->m_eq.get_parameter_decriptor(i, reply);
-                    m_Worker.send_osc(client_index, "/strip/plugin/descriptor", reply);
-                    lo_message_free(reply);
-                }
-            }
-
-            reply = lo_message_new();
-            lo_message_add_int32(reply, channel_index);
-            lo_message_add_int32(reply, plugin_index);
-            m_Worker.send_osc(client_index, "/strip/plugin/descriptor_end", reply);
-            lo_message_free(reply);
-
-        }
-    }
-    if (!strcmp(path, "/strip/plugin/reset")) {
-        int channel_index = argv[0]->i32;
-        int plugin_index = argv[1]->i32;
-        if (plugin_index == 1) { // compressor
-            m_stripLayouts[channel_index].m_comp.reset(alsa, channel_index);
-        }
-        if (plugin_index == 2) { // equalizer
-            m_stripLayouts[channel_index].m_eq.reset(alsa, channel_index);
-        }
-    }
-    if (!strcmp(path, "/strip/plugin/activate")) {
-        int channel_index = argv[0]->i32;
-        int plugin_index = argv[1]->i32;
-        if (plugin_index == 1) { // compressor
-            m_comp_enable[channel_index].set_active(true);
-        }
-        if (plugin_index == 2) { // equalizer
-            m_eq_enable[channel_index].set_active(true);
-        }
-    }
-    if (!strcmp(path, "/strip/plugin/deactivate")) {
-        int channel_index = argv[0]->i32;
-        int plugin_index = argv[1]->i32;
-        if (plugin_index == 1) { // compressor
-            m_comp_enable[channel_index].set_active(false);
-        }
-        if (plugin_index == 2) { // equalizer
-            m_eq_enable[channel_index].set_active(false);
-        }
-    }
-    if (!strcmp(path, "/strip/plugin/parameter")) {
-        int channel_index = argv[0]->i32;
-        int plugin_index = argv[1]->i32;
-        int parameter_index = argv[2]->i32;
-        if (plugin_index == 1) { // compressor
-            switch (parameter_index) {
-                case 1: // threshold
-                    m_threshold[channel_index].set_value((int) argv[3]->f + 32);
-                    break;
-                case 2: // gain
-                    m_gain[channel_index].set_value((int) argv[3]->f);
-                    break;
-                case 3: // attack
-                    m_attack[channel_index].set_value((int) argv[3]->f - 2);
-                    break;
-                case 4: // release
-                    m_release[channel_index].set_value((int) argv[3]->f - 1);
-                    break;
-                case 5: // ratio
-                    m_ratio[channel_index].set_value((int) argv[3]->f);
-                    break;
-            }
-        }
-        if (plugin_index == 2) { // equalizer
-            switch (parameter_index) {
-                case 1: // high gain
-                    m_high_freq_gain[channel_index].set_value((int) argv[3]->f + 12);
-                    break;
-                case 2: // high freq
-                    m_high_freq_band[channel_index].set_value((int) argv[3]->f);
-                    break;
-                case 3: // mid high gain
-                    m_mid_high_freq_gain[channel_index].set_value((int) argv[3]->f + 12);
-                    break;
-                case 4: // mid high freq
-                    m_mid_high_freq_band[channel_index].set_value((int) argv[3]->f);
-                    break;
-                case 5: // mid high Q
-                    m_mid_high_freq_width[channel_index].set_value((int) argv[3]->f);
-                    break;
-                case 6: // mid low gain
-                    m_mid_low_freq_gain[channel_index].set_value((int) argv[3]->f + 12);
-                    break;
-                case 7: // mid low freq
-                    m_mid_low_freq_band[channel_index].set_value((int) argv[3]->f);
-                    break;
-                case 8: // mid low Q
-                    m_mid_low_freq_width[channel_index].set_value((int) argv[3]->f);
-                    break;
-                case 9: // low gain
-                    m_low_freq_gain[channel_index].set_value((int) argv[3]->f + 12);
-                    break;
-                case 10: // low freq
-                    m_low_freq_band[channel_index].set_value((int) argv[3]->f);
-                    break;
-            }
-        }
-    }
+// Compressor
+    if (!strcmp(path, "/strip/comp/active"))         m_comp_enable[OSC_STRIP_INDEX].set_active(OSC_STRIP_B1);
+    if (!strcmp(path, "/strip/comp/threshold"))         m_threshold[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/comp/attack"))         m_attack[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/comp/release"))         m_release[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/comp/gain"))         m_gain[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/comp/ratio"))         m_ratio[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
 }
+
 #endif
 
 void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label * label_) {
@@ -1314,91 +1151,78 @@ void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale*
     if (block_events)
         return;   
     
-#ifdef HAVE_OSC  
-    lo_message reply = lo_message_new();
-#endif  
-
     if (!strcmp(control_name, CTL_NAME_FADER)) {
-#ifdef HAVE_OSC  
-        lo_message_add_int32(reply, n);
-        lo_message_add_float(reply, control->get_value() / 133.);
-        m_Worker.send_osc_all("/strip/fader", reply);
-#endif  
+        OSC_STRIP_MSG("/strip/fader", n + 1, control->get_value());
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             m_fader[n + 1].set_value(m_fader[n].get_value());
         }
     }
-#ifdef HAVE_OSC  
     if (!strcmp(control_name, CTL_MASTER)) {
-        lo_message_add_float(reply, control->get_value() / 133.);
-        m_Worker.send_osc_all("/master/fader", reply);
+        OSC_MASTER_MSG("/master/fader", control->get_value())
     }
-    lo_message_free(reply);
-#endif  
 
     
     alsa->on_range_control_changed(n, control_name, control, label_);
 }
 
-void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
+void OMainWnd::on_ch_dial_changed(int channel_index, const char* control_name) {
     int org_index = -1;
     if (m_block_ui)
         return;
 
-    if (n == 16) { // singel dsp signal
-        org_index = n;
+    if (channel_index == 16) { // single dsp signal
+        org_index = channel_index;
 
         if (m_dsp_channel != -1)
-            n = m_dsp_channel;
+            channel_index = m_dsp_channel;
         else
             return;
     }
 
     if (!strcmp(control_name, CTL_NAME_PAN)) {
-#ifdef HAVE_OSC  
-        lo_message reply = lo_message_new();
-        lo_message_add_int32(reply, n);
-        lo_message_add_float(reply, m_Pan[n].get_value() / 254.);
-        m_Worker.send_osc_all("/strip/pan_stereo_position", reply);
-        lo_message_free(reply);
-#endif
-        alsa->on_dial_control_changed(n, control_name, &m_Pan[n]);
+        OSC_STRIP_MSG("/strip/pan", channel_index + 1, m_Pan[channel_index].get_value() - 127);
+        alsa->on_dial_control_changed(channel_index, control_name, &m_Pan[channel_index]);
     }
     // compressor dial changed
     {
         if (!strcmp(control_name, CTL_NAME_CP_THRESHOLD)) {
-            alsa->on_dial_control_changed(n, control_name, &m_threshold[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/comp/threshold", channel_index + 1, m_threshold[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_threshold[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_threshold[n + 1].set_value(m_threshold[n].get_value());
+                m_threshold[channel_index + 1].set_value(m_threshold[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_CP_GAIN)) {
-            alsa->on_dial_control_changed(n, control_name, &m_gain[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/comp/gain", channel_index + 1, m_gain[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_gain[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_gain[n + 1].set_value(m_gain[n].get_value());
+                m_gain[channel_index + 1].set_value(m_gain[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_CP_ATTACK)) {
-            alsa->on_dial_control_changed(n, control_name, &m_attack[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/comp/attack", channel_index + 1, m_attack[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_attack[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_attack[n + 1].set_value(m_attack[n].get_value());
+                m_attack[channel_index + 1].set_value(m_attack[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_CP_RELEASE)) {
-            alsa->on_dial_control_changed(n, control_name, &m_release[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/comp/release", channel_index + 1, m_release[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_release[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_release[n + 1].set_value(m_release[n].get_value());
+                m_release[channel_index + 1].set_value(m_release[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_CP_RATIO)) {
-            alsa->on_dial_control_changed(n, control_name, &m_ratio[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/comp/ratio", channel_index + 1, m_ratio[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_ratio[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_ratio[n + 1].set_value(m_ratio[n].get_value());
+                m_ratio[channel_index + 1].set_value(m_ratio[channel_index].get_value());
             }
         }
     }
@@ -1406,73 +1230,83 @@ void OMainWnd::on_ch_dial_changed(int n, const char* control_name) {
     // equalizer dial changed
     {
         if (!strcmp(control_name, CTL_NAME_EQ_HIGH_FREQ)) {
-            alsa->on_dial_control_changed(n, control_name, &m_high_freq_band[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/highfreq", channel_index + 1, m_high_freq_band[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_high_freq_band[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_high_freq_band[n + 1].set_value(m_high_freq_band[n].get_value());
+                m_high_freq_band[channel_index + 1].set_value(m_high_freq_band[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_HIGH_LEVEL)) {
-            alsa->on_dial_control_changed(n, control_name, &m_high_freq_gain[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/highgain", channel_index + 1, m_high_freq_gain[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_high_freq_gain[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_high_freq_gain[n + 1].set_value(m_high_freq_gain[n].get_value());
+                m_high_freq_gain[channel_index + 1].set_value(m_high_freq_gain[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_MIDHIGH_FREQ)) {
-            alsa->on_dial_control_changed(n, control_name, &m_mid_high_freq_band[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/midhighfreq", channel_index + 1, m_mid_high_freq_band[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_mid_high_freq_band[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_mid_high_freq_band[n + 1].set_value(m_mid_high_freq_band[n].get_value());
+                m_mid_high_freq_band[channel_index + 1].set_value(m_mid_high_freq_band[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_MIDHIGH_LEVEL)) {
-            alsa->on_dial_control_changed(n, control_name, &m_mid_high_freq_gain[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/midhighgain", channel_index + 1, m_mid_high_freq_gain[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_mid_high_freq_gain[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_mid_high_freq_gain[n + 1].set_value(m_mid_high_freq_gain[n].get_value());
+                m_mid_high_freq_gain[channel_index + 1].set_value(m_mid_high_freq_gain[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_MIDHIGHWIDTH_FREQ)) {
-            alsa->on_dial_control_changed(n, control_name, &m_mid_high_freq_width[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/midhighwidth", channel_index + 1, m_mid_high_freq_width[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_mid_high_freq_width[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_mid_high_freq_width[n + 1].set_value(m_mid_high_freq_width[n].get_value());
+                m_mid_high_freq_width[channel_index + 1].set_value(m_mid_high_freq_width[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_MIDLOW_FREQ)) {
-            alsa->on_dial_control_changed(n, control_name, &m_mid_low_freq_band[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/midlowfreq", channel_index + 1, m_mid_low_freq_band[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_mid_low_freq_band[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_mid_low_freq_band[n + 1].set_value(m_mid_low_freq_band[n].get_value());
+                m_mid_low_freq_band[channel_index + 1].set_value(m_mid_low_freq_band[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_MIDLOW_LEVEL)) {
-            alsa->on_dial_control_changed(n, control_name, &m_mid_low_freq_gain[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/midlowgain", channel_index + 1, m_mid_low_freq_gain[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_mid_low_freq_gain[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_mid_low_freq_gain[n + 1].set_value(m_mid_low_freq_gain[n].get_value());
+                m_mid_low_freq_gain[channel_index + 1].set_value(m_mid_low_freq_gain[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_MIDLOWWIDTH_FREQ)) {
-            alsa->on_dial_control_changed(n, control_name, &m_mid_low_freq_width[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/midlowwidth", channel_index + 1, m_mid_low_freq_width[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_mid_low_freq_width[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_mid_low_freq_width[n + 1].set_value(m_mid_low_freq_width[n].get_value());
+                m_mid_low_freq_width[channel_index + 1].set_value(m_mid_low_freq_width[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_LOW_FREQ)) {
-            alsa->on_dial_control_changed(n, control_name, &m_low_freq_band[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/lowfreq", channel_index + 1, m_low_freq_band[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_low_freq_band[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_low_freq_band[n + 1].set_value(m_low_freq_band[n].get_value());
+                m_low_freq_band[channel_index + 1].set_value(m_low_freq_band[channel_index].get_value());
             }
         }
         if (!strcmp(control_name, CTL_NAME_EQ_LOW_LEVEL)) {
-            alsa->on_dial_control_changed(n, control_name, &m_low_freq_gain[n]);
-            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            OSC_STRIP_MSG("/strip/eq/lowgain", channel_index + 1, m_low_freq_gain[channel_index].get_value());
+            alsa->on_dial_control_changed(channel_index, control_name, &m_low_freq_gain[channel_index]);
+            if (m_stripLayouts[channel_index].get_channel_type() == STEREO) {
                 usleep(RESET_VALUE_DELAY);
-                m_low_freq_gain[n + 1].set_value(m_low_freq_gain[n].get_value());
+                m_low_freq_gain[channel_index + 1].set_value(m_low_freq_gain[channel_index].get_value());
             }
         }
     }
@@ -1483,7 +1317,13 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
     if (block_events)
         return;
     
+    if (!strcmp(control_name, CTL_LINK)) {
+        OSC_STRIP_MSG("/link", n + 1, m_link[n].get_active() ? 1 : 0);
+        on_ch_lb_changed(n); 
+    }
+    
     if (!strcmp(control_name, CTL_NAME_CP_ENABLE)) {
+        OSC_STRIP_MSG("/strip/comp/active", n + 1, m_comp_enable[n].get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_comp_enable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
@@ -1492,36 +1332,26 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
     }
 
     if (!strcmp(control_name, CTL_NAME_EQ_ENABLE)) {
+        OSC_STRIP_MSG("/strip/eq/active", n + 1, m_eq_enable[n].get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_eq_enable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
             m_eq_enable[n + 1].set_active(m_eq_enable[n].get_active());
         }
     }
-
+    
     if (!strcmp(control_name, CTL_NAME_MUTE)) {
-#ifdef HAVE_OSC  
-        lo_message reply = lo_message_new();
-        lo_message_add_int32(reply, n);
-        lo_message_add_float(reply, m_MuteEnable[n].get_active() ? 1. : 0.);
-        m_Worker.send_osc_all("/strip/mute", reply);
-        lo_message_free(reply);
-#endif  
+        OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n].get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_MuteEnable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
+            OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n + 1].get_active() ? 1 : 0);
             m_MuteEnable[n + 1].set_active(m_MuteEnable[n].get_active());
         }
     }
     if (!strcmp(control_name, CTL_NAME_SOLO)) {
         if (m_solo_channel == n || m_solo_channel == -1) {
-#ifdef HAVE_OSC  
-            lo_message reply = lo_message_new();
-            lo_message_add_int32(reply, n);
-            lo_message_add_float(reply, m_SoloEnable[n].get_active() ? 1. : 0.);
-            m_Worker.send_osc_all("/strip/solo", reply);
-            lo_message_free(reply);
-#endif
+            OSC_STRIP_MSG("/strip/solo", n + 1, m_SoloEnable[n].get_active() ? 1 : 0);
             if (m_SoloEnable[n].get_active())
                 set_solo_channel(n);
             else
@@ -1529,41 +1359,20 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
         }
     }
     if (!strcmp(control_name, CTL_NAME_PHASE)) {
-#ifdef HAVE_OSC  
-        lo_message reply = lo_message_new();
-        lo_message_add_int32(reply, n);
-        lo_message_add_float(reply, m_PhaseEnable[n].get_active() ? 1. : 0.);
-        m_Worker.send_osc_all("/strip/solo", reply);
-        lo_message_free(reply);
-#endif  
+        OSC_STRIP_MSG("/strip/phase", n + 1, m_PhaseEnable[n].get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_PhaseEnable[n]);
     }
     if (!strcmp(control_name, CTL_NAME_MASTER_MUTE)) {
-#ifdef HAVE_OSC  
-        lo_message reply = lo_message_new();
-        lo_message_add_float(reply, m_master.m_mute.get_active() ? 1. : 0.);
-        m_Worker.send_osc_all("/master/mute", reply);
-        lo_message_free(reply);
-#endif  
+        OSC_MASTER_MSG("/master/mute", m_master.m_mute.get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_mute);
     }
     if (!strcmp(control_name, CTL_NAME_BYPASS)) {
-#ifdef HAVE_OSC  
-        lo_message reply = lo_message_new();
-        lo_message_add_float(reply, m_master.m_true_bypass.get_active() ? 1. : 0.);
-        m_Worker.send_osc_all("/master/bypass", reply);
-        lo_message_free(reply);
-#endif  
+        OSC_MASTER_MSG("/master/bypass", m_master.m_true_bypass.get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_true_bypass);
     }
 
     if (!strcmp(control_name, CTL_NAME_BUS_OUT)) {
-#ifdef HAVE_OSC  
-        lo_message reply = lo_message_new();
-        lo_message_add_float(reply, m_master.m_comp_to_stereo.get_active() ? 1. : 0.);
-        m_Worker.send_osc_all("/master/bussout", reply);
-        lo_message_free(reply);
-#endif  
+        OSC_MASTER_MSG("/master/busout", m_master.m_comp_to_stereo.get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_comp_to_stereo);
     }
 
@@ -1575,6 +1384,17 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
             alsa->on_active_button_control_changed(n, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
     }
 
+}
+
+
+void OMainWnd::on_cb_changed(int n, const char* control_name) {
+    if (block_events)
+        return;    
+    
+    if (!strcmp(control_name, CTL_ROUTE)) {
+        OSC_STRIP_MSG("/master/route", n + 1, m_route.m_route[n].get_active_row_number());
+        alsa->on_combo_control_changed(n, control_name, &m_route.m_route[n]);
+    }
 }
 
 void OMainWnd::set_dsp_channel(int n, bool enable) {

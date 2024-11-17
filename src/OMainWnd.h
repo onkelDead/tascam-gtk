@@ -20,6 +20,7 @@
 
 #include <queue>
 #include <giomm-2.4/giomm/settingsschemasource.h>
+
 #include "OTypes.h"
 #include "OStripLayout.h"
 #include "ODspLayout.h"
@@ -33,6 +34,16 @@
  */
 
 #define TASCAMGTK_SCHEMA_ID "de.paraair.tascamgtk"
+
+#ifdef HAVE_XML3
+#include <libxml++-3.0/libxml++/libxml++.h>
+#include <libxml++-3.0/libxml++/parsers/textreader.h>
+#define XML_ENDELEMENT xmlpp::TextReader::NodeType::EndElement
+#else
+#include <libxml++-2.6/libxml++/libxml++.h>
+#include <libxml++-2.6/libxml++/parsers/textreader.h>
+#define XML_ENDELEMENT xmlpp::TextReader::xmlNodeType::EndElement
+#endif
 
 enum WIDGET_TYPE {
     ToggleButton,
@@ -49,7 +60,6 @@ typedef struct alsa_control {
     Gtk::ComboBoxText* combo;
     ODial* dial;
     int value;
-  
 } alsa_control;
 
 class OMainWnd : public Gtk::Window {
@@ -66,7 +76,7 @@ public:
     virtual ~OMainWnd();
 
     void alsa_add_control(snd_hctl_elem_t *helem);
-    void alsa_update_control(snd_hctl_elem_t *helem, int val);
+    void alsa_update_control(snd_hctl_elem_t *helem, int val, unsigned int index);
     
     bool on_delete(GdkEventAny* event);
     
@@ -144,6 +154,7 @@ public:
     void on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
     void on_ch_dial_changed(int n, const char* control_name);
     void on_ch_tb_changed(int n, const char* control_name);
+    void on_cb_changed(int n, const char* control_name);
     void set_dsp_channel(int n, bool enable);
 
     void on_ch_lb_changed(int n);

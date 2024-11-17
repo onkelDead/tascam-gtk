@@ -50,11 +50,12 @@ public:
     bool has_stopped() const;
 
 #ifdef HAVE_OSC
-    lo_address osc_client[MAX_OSC_CLIENTS];
+    const char* osc_client[MAX_OSC_CLIENTS];
+    char* one_client = 0;
     lo_server_thread osc_server;
     lo_server osc_server_out;
-    const int new_osc_client(lo_message client);
-    const int osc_client_exists(lo_message client);
+    const int new_osc_client(const char* client_url);
+    const int osc_client_exists(const char* client_url);
     void send_osc(int client_index, const char* path, lo_message msg);
     void send_osc_all(const char* path, lo_message msg);
     void dump_message(const char* path, const char *types, lo_arg ** argv, int argc);
@@ -66,7 +67,6 @@ private:
     // Synchronizes access to member data.
     mutable std::mutex m_Mutex;
 
-    snd_ctl_elem_id_t *id;
     snd_hctl_elem_t *elem;
     
     // Data used by both GUI thread and worker thread.

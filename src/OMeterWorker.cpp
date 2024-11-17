@@ -31,13 +31,9 @@ int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, l
 
 	OMeterWorker* worker = (OMeterWorker*) user_data;
 
-	client_index = worker->osc_client_exists(data);
-    if (client_index == -1) {
-        char* new_client_url = lo_address_get_url(lo_message_get_source(data));
-        client_index = worker->new_osc_client(data);
-        free(new_client_url);
-    }
 
+        worker->one_client = lo_address_get_url(lo_message_get_source(data));
+        
 	OMainWnd* wnd = ((OMainWnd*)(worker->m_caller));
 	
 	osc_message* msg = new osc_message;
@@ -86,7 +82,7 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 	m_caller = caller;
 	
 #ifdef HAVE_OSC
-    osc_server = lo_server_thread_new_with_proto("3135", LO_TCP, osc_err_handler);
+    osc_server = lo_server_thread_new_with_proto("3135", LO_UDP, osc_err_handler);
     if( !osc_server ) {
         fprintf(stderr, "ERROR: unable to create client port.\n");
         return;
@@ -100,12 +96,11 @@ void OMeterWorker::do_work(OMainWnd* caller) {
     
     for (;;) // do until break
     {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
             if (m_shall_stop) {
                     break;
             }
             caller->alsa->getControlIntegers(elem, caller->alsa->meters, 34);
-
             caller->notify();
     }
 #ifdef HAVE_OSC
@@ -118,11 +113,12 @@ lo_server_thread_free(osc_server);
 }
 
 #ifdef HAVE_OSC
-const int OMeterWorker::new_osc_client(lo_message client) {
+const int OMeterWorker::new_osc_client(const char* new_client_url) {
     int i;
     for(i = 0; i < MAX_OSC_CLIENTS; i++) {
         if( osc_client[i] == NULL) {
-           osc_client[i] = lo_message_get_source(client); 
+           osc_client[i] = strdup(new_client_url); 
+           fprintf(stdout, "OSC-client %s\n", osc_client[i]);
            return i;
         }
     }
@@ -130,24 +126,14 @@ const int OMeterWorker::new_osc_client(lo_message client) {
 }
 
 
-const int OMeterWorker::osc_client_exists(lo_message client) {
+const int OMeterWorker::osc_client_exists(const char* new_client_url) {
     int i;
-    int ret = -1;
-    char* new_client_url = lo_address_get_url(lo_message_get_source(client));
     for( i = 0; i < MAX_OSC_CLIENTS; i++ ) {
-        if( osc_client[i] ) {
-            char* client_url = lo_address_get_url(osc_client[i]);
-
-            if( osc_client[i] && !strcmp(new_client_url, client_url) ){
-                ret = i;
-            }
-            free(client_url);
+        if( osc_client[i] && !strcmp(new_client_url, osc_client[i]) ){
+            return i;
         }
-        if( ret != -1 )
-            break;
     }
-    free(new_client_url);
-    return ret;
+    return -1;
 }
 
 void OMeterWorker::dump_message(const char* path, const char *types, lo_arg ** argv, int argc ) {
@@ -165,15 +151,14 @@ void OMeterWorker::dump_message(const char* path, const char *types, lo_arg ** a
 
 void OMeterWorker::send_osc(int client_index, const char* path, lo_message msg)  {
 	
-	lo_send_message_from(osc_client[client_index], osc_server_out, path, msg);
+	lo_send_message_from(lo_address_new_from_url(osc_client[client_index]), osc_server_out, path, msg);
 	
 }
 void OMeterWorker::send_osc_all(const char* path, lo_message msg)  {
 	
-	for( int i = 0; i < MAX_OSC_CLIENTS; i++) {
-		if( osc_client[i] )
-			lo_send_message_from(osc_client[i], osc_server_out, path, msg);
-	}
-	
+    if (one_client) {
+        lo_address a = lo_address_new_from_url(one_client);
+        lo_send_message(a, path, msg);
+    }
 }
 #endif
