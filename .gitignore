@@ -13,3 +13,5 @@
 /autom4te.cache/traces.1
 configure~
 src/.deps/
+autom4te.cache/
+/de.paraair.tascamgtk.gschema.valid
