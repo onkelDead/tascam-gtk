@@ -16,3 +16,5 @@ src/.deps/
 autom4te.cache/
 /de.paraair.tascamgtk.gschema.valid
 nbproject/
+/src/*.o
+tascamgtk
