@@ -78,12 +78,6 @@ m_WorkerAlsaThread(nullptr) {
     else
         this->set_icon_from_file("data/icon.png");
 
-    GSettingsSchemaSource* source = g_settings_schema_source_get_default();
-    if (g_settings_schema_source_lookup(source, TASCAMGTK_SCHEMA_ID, true)) {
-        settings = Gio::Settings::create(TASCAMGTK_SCHEMA_ID);
-        compact = settings->get_boolean("view-compact");
-    }
-
     create_menu();
 
     this->signal_delete_event().connect(sigc::mem_fun(this, &OMainWnd::on_delete));
@@ -108,7 +102,7 @@ m_WorkerAlsaThread(nullptr) {
     
     create_worker_threads(); 
     
-    if (compact)
+    if (m_config.get_boolean(SETTINGS_WINDOW_COMPACT))
         on_menu_view_compact();
     else
         on_menu_view_normal();
@@ -822,8 +816,7 @@ void OMainWnd::on_menu_view_compact() {
     m_dsp_layout.set_view_type(HIDDEN);
     m_dsp_layout.set_view_type(SINGLE_DSP);
     show_all_children(true);
-//    if (settings)
-//        settings->set_boolean("view-compact", true);
+    m_config.set_boolean(SETTINGS_WINDOW_COMPACT, true);
 }
 
 void OMainWnd::on_menu_view_normal() {
@@ -840,9 +833,8 @@ void OMainWnd::on_menu_view_normal() {
     if (m_dsp_layout.get_parent())
         m_grid.remove(m_dsp_layout);
     show_all_children(true);
-//    if (settings)
-//        settings->set_boolean("view-compact", false);
-
+    m_config.set_boolean(SETTINGS_WINDOW_COMPACT, false);
+    
     alsa->on_active_button_control_changed(0, CTL_NAME_METER, &m_stripLayouts[0].m_DspEnable);
 
 }

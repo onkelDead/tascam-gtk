@@ -28,12 +28,11 @@
 #include "ORoute.h"
 #include "OAlsa.h"
 #include "OMeterWorker.h"
+#include "OConfig.h"
 
 /**     Class OMainWnd, derived from Gtk::Window.
  *      It's the main UI element of this application.
  */
-
-#define TASCAMGTK_SCHEMA_ID "de.paraair.tascamgtk"
 
 #ifdef HAVE_XML3
 #include <libxml++-3.0/libxml++/libxml++.h>
@@ -228,6 +227,8 @@ private:
     
     std::queue<alsa_control*> m_alsa_queue;
     Glib::Dispatcher m_Dispatcher_alsa;
+    
+    OConfig m_config;
 };
 
 #endif /* OMAINWND_H */

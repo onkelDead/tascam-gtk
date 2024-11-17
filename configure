@@ -661,6 +661,8 @@ GSETTINGS_RULES
 GLIB_COMPILE_SCHEMAS
 gsettingsschemadir
 GSETTINGS_DISABLE_SCHEMAS_COMPILE
+CONFIG_LIBS
+CONFIG_CFLAGS
 ALSA_LIBS
 ALSA_CFLAGS
 GTKMM3_LIBS
@@ -794,6 +796,8 @@ GTKMM3_CFLAGS
 GTKMM3_LIBS
 ALSA_CFLAGS
 ALSA_LIBS
+CONFIG_CFLAGS
+CONFIG_LIBS
 GLIB_COMPILE_SCHEMAS
 CC
 CFLAGS'
@@ -1457,6 +1461,9 @@ Some influential environment variables:
   GTKMM3_LIBS linker flags for GTKMM3, overriding pkg-config
   ALSA_CFLAGS C compiler flags for ALSA, overriding pkg-config
   ALSA_LIBS   linker flags for ALSA, overriding pkg-config
+  CONFIG_CFLAGS
+              C compiler flags for CONFIG, overriding pkg-config
+  CONFIG_LIBS linker flags for CONFIG, overriding pkg-config
   GLIB_COMPILE_SCHEMAS
               value of glib_compile_schemas for gio-2.0, overriding pkg-config
   CC          C compiler command
@@ -5249,6 +5256,96 @@ printf "%s\n" "yes" >&6; }
 
 fi
 
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libconfig" >&5
+printf %s "checking for libconfig... " >&6; }
+
+if test -n "$CONFIG_CFLAGS"; then
+    pkg_cv_CONFIG_CFLAGS="$CONFIG_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libconfig\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libconfig") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_CONFIG_CFLAGS=`$PKG_CONFIG --cflags "libconfig" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$CONFIG_LIBS"; then
+    pkg_cv_CONFIG_LIBS="$CONFIG_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libconfig\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libconfig") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_CONFIG_LIBS=`$PKG_CONFIG --libs "libconfig" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                CONFIG_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libconfig" 2>&1`
+        else
+                CONFIG_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libconfig" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$CONFIG_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (libconfig) were not met:
+
+$CONFIG_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables CONFIG_CFLAGS
+and CONFIG_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables CONFIG_CFLAGS
+and CONFIG_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+        CONFIG_CFLAGS=$pkg_cv_CONFIG_CFLAGS
+        CONFIG_LIBS=$pkg_cv_CONFIG_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
 
 
 

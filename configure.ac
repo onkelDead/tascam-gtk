@@ -62,7 +62,7 @@ AS_CASE("x$xml",
 
 PKG_CHECK_MODULES([GTKMM3], [gtkmm-3.0])
 PKG_CHECK_MODULES([ALSA], [alsa])
-
+PKG_CHECK_MODULES([CONFIG], [libconfig])
 
 
 GLIB_GSETTINGS
