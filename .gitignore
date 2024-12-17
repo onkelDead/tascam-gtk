@@ -10,5 +10,9 @@ config.h
 config.log
 config.status
 *~
+de.paraair.tascamgtk.gschema.valid
 src/.deps
+src/.dirstamp
+src/*.o
+tascamgtk
 stamp-h1
