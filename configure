@@ -4043,11 +4043,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++11 features" >&5
 printf %s "checking for $CXX option to enable C++11 features... " >&6; }
-if test ${ac_cv_prog_cxx_11+y}
+if test ${ac_cv_prog_cxx_cxx11+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_11=no
+  ac_cv_prog_cxx_cxx11=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -4089,11 +4089,11 @@ if test x$ac_prog_cxx_stdcxx = xno
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CXX option to enable C++98 features" >&5
 printf %s "checking for $CXX option to enable C++98 features... " >&6; }
-if test ${ac_cv_prog_cxx_98+y}
+if test ${ac_cv_prog_cxx_cxx98+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  ac_cv_prog_cxx_98=no
+  ac_cv_prog_cxx_cxx98=no
 ac_save_CXX=$CXX
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -4530,14 +4530,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        LO_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "liblo" 2>&1`
+                LO_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "liblo" 2>&1`
         else
-	        LO_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "liblo" 2>&1`
+                LO_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "liblo" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$LO_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$LO_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (liblo) were not met:
+        as_fn_error $? "Package requirements (liblo) were not met:
 
 $LO_PKG_ERRORS
 
@@ -4550,7 +4550,7 @@ See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
@@ -4563,8 +4563,8 @@ See the pkg-config man page for more details.
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	LO_CFLAGS=$pkg_cv_LO_CFLAGS
-	LO_LIBS=$pkg_cv_LO_LIBS
+        LO_CFLAGS=$pkg_cv_LO_CFLAGS
+        LO_LIBS=$pkg_cv_LO_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
@@ -4647,14 +4647,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GTKMM3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "gtkmm-3.0" 2>&1`
+                GTKMM3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "gtkmm-3.0" 2>&1`
         else
-	        GTKMM3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "gtkmm-3.0" 2>&1`
+                GTKMM3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "gtkmm-3.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$GTKMM3_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$GTKMM3_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (gtkmm-3.0) were not met:
+        as_fn_error $? "Package requirements (gtkmm-3.0) were not met:
 
 $GTKMM3_PKG_ERRORS
 
@@ -4667,7 +4667,7 @@ See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
@@ -4680,8 +4680,8 @@ See the pkg-config man page for more details.
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	GTKMM3_CFLAGS=$pkg_cv_GTKMM3_CFLAGS
-	GTKMM3_LIBS=$pkg_cv_GTKMM3_LIBS
+        GTKMM3_CFLAGS=$pkg_cv_GTKMM3_CFLAGS
+        GTKMM3_LIBS=$pkg_cv_GTKMM3_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
@@ -4738,14 +4738,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        ALSA_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "alsa" 2>&1`
+                ALSA_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "alsa" 2>&1`
         else
-	        ALSA_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "alsa" 2>&1`
+                ALSA_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "alsa" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$ALSA_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$ALSA_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (alsa) were not met:
+        as_fn_error $? "Package requirements (alsa) were not met:
 
 $ALSA_PKG_ERRORS
 
@@ -4758,7 +4758,7 @@ See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
@@ -4771,12 +4771,130 @@ See the pkg-config man page for more details.
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	ALSA_CFLAGS=$pkg_cv_ALSA_CFLAGS
-	ALSA_LIBS=$pkg_cv_ALSA_LIBS
+        ALSA_CFLAGS=$pkg_cv_ALSA_CFLAGS
+        ALSA_LIBS=$pkg_cv_ALSA_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
 fi
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-5.0" >&5
+printf %s "checking for libxml++-5.0... " >&6; }
+
+if test -n "$XML3_CFLAGS"; then
+    pkg_cv_XML3_CFLAGS="$XML3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-5.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-5.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_CFLAGS=`$PKG_CONFIG --cflags "libxml++-5.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML3_LIBS"; then
+    pkg_cv_XML3_LIBS="$XML3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-5.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-5.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_LIBS=`$PKG_CONFIG --libs "libxml++-5.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-5.0" 2>&1`
+        else
+                XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-5.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML3_PKG_ERRORS" >&5
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-4.0" >&5
+printf %s "checking for libxml++-4.0... " >&6; }
+
+if test -n "$XML3_CFLAGS"; then
+    pkg_cv_XML3_CFLAGS="$XML3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-4.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-4.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_CFLAGS=`$PKG_CONFIG --cflags "libxml++-4.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML3_LIBS"; then
+    pkg_cv_XML3_LIBS="$XML3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-4.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-4.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_LIBS=`$PKG_CONFIG --libs "libxml++-4.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-4.0" 2>&1`
+        else
+                XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-4.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML3_PKG_ERRORS" >&5
+
 
 pkg_failed=no
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-3.0" >&5
@@ -4829,12 +4947,12 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+                XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-3.0" 2>&1`
         else
-	        XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+                XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-3.0" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$XML3_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML3_PKG_ERRORS" >&5
 
 
 pkg_failed=no
@@ -4888,14 +5006,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
         else
-	        XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$XML26_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
 
 $XML26_PKG_ERRORS
 
@@ -4908,7 +5026,7 @@ See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
@@ -4921,8 +5039,8 @@ See the pkg-config man page for more details.
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
-	XML26_LIBS=$pkg_cv_XML26_LIBS
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
@@ -4986,14 +5104,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
         else
-	        XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
         fi
-	# Put the nasty error message in config.log where it belongs
-	echo "$XML26_PKG_ERRORS" >&5
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
 
 $XML26_PKG_ERRORS
 
@@ -5006,7 +5124,7 @@ See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
-	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
 is in your PATH or set the PKG_CONFIG environment variable to the full
@@ -5019,8 +5137,8 @@ See the pkg-config man page for more details.
 To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
-	XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
-	XML26_LIBS=$pkg_cv_XML26_LIBS
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
@@ -5030,8 +5148,892 @@ printf "%s\n" "#define HAVE_XML26 1" >>confdefs.h
 fi
 
 else
-	XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
-	XML3_LIBS=$pkg_cv_XML3_LIBS
+        XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
+        XML3_LIBS=$pkg_cv_XML3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML3 1" >>confdefs.h
+
+fi
+
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-3.0" >&5
+printf %s "checking for libxml++-3.0... " >&6; }
+
+if test -n "$XML3_CFLAGS"; then
+    pkg_cv_XML3_CFLAGS="$XML3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_CFLAGS=`$PKG_CONFIG --cflags "libxml++-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML3_LIBS"; then
+    pkg_cv_XML3_LIBS="$XML3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_LIBS=`$PKG_CONFIG --libs "libxml++-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+        else
+                XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML3_PKG_ERRORS" >&5
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-2.6" >&5
+printf %s "checking for libxml++-2.6... " >&6; }
+
+if test -n "$XML26_CFLAGS"; then
+    pkg_cv_XML26_CFLAGS="$XML26_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_CFLAGS=`$PKG_CONFIG --cflags "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML26_LIBS"; then
+    pkg_cv_XML26_LIBS="$XML26_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_LIBS=`$PKG_CONFIG --libs "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        else
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+
+$XML26_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML26 1" >>confdefs.h
+
+
+fi
+
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-2.6" >&5
+printf %s "checking for libxml++-2.6... " >&6; }
+
+if test -n "$XML26_CFLAGS"; then
+    pkg_cv_XML26_CFLAGS="$XML26_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_CFLAGS=`$PKG_CONFIG --cflags "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML26_LIBS"; then
+    pkg_cv_XML26_LIBS="$XML26_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_LIBS=`$PKG_CONFIG --libs "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        else
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+
+$XML26_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML26 1" >>confdefs.h
+
+
+fi
+
+else
+        XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
+        XML3_LIBS=$pkg_cv_XML3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML3 1" >>confdefs.h
+
+fi
+
+else
+        XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
+        XML3_LIBS=$pkg_cv_XML3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML3 1" >>confdefs.h
+
+fi
+
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-4.0" >&5
+printf %s "checking for libxml++-4.0... " >&6; }
+
+if test -n "$XML3_CFLAGS"; then
+    pkg_cv_XML3_CFLAGS="$XML3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-4.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-4.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_CFLAGS=`$PKG_CONFIG --cflags "libxml++-4.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML3_LIBS"; then
+    pkg_cv_XML3_LIBS="$XML3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-4.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-4.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_LIBS=`$PKG_CONFIG --libs "libxml++-4.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-4.0" 2>&1`
+        else
+                XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-4.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML3_PKG_ERRORS" >&5
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-3.0" >&5
+printf %s "checking for libxml++-3.0... " >&6; }
+
+if test -n "$XML3_CFLAGS"; then
+    pkg_cv_XML3_CFLAGS="$XML3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_CFLAGS=`$PKG_CONFIG --cflags "libxml++-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML3_LIBS"; then
+    pkg_cv_XML3_LIBS="$XML3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_LIBS=`$PKG_CONFIG --libs "libxml++-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+        else
+                XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML3_PKG_ERRORS" >&5
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-2.6" >&5
+printf %s "checking for libxml++-2.6... " >&6; }
+
+if test -n "$XML26_CFLAGS"; then
+    pkg_cv_XML26_CFLAGS="$XML26_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_CFLAGS=`$PKG_CONFIG --cflags "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML26_LIBS"; then
+    pkg_cv_XML26_LIBS="$XML26_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_LIBS=`$PKG_CONFIG --libs "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        else
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+
+$XML26_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML26 1" >>confdefs.h
+
+
+fi
+
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-2.6" >&5
+printf %s "checking for libxml++-2.6... " >&6; }
+
+if test -n "$XML26_CFLAGS"; then
+    pkg_cv_XML26_CFLAGS="$XML26_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_CFLAGS=`$PKG_CONFIG --cflags "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML26_LIBS"; then
+    pkg_cv_XML26_LIBS="$XML26_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_LIBS=`$PKG_CONFIG --libs "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        else
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+
+$XML26_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML26 1" >>confdefs.h
+
+
+fi
+
+else
+        XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
+        XML3_LIBS=$pkg_cv_XML3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML3 1" >>confdefs.h
+
+fi
+
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-3.0" >&5
+printf %s "checking for libxml++-3.0... " >&6; }
+
+if test -n "$XML3_CFLAGS"; then
+    pkg_cv_XML3_CFLAGS="$XML3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_CFLAGS=`$PKG_CONFIG --cflags "libxml++-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML3_LIBS"; then
+    pkg_cv_XML3_LIBS="$XML3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML3_LIBS=`$PKG_CONFIG --libs "libxml++-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+        else
+                XML3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-3.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML3_PKG_ERRORS" >&5
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-2.6" >&5
+printf %s "checking for libxml++-2.6... " >&6; }
+
+if test -n "$XML26_CFLAGS"; then
+    pkg_cv_XML26_CFLAGS="$XML26_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_CFLAGS=`$PKG_CONFIG --cflags "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML26_LIBS"; then
+    pkg_cv_XML26_LIBS="$XML26_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_LIBS=`$PKG_CONFIG --libs "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        else
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+
+$XML26_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML26 1" >>confdefs.h
+
+
+fi
+
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libxml++-2.6" >&5
+printf %s "checking for libxml++-2.6... " >&6; }
+
+if test -n "$XML26_CFLAGS"; then
+    pkg_cv_XML26_CFLAGS="$XML26_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_CFLAGS=`$PKG_CONFIG --cflags "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$XML26_LIBS"; then
+    pkg_cv_XML26_LIBS="$XML26_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libxml++-2.6\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libxml++-2.6") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_XML26_LIBS=`$PKG_CONFIG --libs "libxml++-2.6" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                XML26_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        else
+                XML26_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libxml++-2.6" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$XML26_PKG_ERRORS" >&5
+
+        as_fn_error $? "Package requirements (libxml++-2.6) were not met:
+
+$XML26_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables XML26_CFLAGS
+and XML26_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+        XML26_CFLAGS=$pkg_cv_XML26_CFLAGS
+        XML26_LIBS=$pkg_cv_XML26_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML26 1" >>confdefs.h
+
+
+fi
+
+else
+        XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
+        XML3_LIBS=$pkg_cv_XML3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML3 1" >>confdefs.h
+
+fi
+
+else
+        XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
+        XML3_LIBS=$pkg_cv_XML3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+printf "%s\n" "#define HAVE_XML3 1" >>confdefs.h
+
+fi
+
+else
+        XML3_CFLAGS=$pkg_cv_XML3_CFLAGS
+        XML3_LIBS=$pkg_cv_XML3_LIBS
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 
