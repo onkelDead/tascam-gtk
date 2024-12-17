@@ -34,6 +34,8 @@ Basically, on a Debian-based Linux system, requirements should be satified with:
 apt install build-essential autoconf automake autopoint libgtkmm-3.0-dev libxml++2.6-dev liblo-dev
 ```
 
+On a Arch-based Linux system, the packages to install should be `base-devel autoconf automake gtkmm3 libxml++-5.0 liblo`
+
 Once those prerequisites are installed, run:
 ```
 autoreconf -fiv
