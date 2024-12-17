@@ -16,13 +16,8 @@
 #include "config.h"
 
 #include <gtkmm.h>
-#ifdef HAVE_XML3
-#include <libxml++-3.0/libxml++/libxml++.h>
-#include <libxml++-3.0/libxml++/parsers/textreader.h>
-#else
-#include <libxml++-2.6/libxml++/libxml++.h>
-#include <libxml++-2.6/libxml++/parsers/textreader.h>
-#endif
+#include <libxml++/libxml++.h>
+#include <libxml++/parsers/textreader.h>
 #include "ODspLayout.h"
 #include "OMainWnd.h"
 

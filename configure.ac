@@ -24,12 +24,18 @@ AS_IF([test "x$osc" != xno],
 
 PKG_CHECK_MODULES([GTKMM3], [gtkmm-3.0])
 PKG_CHECK_MODULES([ALSA], [alsa])
-PKG_CHECK_MODULES([XML3], [libxml++-3.0],
-		  [AC_DEFINE([HAVE_XML3], [1], [Use XML3])],
-		  [PKG_CHECK_MODULES([XML26], [libxml++-2.6],
-				     [AC_DEFINE([HAVE_XML26], [1], [Use XML26])
-				     ])
-		  ])
+PKG_CHECK_MODULES([XML3], [libxml++-5.0],
+				  [AC_DEFINE([HAVE_XML3], [1], [Use XML3])],
+				  [PKG_CHECK_MODULES([XML3], [libxml++-4.0],
+									[AC_DEFINE([HAVE_XML3], [1], [Use XML3])],
+									[PKG_CHECK_MODULES([XML3], [libxml++-3.0],
+													  [AC_DEFINE([HAVE_XML3], [1], [Use XML3])],
+													  [PKG_CHECK_MODULES([XML26], [libxml++-2.6],
+																		 [AC_DEFINE([HAVE_XML26], [1], [Use XML26])
+																		 ])
+													  ])
+									])
+				  ])
 
 GLIB_GSETTINGS
 
