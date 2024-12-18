@@ -19,8 +19,8 @@
 #include "OMainWnd.h"
 #include "config.h"
 #ifdef HAVE_XML3
-#include <libxml++-3.0/libxml++/libxml++.h>
-#include <libxml++-3.0/libxml++/parsers/textreader.h>
+#include <libxml++/libxml++.h>
+#include <libxml++/parsers/textreader.h>
 #else
 #include <libxml++-2.6/libxml++/libxml++.h>
 #include <libxml++-2.6/libxml++/parsers/textreader.h>
