@@ -37,6 +37,8 @@
 #define CTL_NAME_PAN                        "name='Pan Left-Right Volume'"
 #define CTL_NAME_PHASE                      "name='Phase Switch'"
 #define CTL_NAME_EQ_ENABLE                  "name='EQ Switch'"
+#define CTL_NAME_LCF_ENABLE                 "name='EQ LFC Switch'"
+
 #define CTL_NAME_EQ_LOW_LEVEL               "name='EQ Low Volume'"
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
 #define CTL_NAME_EQ_LOW_FREQ                "name='EQ Low Frequency'"

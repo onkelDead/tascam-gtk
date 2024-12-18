@@ -33,7 +33,7 @@ static void events_value(snd_hctl_elem_t *helem) {
     snd_ctl_elem_value_alloca(&control);
 
     if ((err = snd_hctl_elem_read(helem, control)) < 0) {
-        fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+        fprintf(stderr, "Control %s event element read error: %s\n", "hw:0", snd_strerror(err));
         return;
     }
     val = snd_ctl_elem_value_get_integer(control, 0);
@@ -247,7 +247,7 @@ int OAlsa::getInteger(const char* name, int channel_index) {
         snd_ctl_elem_value_t *control;
         snd_ctl_elem_value_alloca(&control);
         if ((err = snd_hctl_elem_read(elem, control)) < 0) {
-            fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+            fprintf(stderr, "Control %s element %s read error: %s\n", "hw:0", elem_name, snd_strerror(err));
             return -5;
         }
         val = snd_ctl_elem_value_get_integer(control, 0);
@@ -273,7 +273,7 @@ void OAlsa::setInteger(const char* name, int channel_index, int value) {
         snd_ctl_elem_value_alloca(&control);
         snd_ctl_elem_value_set_integer(control, 0, value);
         if ((err = snd_hctl_elem_write(elem, control)) < 0) {
-            fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+            fprintf(stderr, "Control %s element %s read error: %s\n", "hw:0", elem_name, snd_strerror(err));
             return;
         }
 
@@ -304,7 +304,7 @@ bool OAlsa::getBoolean(const char* name, int channel_index) {
         snd_ctl_elem_value_t *control;
         snd_ctl_elem_value_alloca(&control);
         if ((err = snd_hctl_elem_read(elem, control)) < 0) {
-            fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+            fprintf(stderr, "Control %s element %s read error: %s\n", "hw:0", elem_name, snd_strerror(err));
             return -5;
         }
         val = snd_ctl_elem_value_get_boolean(control, 0);
@@ -329,7 +329,7 @@ void OAlsa::setBoolean(const char* name, int channel_index, bool value) {
         snd_ctl_elem_value_alloca(&control);
         snd_ctl_elem_value_set_boolean(control, 0, value);
         if ((err = snd_hctl_elem_write(elem, control)) < 0) {
-            fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+            fprintf(stderr, "Control %s element %s read error: %s\n", "hw:0", elem_name, snd_strerror(err));
             return;
         }
     }
@@ -378,7 +378,7 @@ int OAlsa::getIntegers(const char* name, int vals[], int count) {
         snd_ctl_elem_value_t *control;
         snd_ctl_elem_value_alloca(&control);
         if ((err = snd_hctl_elem_read(elem, control)) < 0) {
-            fprintf(stderr, "Control %s element read error: %s\n", "hw:0", snd_strerror(err));
+            fprintf(stderr, "Control %s element %s read error: %s\n", "hw:0", name, snd_strerror(err));
             return -5;
         }
         for (val = 0; val < count; val++)

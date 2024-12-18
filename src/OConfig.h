@@ -22,7 +22,9 @@
 #include <libconfig.h>
 
 #define SETTINGS_WINDOW_COMPACT         "window-compact"
-
+#define SETTINGS_OSC_PORT               "osc-port"
+#define SETTINGS_OSC_NO_METERS          "osc-no-meters"
+#define SETTINGS_OSC_CLIENT_FULL_UPDATE "osc-new-client-full-update"
 
 #define CONF_FORMATTER "%s/.config/tascamgtk"
 

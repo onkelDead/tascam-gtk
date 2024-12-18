@@ -118,11 +118,12 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
                 m_grid.attach(*m_mid_high_freq_gain, 0, 1, 1, 1);
                 m_grid.attach(*m_mid_high_freq_band, 1, 1, 1, 1);
                 if (channel_type == MONO) {
-			m_grid.attach(*m_mid_high_freq_width, 0, 2, 2, 1);
+			m_grid.attach(*m_mid_high_freq_width, 0, 2, 1, 1);
+			m_grid.attach(*m_eq_enable, 1, 2, 1, 1);
 			m_grid.attach(*m_mid_low_freq_gain, 0, 3, 1, 1);
 			m_grid.attach(*m_mid_low_freq_band, 1, 3, 1, 1);
 			m_grid.attach(*m_mid_low_freq_width, 0, 4, 1, 1);
-			m_grid.attach(*m_eq_enable, 1, 4, 1, 1);
+			m_grid.attach(*m_lcf_enable, 1, 4, 1, 1);
 			m_grid.attach(*m_low_freq_gain, 0, 5, 1, 1);
 			m_grid.attach(*m_low_freq_band, 1, 5, 1, 1);
 		}
@@ -135,7 +136,9 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 
 			m_grid.attach(*m_mid_high_freq_width, 2, 1, 1, 1);
 			m_grid.attach(*m_mid_low_freq_width, 2, 2, 1, 1);
-			m_grid.attach(*m_eq_enable, 2, 3, 1, 1);
+			m_grid.attach(*m_eq_enable, 2, 0, 1, 1);
+        		m_grid.attach(*m_lcf_enable, 2, 3, 1, 1);
+                        
 		}
 		m_high_freq_gain->set_view_type(NORMAL);
 		m_mid_high_freq_gain->set_view_type(NORMAL);
@@ -171,6 +174,7 @@ void OEq::set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type) {
 		m_grid.attach(*m_mid_low_freq_width, 3, 2, 1, 1);
 		m_grid.attach(*m_low_freq_gain, 1, 3, 1, 1);
 		m_grid.attach(*m_low_freq_band, 2, 3, 1, 1);
+		m_grid.attach(*m_lcf_enable, 3, 3, 1, 1);
 		
 		m_high_freq_gain->set_view_type(SINGLE_DSP);
 		m_mid_high_freq_gain->set_view_type(SINGLE_DSP);
@@ -209,6 +213,9 @@ void OEq::set_ref_index(int index, Gtk::Window* wnd){
 	m_eq_enable = &wnd_->m_eq_enable[index];
 	m_eq_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
 	
+	m_lcf_enable = &wnd_->m_lcf_enable[index];
+	m_lcf_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_LCF_ENABLE));
+ 
 	m_high_freq_gain = &wnd_->m_high_freq_gain[index];
 	m_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_LEVEL));
 	
@@ -238,6 +245,7 @@ void OEq::set_ref_index(int index, Gtk::Window* wnd){
 	
 	m_low_freq_band = &wnd_->m_low_freq_band[index];
 	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_FREQ));
+       
 }
 
 void OEq::get_alsa_values(int channel_index, OAlsa* alsa) {
@@ -250,7 +258,15 @@ void OEq::get_alsa_values(int channel_index, OAlsa* alsa) {
 	m_mid_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_LEVEL, channel_index));
 	m_mid_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOW_FREQ, channel_index));
 	m_mid_low_freq_width->set_value(alsa->getInteger(CTL_NAME_EQ_MIDLOWWIDTH_FREQ, channel_index));
-	m_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, channel_index));
+        
+        int low_gain = alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, channel_index);
+        if (low_gain != 255) {
+            m_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, channel_index));
+            m_lcf_enable->set_active(false);
+        }
+        else {
+            m_lcf_enable->set_active(true);
+        }
 	m_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_FREQ, channel_index));
 }
 
@@ -333,9 +349,13 @@ void OEq::save_values(FILE * file) {
 	fprintf(file, "%d", (int) m_low_freq_gain->get_value());
 	fprintf(file, "</low_freq_gain>\n");
 
-	fprintf(file, "\t\t\t<low_freq_band>");
-	fprintf(file, "%d", (int) m_low_freq_band->get_value());
-	fprintf(file, "</low_freq_band>\n");
+	fprintf(file, "\t\t\t<low_freq_gain>");
+	fprintf(file, "%d", (int) m_low_freq_gain->get_value());
+	fprintf(file, "</low_freq_gain>\n");
+        
+	fprintf(file, "\t\t\t<low_lcf>");
+	fprintf(file, "%d", (int) m_lcf_enable->get_active());
+	fprintf(file, "</low_lcf>\n");
 
 }
 
@@ -401,6 +421,12 @@ void OEq::load_values(Glib::ustring xml) {
 				m_low_freq_band->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
+			if (!strcmp(reader.get_name().c_str(), "low_lcf") && reader.get_node_type() != XML_ENDELEMENT) {
+				reader.read();
+				m_lcf_enable->set_active(atoi(reader.get_value().c_str()) == 1);
+				m_lcf_enable->toggled();
+				usleep(RESET_VALUE_DELAY);
+			}                        
 
 		}
 	} catch (const std::exception& e) {

@@ -86,6 +86,7 @@ public:
     ODial* m_mid_low_freq_width;
     ODial* m_low_freq_gain;
     ODial* m_low_freq_band;
+    Gtk::ToggleButton* m_lcf_enable;
     
     Gtk::Grid m_grid;
 private:

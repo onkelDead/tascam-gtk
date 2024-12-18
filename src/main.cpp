@@ -19,8 +19,6 @@
 #include "OMainWnd.h"
 
 int main(int argc, char *argv[]) {
-
-	  
 	auto app = Gtk::Application::create(argc, argv);
 	OMainWnd window_obj;
 	return app->run(window_obj);

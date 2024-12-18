@@ -51,6 +51,9 @@ int OConfig::load_config() {
 
 void OConfig::create_default() {
     set_boolean(SETTINGS_WINDOW_COMPACT, false);
+    set_string(SETTINGS_OSC_PORT, "3135");
+    set_boolean(SETTINGS_OSC_NO_METERS, false);
+    set_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE, false);
 }
     
 bool OConfig::get_boolean(const char* path) {

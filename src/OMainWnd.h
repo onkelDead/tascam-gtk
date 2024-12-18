@@ -28,6 +28,7 @@
 #include "ORoute.h"
 #include "OAlsa.h"
 #include "OMeterWorker.h"
+#include "OOscDialog.h"
 #include "OConfig.h"
 
 /**     Class OMainWnd, derived from Gtk::Window.
@@ -81,6 +82,8 @@ public:
     
     bool block_events;
     
+    OConfig* GetConfig();
+    
     /// Member variable of class MainWndUI, array of elements for the channel controls. 
     OStripLayout m_stripLayouts[16];
     /// UI element to display the DSP controls if view type is compact.
@@ -96,6 +99,7 @@ public:
     void notify_osc();
     /// dispatcher callback if data from alsa device should be processed
     void on_notification_from_osc_thread();
+    void update_osc_client();
 #endif
     
     /// handler function called by< the worker thread, if OSC messages are available
@@ -126,6 +130,7 @@ public:
     ODial m_mid_low_freq_width[NUM_CHANNELS + 1];
     ODial m_low_freq_gain[NUM_CHANNELS + 1];
     ODial m_low_freq_band[NUM_CHANNELS + 1];
+    Gtk::ToggleButton m_lcf_enable[NUM_CHANNELS + 1];
 
     ODial m_Pan[NUM_CHANNELS + 1];
     Gtk::ToggleButton m_PhaseEnable[NUM_CHANNELS + 1];
@@ -140,6 +145,7 @@ public:
     void on_menu_file_save();
     void on_menu_file_reset();
     void on_menu_file_exit();
+    void on_menu_file_osc();
     void on_menu_file_about();
 
     void on_menu_view_compact();
@@ -221,6 +227,11 @@ private:
     
     Gtk::AboutDialog m_Dialog;
     void on_about_dialog_response(int response_id);
+
+    OOscDialog m_OscDialog;
+    void on_osc_dialog_response(int response_id);
+    
+
     
     alsa_control* get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t);
     std::map<snd_hctl_elem_t*, alsa_control*> m_mixer_elems;

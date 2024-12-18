@@ -27,26 +27,30 @@ void osc_err_handler(int num, const char *msg, const char *where) {
 
 int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, lo_message data, void *user_data) {
     int ret;
-	int client_index = -1;
+    int client_index = -1;
 
-	OMeterWorker* worker = (OMeterWorker*) user_data;
+    OMeterWorker* worker = (OMeterWorker*) user_data;
 
+    OMainWnd* wnd = ((OMainWnd*)(worker->m_caller));
 
+    if (worker->one_client == 0) {
         worker->one_client = lo_address_get_url(lo_message_get_source(data));
-        
-	OMainWnd* wnd = ((OMainWnd*)(worker->m_caller));
-	
-	osc_message* msg = new osc_message;
-	msg->path = strdup(path);
-	msg->data = lo_message_clone(data);
-	msg->client_index = client_index;
-	
-	wnd->oscMutex.lock();
-	
-	g_async_queue_push (wnd->m_osc_queue, msg);
-	wnd->notify_osc();
+        if (wnd->GetConfig()->get_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE)) {
+            wnd->update_osc_client();
+        }
+    }
 
-	wnd->oscMutex.unlock();
+    osc_message* msg = new osc_message;
+    msg->path = strdup(path);
+    msg->data = lo_message_clone(data);
+    msg->client_index = client_index;
+
+    wnd->oscMutex.lock();
+
+    g_async_queue_push (wnd->m_osc_queue, msg);
+    wnd->notify_osc();
+
+    wnd->oscMutex.unlock();
 	
     return 0;
 }
@@ -82,7 +86,7 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 	m_caller = caller;
 	
 #ifdef HAVE_OSC
-    osc_server = lo_server_thread_new_with_proto("3135", LO_UDP, osc_err_handler);
+    osc_server = lo_server_thread_new_with_proto(caller->GetConfig()->get_string(SETTINGS_OSC_PORT), LO_UDP, osc_err_handler);
     if( !osc_server ) {
         fprintf(stderr, "ERROR: unable to create client port.\n");
         return;

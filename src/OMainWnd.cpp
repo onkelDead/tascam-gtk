@@ -28,6 +28,9 @@
 #define OSC_STRIP_B0 (argv[0]->i32 != 0)
 #define OSC_STRIP_B1 (argv[1]->i32 != 0)
 
+#define OSC_STRIP_LOG(p, om) \
+    printf(p);lo_message_pp(om);
+
 #define OSC_MASTER_MSG(path, value) \
 {   \
     lo_message reply = lo_message_new();  \
@@ -37,11 +40,14 @@
 }
 
 #define OSC_STRIP_MSG(path, index, value) \
+{ \
     lo_message reply = lo_message_new();  \
     lo_message_add_int32(reply, index);   \
     lo_message_add_int32(reply, value);   \
     m_Worker.send_osc_all(path, reply);    \
-    lo_message_free(reply);
+    OSC_STRIP_LOG(path, reply) \
+    lo_message_free(reply); \
+}
 
 #else
 #define OSC_STRIP_INDEX 
@@ -157,6 +163,10 @@ void OMainWnd::create_menu() {
             sigc::mem_fun(this, &OMainWnd::on_menu_file_exit));
     m_refActionGroup->add(Gtk::Action::create("about", Gtk::Stock::ABOUT),
             sigc::mem_fun(this, &OMainWnd::on_menu_file_about));
+#ifdef HAVE_OSC
+    m_refActionGroup->add(Gtk::Action::create("osc", Gtk::Stock::PREFERENCES, "_OSC settings"),
+            sigc::mem_fun(this, &OMainWnd::on_menu_file_osc));
+#endif    
     m_refActionGroup->add(Gtk::Action::create("View", "_View"));
     m_refActionGroup->add(Gtk::Action::create("compact", Gtk::Stock::ZOOM_IN, "_Compact"),
             sigc::mem_fun(this, &OMainWnd::on_menu_view_compact));
@@ -167,6 +177,28 @@ void OMainWnd::create_menu() {
     m_refUIManager->insert_action_group(m_refActionGroup);
 
     //Layout the actions in a menubar and toolbar:
+#ifdef HAVE_OSC    
+    Glib::ustring ui_info =
+            "<ui>"
+            "  <menubar name='MenuBar'>"
+            "    <menu action='File'>"
+            "        <menuitem action='load'/>"
+            "        <menuitem action='save'/>"
+            "        <menuitem action='reset'/>"
+            "        <separator />"
+            "        <menuitem action='osc'/>"
+            "        <separator />"
+            "        <menuitem action='about'/>"
+            "        <separator />"
+            "        <menuitem action='exit' />"
+            "    </menu>"
+            "    <menu action='View'>"
+            "        <menuitem action='compact'/>"
+            "        <menuitem action='normal'/>"
+            "    </menu>"
+            "  </menubar>"
+            "</ui>";
+#else
     Glib::ustring ui_info =
             "<ui>"
             "  <menubar name='MenuBar'>"
@@ -185,6 +217,7 @@ void OMainWnd::create_menu() {
             "    </menu>"
             "  </menubar>"
             "</ui>";
+#endif    
 
     try {
         m_refUIManager->add_ui_from_string(ui_info);
@@ -256,6 +289,11 @@ void OMainWnd::create_controls() {
             m_eq_enable[i].set_vexpand(false);
             m_eq_enable[i].set_valign(Gtk::ALIGN_CENTER);
 
+            m_lcf_enable[i].set_label("LCF");
+            m_lcf_enable[i].set_name("lcf-button");
+            m_lcf_enable[i].set_vexpand(false);
+            m_lcf_enable[i].set_valign(Gtk::ALIGN_CENTER);
+            
             m_high_freq_gain[i].set_label("High");
             m_high_freq_gain[i].set_value_callback(eq_level_text);
             m_high_freq_gain[i].set_params(0, 24, 12, 1);
@@ -407,9 +445,9 @@ void OMainWnd::apply_gdk_style() {
         refStyleContext->add_provider(m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
         try {
-            if (Glib::file_test(PKGDATADIR "/tascam-gtk.css", Glib::FILE_TEST_EXISTS))
-                m_refCssProvider->load_from_path(PKGDATADIR "/tascam-gtk.css");
-            else
+//            if (Glib::file_test(PKGDATADIR "/tascam-gtk.css", Glib::FILE_TEST_EXISTS))
+//                m_refCssProvider->load_from_path(PKGDATADIR "/tascam-gtk.css");
+//            else
                 m_refCssProvider->load_from_path("./data/tascam-gtk.css");
         } catch (const Gtk::CssProviderError& ex) {
             std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
@@ -586,6 +624,11 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         ac->type = ToggleButton;
         ac->tbwidget = &m_eq_enable[index];
     }
+    else if (strcmp(info_name, "LCF Switch") == 0) {
+        ac = new alsa_control;
+        ac->type = ToggleButton;
+        ac->tbwidget = &m_lcf_enable[index];
+    }    
     else if (strcmp(info_name, "Mute Switch") == 0) {
         ac = new alsa_control;
         ac->type = ToggleButton;
@@ -719,7 +762,9 @@ void OMainWnd::on_notification_from_worker_thread() {
             ch_meter = alsa->sliderTodB(alsa->meters[i + 1] / 32768. * 133.) / 133. * 32768;
             m_stripLayouts[i].m_fader.m_meter[1].setLevel(ch_meter);
         }
-        OSC_STRIP_MSG("/strip/meter", i + 1, m_stripLayouts[i].m_fader.m_meter[0].get_level());
+        if (!m_config.get_boolean(SETTINGS_OSC_NO_METERS)) {
+            OSC_STRIP_MSG("/strip/meter", i + 1, m_stripLayouts[i].m_fader.m_meter[0].get_level());
+        }
     }
 
     int left_level = alsa->sliderTodB(alsa->meters[16] / 32768. * 133.) / 133. * 32768;
@@ -730,8 +775,10 @@ void OMainWnd::on_notification_from_worker_thread() {
     int master_leds = MAX(m_master.m_meter_left.get_level(), m_master.m_meter_right.get_level()) * 14 / 32768;
     int led_mask = 1 << master_leds;
 
-    OSC_MASTER_MSG("/master/meter/left", m_master.m_meter_left.get_level());
-    OSC_MASTER_MSG("/master/meter/right", m_master.m_meter_right.get_level());
+    if (!m_config.get_boolean(SETTINGS_OSC_NO_METERS)) {
+        OSC_MASTER_MSG("/master/meter/left", m_master.m_meter_left.get_level());
+        OSC_MASTER_MSG("/master/meter/right", m_master.m_meter_right.get_level());
+    }
 }
 
 void OMainWnd::on_menu_file_exit() {
@@ -740,6 +787,16 @@ void OMainWnd::on_menu_file_exit() {
 
 void OMainWnd::on_menu_file_about() {
     m_Dialog.show();
+}
+
+void OMainWnd::on_menu_file_osc() {
+    m_OscDialog.SetData(&m_config);
+
+    m_OscDialog.run();
+    
+    if (m_OscDialog.GetResult()) {
+        m_OscDialog.GetData(&m_config);
+    }
 }
 
 void OMainWnd::on_menu_file_reset() {
@@ -1056,6 +1113,44 @@ void OMainWnd::notify_osc() {
     m_Dispatcher_osc.emit();
 }
 
+void OMainWnd::update_osc_client() {
+    OSC_MASTER_MSG("/master/fader", m_master.m_fader.get_value());
+    OSC_MASTER_MSG("/master/bypass", m_master.m_true_bypass.get_active() ? 1 : 0);
+    OSC_MASTER_MSG("/master/busout", m_master.m_comp_to_stereo.get_active() ? 1 : 0);
+    for (int n = 0; n < 8; n++) {
+        OSC_STRIP_MSG("/link", n + 1, m_link[n].get_active() ? 1 : 0);  
+        OSC_STRIP_MSG("/master/route", n + 1, m_route.m_route[n].get_active_row_number());
+    }
+    for (int n = 0; n < 16; n++) {
+        OSC_STRIP_MSG("/strip/fader", n + 1, m_stripLayouts[n].m_fader.m_fader->get_value());
+        OSC_STRIP_MSG("/strip/mute", n + 1, m_stripLayouts[n].m_fader.m_MuteEnable->get_active() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/solo", n + 1, m_stripLayouts[n].m_fader.m_SoloEnable->get_active() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/phase", n + 1, m_stripLayouts[n].m_fader.m_PhaseEnable[0]->get_active() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/pan", n + 1, m_stripLayouts[n].m_fader.m_Pan[0]->get_value() - 127);
+        
+        OSC_STRIP_MSG("/strip/eq/active", n + 1, m_stripLayouts[n].m_eq.m_eq_enable->get_active() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/eq/highfreq", n + 1, m_stripLayouts[n].m_eq.m_high_freq_band->get_value());
+        OSC_STRIP_MSG("/strip/eq/highgain", n + 1, m_stripLayouts[n].m_eq.m_high_freq_gain[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/midhighfreq", n + 1, m_stripLayouts[n].m_eq.m_mid_high_freq_band[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/midhighgain", n + 1, m_stripLayouts[n].m_eq.m_mid_high_freq_gain[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/midhighwidth", n + 1, m_stripLayouts[n].m_eq.m_mid_high_freq_width[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/midlowfreq", n + 1, m_stripLayouts[n].m_eq.m_mid_low_freq_band[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/midlowgain", n + 1, m_stripLayouts[n].m_eq.m_mid_low_freq_gain[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/midlowwidth", n + 1, m_stripLayouts[n].m_eq.m_mid_low_freq_width[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/lowfreq", n + 1, m_stripLayouts[n].m_eq.m_low_freq_band[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/lowgain", n + 1, m_stripLayouts[n].m_eq.m_low_freq_gain[0].get_value());
+        OSC_STRIP_MSG("/strip/eq/lcf", n + 1, m_stripLayouts[n].m_eq.m_lcf_enable->get_active() ? 1 : 0);
+        
+        OSC_STRIP_MSG("/strip/comp/active", n + 1, m_stripLayouts[n].m_comp.m_enable->get_active() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/comp/threshold", n + 1, m_stripLayouts[n].m_comp.m_threshold[0].get_value());
+        OSC_STRIP_MSG("/strip/comp/gain", n + 1, m_stripLayouts[n].m_comp.m_gain[0].get_value());
+        OSC_STRIP_MSG("/strip/comp/attack", n + 1, m_stripLayouts[n].m_comp.m_attack[0].get_value());
+        OSC_STRIP_MSG("/strip/comp/release", n + 1, m_stripLayouts[n].m_comp.m_release[0].get_value());
+        OSC_STRIP_MSG("/strip/comp/ratio", n + 1, m_stripLayouts[n].m_comp.m_ratio[0].get_value());
+        
+    }    
+}
+
 void OMainWnd::on_notification_from_osc_thread() {
 
     oscMutex.lock();
@@ -1075,6 +1170,9 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
     lo_arg** argv = lo_message_get_argv(msg);
     lo_message reply;
 
+    printf("rec:%s", path);
+    lo_message_pp(msg);
+    
 // Master 
     if (!strcmp(path, "/strip/fader")) {
         int channel_index = argv[0]->i - 1;
@@ -1126,6 +1224,7 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
     if (!strcmp(path, "/strip/eq/midlowwidth"))        m_mid_low_freq_width[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
     if (!strcmp(path, "/strip/eq/lowgain"))        m_low_freq_gain[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
     if (!strcmp(path, "/strip/eq/lowfreq"))        m_low_freq_band[OSC_STRIP_INDEX].set_value(OSC_STRIP_I1);
+    if (!strcmp(path, "/strip/eq/lcf"))         m_lcf_enable[OSC_STRIP_INDEX].set_active(OSC_STRIP_B1);
 
 // Compressor
     if (!strcmp(path, "/strip/comp/active"))         m_comp_enable[OSC_STRIP_INDEX].set_active(OSC_STRIP_B1);
@@ -1147,12 +1246,12 @@ void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale*
         OSC_STRIP_MSG("/strip/fader", n + 1, control->get_value());
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             m_fader[n + 1].set_value(m_fader[n].get_value());
+            OSC_STRIP_MSG("/strip/fader", n + 2, control->get_value());
         }
     }
     if (!strcmp(control_name, CTL_MASTER)) {
         OSC_MASTER_MSG("/master/fader", control->get_value())
     }
-
     
     alsa->on_range_control_changed(n, control_name, control, label_);
 }
@@ -1332,18 +1431,30 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
         }
     }
     
+    if (!strcmp(control_name, CTL_NAME_LCF_ENABLE)) {
+        OSC_STRIP_MSG("/strip/eq/lcf", n + 1, m_lcf_enable[n].get_active() ? 1 : 0);
+        alsa->on_toggle_button_control_changed(n, control_name, &m_lcf_enable[n]);
+        if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            usleep(RESET_VALUE_DELAY);
+            m_lcf_enable[n + 1].set_active(m_lcf_enable[n].get_active());
+        }
+    }
+
     if (!strcmp(control_name, CTL_NAME_MUTE)) {
         OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n].get_active() ? 1 : 0);
         alsa->on_toggle_button_control_changed(n, control_name, &m_MuteEnable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
-            OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n + 1].get_active() ? 1 : 0);
+            OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n].get_active() ? 1 : 0);
             m_MuteEnable[n + 1].set_active(m_MuteEnable[n].get_active());
         }
     }
     if (!strcmp(control_name, CTL_NAME_SOLO)) {
         if (m_solo_channel == n || m_solo_channel == -1) {
             OSC_STRIP_MSG("/strip/solo", n + 1, m_SoloEnable[n].get_active() ? 1 : 0);
+            if (m_stripLayouts[n].get_channel_type() == STEREO) {
+                OSC_STRIP_MSG("/strip/solo", n + 1, m_SoloEnable[n].get_active() ? 1 : 0);
+            }
             if (m_SoloEnable[n].get_active())
                 set_solo_channel(n);
             else
@@ -1489,4 +1600,8 @@ void OMainWnd::on_about_dialog_response(int response_id) {
         default:
             break;
     }
+}
+
+OConfig* OMainWnd::GetConfig() {
+    return &m_config;
 }
