@@ -28,8 +28,12 @@
 #define OSC_STRIP_B0 (argv[0]->i32 != 0)
 #define OSC_STRIP_B1 (argv[1]->i32 != 0)
 
+#ifdef OSC_LOG_MESSAGE
 #define OSC_STRIP_LOG(p, om) \
     printf(p);lo_message_pp(om);
+#else
+#define OSC_STRIP_LOG(p, om)
+#endif
 
 #define OSC_MASTER_MSG(path, value) \
 {   \
@@ -445,9 +449,9 @@ void OMainWnd::apply_gdk_style() {
         refStyleContext->add_provider(m_refCssProvider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
         try {
-//            if (Glib::file_test(PKGDATADIR "/tascam-gtk.css", Glib::FILE_TEST_EXISTS))
-//                m_refCssProvider->load_from_path(PKGDATADIR "/tascam-gtk.css");
-//            else
+            if (Glib::file_test(PKGDATADIR "/tascam-gtk.css", Glib::FILE_TEST_EXISTS))
+                m_refCssProvider->load_from_path(PKGDATADIR "/tascam-gtk.css");
+            else
                 m_refCssProvider->load_from_path("./data/tascam-gtk.css");
         } catch (const Gtk::CssProviderError& ex) {
             std::cerr << "CssProviderError, Gtk::CssProvider::load_from_path() failed: "
@@ -764,6 +768,9 @@ void OMainWnd::on_notification_from_worker_thread() {
         }
         if (!m_config.get_boolean(SETTINGS_OSC_NO_METERS)) {
             OSC_STRIP_MSG("/strip/meter", i + 1, m_stripLayouts[i].m_fader.m_meter[0].get_level());
+            if (m_stripLayouts[i].m_comp.m_enable->get_active()) {
+                OSC_STRIP_MSG("/strip/comp/red", i + 1, m_stripLayouts[i].m_comp.m_reduction[0]->get_level());
+            }
         }
     }
 
@@ -1170,8 +1177,10 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
     lo_arg** argv = lo_message_get_argv(msg);
     lo_message reply;
 
+#ifdef OSC_LOG_MSG
     printf("rec:%s", path);
     lo_message_pp(msg);
+#endif
     
 // Master 
     if (!strcmp(path, "/strip/fader")) {
