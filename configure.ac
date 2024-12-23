@@ -2,6 +2,8 @@ AC_INIT([tascamgtk], [0.5], [onkel@paraair.de])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_PREREQ([2.66])
 
+CXXFLAGS='-O2'
+
 AC_ARG_ENABLE([debug], 
     AS_HELP_STRING([--enable-debug], [Enable debugging, default: no]),
         [case "${enableval}" in

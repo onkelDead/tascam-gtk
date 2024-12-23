@@ -13,7 +13,7 @@ dist_data_DATA = data/tascam-gtk.css data/icon.png
 desktop_DATA = data/tascamgtk.desktop
 pixmaps_DATA     = data/tascamgtk.png
 
-tascamgtk_CPPFLAGS = -O2 -std=c++17 ${GTK3_CFLAGS} ${GTKMM3_CFLAGS} ${ALSA_CFLAGS} ${XML3_CFLAGS} ${XML26_CFLAGS} ${LO_CFLAGS} -DPKGDATADIR='"$(datadir)"'
+tascamgtk_CPPFLAGS = ${CXXFLAGS} -std=c++17 ${GTK3_CFLAGS} ${GTKMM3_CFLAGS} ${ALSA_CFLAGS} ${XML3_CFLAGS} ${XML26_CFLAGS} ${LO_CFLAGS} -DPKGDATADIR='"$(datadir)"'
 tascamgtk_LDADD = ${GTK2_LIBS} ${GTKMM3_LIBS} ${ALSA_LIBS} ${XML3_LIBS} ${XML26_LIBS} ${CONFIG_LIBS} -lpthread
 
 EXTRA_DIST = $(gsettings_SCHEMAS) \
