@@ -898,9 +898,6 @@ void OMainWnd::on_menu_view_normal() {
         m_grid.remove(m_dsp_layout);
     show_all_children(true);
     m_config.set_boolean(SETTINGS_WINDOW_COMPACT, false);
-    
-    alsa->on_active_button_control_changed(0, CTL_NAME_METER, &m_stripLayouts[0].m_DspEnable);
-
 }
 
 void OMainWnd::on_menu_popup_load(int channel_index) {
@@ -1490,10 +1487,6 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
     if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {
         set_dsp_channel(n, m_stripLayouts[n].m_DspEnable.get_active());
-        if (m_stripLayouts[n].get_channel_type() == STEREO) {
-            alsa->on_active_button_control_changed(n + 32, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
-        } else
-            alsa->on_active_button_control_changed(n, CTL_NAME_METER, &m_stripLayouts[n].m_DspEnable);
     }
 
 }

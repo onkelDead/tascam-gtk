@@ -273,7 +273,7 @@ void OAlsa::setInteger(const char* name, int channel_index, int value) {
         snd_ctl_elem_value_alloca(&control);
         snd_ctl_elem_value_set_integer(control, 0, value);
         if ((err = snd_hctl_elem_write(elem, control)) < 0) {
-            fprintf(stderr, "Control %s element %s read error: %s\n", "hw:0", elem_name, snd_strerror(err));
+            fprintf(stderr, "Control %s element %s write error: %s\n", "hw:0", elem_name, snd_strerror(err));
             return;
         }
 
