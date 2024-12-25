@@ -127,7 +127,7 @@ void OComp::set_ref_index(int index, Gtk::Window* wnd) {
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
 	m_enable = &wnd_->m_comp_enable[index];
-	m_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CP_ENABLE));
+	m_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CP_ENABLE));
 
 	m_threshold = &wnd_->m_threshold[index];
 	m_threshold->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_THRESHOLD));
@@ -185,8 +185,8 @@ void OComp::get_alsa_values(int index, OAlsa* alsa) {
 
 void OComp::reset(OAlsa* alsa, int index) {
 
-	alsa->setBoolean(CTL_NAME_CP_ENABLE, 0, 0);
-	m_enable->set_active(alsa->getBoolean(CTL_NAME_CP_ENABLE, 0));
+	alsa->setBoolean(CTL_NAME_CP_ENABLE, index, 0);
+	m_enable->set_active(alsa->getBoolean(CTL_NAME_CP_ENABLE, index));
 	usleep(RESET_VALUE_DELAY);
 
 	m_threshold->reset();
@@ -243,7 +243,6 @@ void OComp::load_values(Glib::ustring xml) {
 			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != XML_ENDELEMENT) {
 				reader.read();
 				m_enable->set_active(atoi(reader.get_value().c_str()) == 1);
-				m_enable->toggled();
 				usleep(RESET_VALUE_DELAY);
 			}
 			if (!strcmp(reader.get_name().c_str(), "threshold") && reader.get_node_type() != XML_ENDELEMENT) {

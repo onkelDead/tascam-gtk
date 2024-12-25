@@ -30,6 +30,7 @@
 #include "OMeterWorker.h"
 #include "OOscDialog.h"
 #include "OConfig.h"
+#include "OSwitch.h"
 
 /**     Class OMainWnd, derived from Gtk::Window.
  *      It's the main UI element of this application.
@@ -46,16 +47,16 @@
 #endif
 
 enum WIDGET_TYPE {
-    ToggleButton,
     Dial,
     Fader,
-    ComboBox
+    ComboBox,
+    Switch
 };
 
 
 typedef struct alsa_control {
     WIDGET_TYPE type;
-    Gtk::ToggleButton* tbwidget;
+    OSwitch* oswitch;
     Gtk::VScale* faderwidget;
     Gtk::ComboBoxText* combo;
     ODial* dial;
@@ -111,7 +112,7 @@ public:
     /// Pointer to the ALSA device.
     OAlsa *alsa;
 
-    Gtk::ToggleButton m_comp_enable[NUM_CHANNELS + 1];
+    OSwitch m_comp_enable[NUM_CHANNELS + 1];
     ODial m_threshold[NUM_CHANNELS + 1];
     ODial m_gain[NUM_CHANNELS + 1];
     ODial m_attack[NUM_CHANNELS + 1];
@@ -119,7 +120,7 @@ public:
     ODial m_ratio[NUM_CHANNELS + 1];
     OMeter m_reduction[NUM_CHANNELS + 1];
 
-    Gtk::ToggleButton m_eq_enable[NUM_CHANNELS + 1];
+    OSwitch m_eq_enable[NUM_CHANNELS + 1];
     ODial m_high_freq_gain[NUM_CHANNELS + 1];
     ODial m_high_freq_band[NUM_CHANNELS + 1];
     ODial m_mid_high_freq_gain[NUM_CHANNELS + 1];
@@ -130,12 +131,12 @@ public:
     ODial m_mid_low_freq_width[NUM_CHANNELS + 1];
     ODial m_low_freq_gain[NUM_CHANNELS + 1];
     ODial m_low_freq_band[NUM_CHANNELS + 1];
-    Gtk::ToggleButton m_lcf_enable[NUM_CHANNELS + 1];
+    OSwitch m_lcf_enable[NUM_CHANNELS + 1];
 
     ODial m_Pan[NUM_CHANNELS + 1];
-    Gtk::ToggleButton m_PhaseEnable[NUM_CHANNELS + 1];
-    Gtk::ToggleButton m_MuteEnable[NUM_CHANNELS + 1];
-    Gtk::ToggleButton m_SoloEnable[NUM_CHANNELS + 1];
+    OSwitch m_PhaseEnable[NUM_CHANNELS + 1];
+    OSwitch m_MuteEnable[NUM_CHANNELS + 1];
+    OSwitch m_SoloEnable[NUM_CHANNELS + 1];
     Gtk::VScale m_fader[NUM_CHANNELS + 1];
     
 
@@ -184,7 +185,7 @@ private:
 
     Gtk::VBox m_menubox;
 
-    Gtk::ToggleButton m_link[8];
+    OSwitch m_link[8];
 
     Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
     Glib::RefPtr<Gtk::UIManager> m_refUIManager;

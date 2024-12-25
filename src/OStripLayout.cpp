@@ -29,7 +29,12 @@ OStripLayout::OStripLayout() : Gtk::VBox() {
 
 	m_DspEnable.set_label("Active");
 	m_DspEnable.set_name("dsp-active");
-
+        m_DspEnable.set_ledcolor(1., 1., 1., 1.);
+        m_DspEnable.set_halign(Gtk::ALIGN_FILL);
+        m_DspEnable.set_valign(Gtk::ALIGN_FILL);
+        m_DspEnable.set_fontsize(7);
+        m_DspEnable.set_ledsize(6);
+            
 	m_channel_type = MONO;
 
 	add(m_grid);
@@ -50,7 +55,7 @@ void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_eq.init(index, alsa, wnd);
 	m_fader.init(index, alsa, wnd);
 
-	m_DspEnable.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CHANNEL_ACTIVE));
+	m_DspEnable.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CHANNEL_ACTIVE));
 
 }
 

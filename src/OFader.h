@@ -21,6 +21,7 @@
 #include "OTypes.h"
 #include "OMeter.h"
 #include "ODial.h"
+#include "OSwitch.h"
 #include "OAlsa.h"
 
 class OFader : public Gtk::VBox {
@@ -37,9 +38,9 @@ public:
     void save_values(FILE* file);    
     void load_values(Glib::ustring xml);    
     
-    Gtk::ToggleButton* m_MuteEnable;
-    Gtk::ToggleButton* m_SoloEnable;
-    Gtk::ToggleButton* m_PhaseEnable[2];    
+    OSwitch* m_MuteEnable;
+    OSwitch* m_SoloEnable;
+    OSwitch* m_PhaseEnable[2];    
     Gtk::VScale* m_fader;
     ODial* m_Pan[2];
     

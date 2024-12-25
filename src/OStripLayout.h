@@ -52,7 +52,7 @@ public:
     OComp m_comp;
     OEq m_eq;
     OFader m_fader;
-    Gtk::ToggleButton m_DspEnable;
+    OSwitch m_DspEnable;
     
 private:
     CHANNEL_TYPE m_channel_type;

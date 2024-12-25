@@ -211,10 +211,10 @@ void OEq::set_ref_index(int index, Gtk::Window* wnd){
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
 	m_eq_enable = &wnd_->m_eq_enable[index];
-	m_eq_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
+	m_eq_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
 	
 	m_lcf_enable = &wnd_->m_lcf_enable[index];
-	m_lcf_enable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_LCF_ENABLE));
+	m_lcf_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_LCF_ENABLE));
  
 	m_high_freq_gain = &wnd_->m_high_freq_gain[index];
 	m_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_LEVEL));
@@ -368,7 +368,6 @@ void OEq::load_values(Glib::ustring xml) {
 			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != XML_ENDELEMENT) {
 				reader.read();
 				m_eq_enable->set_active(atoi(reader.get_value().c_str()) == 1);
-				m_eq_enable->toggled();
 				usleep(RESET_VALUE_DELAY);
 			}
 			if (!strcmp(reader.get_name().c_str(), "high_freq_gain") && reader.get_node_type() != XML_ENDELEMENT) {
@@ -424,7 +423,6 @@ void OEq::load_values(Glib::ustring xml) {
 			if (!strcmp(reader.get_name().c_str(), "low_lcf") && reader.get_node_type() != XML_ENDELEMENT) {
 				reader.read();
 				m_lcf_enable->set_active(atoi(reader.get_value().c_str()) == 1);
-				m_lcf_enable->toggled();
 				usleep(RESET_VALUE_DELAY);
 			}                        
 

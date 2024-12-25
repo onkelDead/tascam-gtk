@@ -119,15 +119,15 @@ void OFader::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
 
     m_MuteEnable = &wnd_->m_MuteEnable[index];
     m_MuteEnable->set_active(alsa->getBoolean(CTL_NAME_MUTE, index));
-    m_MuteEnable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_MUTE));
+    m_MuteEnable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_MUTE));
 
     m_SoloEnable = &wnd_->m_SoloEnable[index];
     m_SoloEnable->set_active(alsa->getBoolean(CTL_NAME_SOLO, index));
-    m_SoloEnable->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_SOLO));
+    m_SoloEnable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_SOLO));
 
     m_PhaseEnable[0] = &wnd_->m_PhaseEnable[index];
     m_PhaseEnable[0]->set_active(alsa->getBoolean(CTL_NAME_PHASE, index));
-    m_PhaseEnable[0]->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_PHASE));
+    m_PhaseEnable[0]->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_PHASE));
 
 
     if (!(index % 2)) {
@@ -138,7 +138,7 @@ void OFader::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
         m_Pan[1]->set_halign(Gtk::ALIGN_CENTER);
         m_PhaseEnable[1] = &wnd_->m_PhaseEnable[index + 1];
         m_PhaseEnable[1]->set_active(alsa->getBoolean(CTL_NAME_PHASE, index + 1));
-        m_PhaseEnable[1]->signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index + 1, CTL_NAME_PHASE));
+        m_PhaseEnable[1]->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index + 1, CTL_NAME_PHASE));
     }
 }
 
@@ -209,14 +209,12 @@ void OFader::load_values(Glib::ustring xml) {
             if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_MuteEnable->set_active(atoi(reader.get_value().c_str()) == 1);
-                m_MuteEnable->toggled();
                 usleep(RESET_VALUE_DELAY);
             }
 
             if (!strcmp(reader.get_name().c_str(), "phase") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_PhaseEnable[0]->set_active(atoi(reader.get_value().c_str()) == 1);
-                m_PhaseEnable[0]->toggled();
                 usleep(RESET_VALUE_DELAY);
             }
         }

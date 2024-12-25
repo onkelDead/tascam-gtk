@@ -28,6 +28,7 @@
 
 #include "OTypes.h"
 #include "ODial.h"
+#include "OSwitch.h"
 #include "OAlsa.h"
 
 #define EBLUE_NORMAL .5, .55, 1., 1.
@@ -75,7 +76,7 @@ public:
     void set_sensitive(bool val);
     bool get_active() {return m_is_active;}
     
-    Gtk::ToggleButton* m_eq_enable;
+    OSwitch* m_eq_enable;
     ODial* m_high_freq_gain;
     ODial* m_high_freq_band;
     ODial* m_mid_high_freq_gain;
@@ -86,7 +87,7 @@ public:
     ODial* m_mid_low_freq_width;
     ODial* m_low_freq_gain;
     ODial* m_low_freq_band;
-    Gtk::ToggleButton* m_lcf_enable;
+    OSwitch* m_lcf_enable;
     
     Gtk::Grid m_grid;
 private:

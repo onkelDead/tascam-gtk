@@ -28,6 +28,7 @@
 #define OSC_STRIP_B0 (argv[0]->i32 != 0)
 #define OSC_STRIP_B1 (argv[1]->i32 != 0)
 
+// #define OSC_LOG_MESSAGE
 #ifdef OSC_LOG_MESSAGE
 #define OSC_STRIP_LOG(p, om) \
     printf(p);lo_message_pp(om);
@@ -254,7 +255,12 @@ void OMainWnd::create_controls() {
         {
             m_comp_enable[i].set_label("Comp");
             m_comp_enable[i].set_name("comp-button");
-
+            m_comp_enable[i].set_ledcolor(1, .6, .6, 1.);
+            m_comp_enable[i].set_halign(Gtk::ALIGN_FILL);
+            m_comp_enable[i].set_valign(Gtk::ALIGN_FILL);
+            m_comp_enable[i].set_fontsize(7);
+            m_comp_enable[i].set_ledsize(6);
+            
             m_threshold[i].set_params(0, 32, 32, 1);
             m_threshold[i].set_label("Thresh");
             m_threshold[i].set_value_callback(cp_threshold_text);
@@ -289,14 +295,24 @@ void OMainWnd::create_controls() {
         // equalizer controls
         {
             m_eq_enable[i].set_label("EQ");
-            m_eq_enable[i].set_name("eq-button");
+            m_eq_enable[i].set_name("eq-switch");
             m_eq_enable[i].set_vexpand(false);
             m_eq_enable[i].set_valign(Gtk::ALIGN_CENTER);
-
+            m_eq_enable[i].set_ledcolor(.6, .6, 1., 1.);
+            m_eq_enable[i].set_halign(Gtk::ALIGN_FILL);
+            m_eq_enable[i].set_valign(Gtk::ALIGN_FILL);
+            m_eq_enable[i].set_fontsize(7);
+            m_eq_enable[i].set_ledsize(6);
+            
             m_lcf_enable[i].set_label("LCF");
             m_lcf_enable[i].set_name("lcf-button");
             m_lcf_enable[i].set_vexpand(false);
             m_lcf_enable[i].set_valign(Gtk::ALIGN_CENTER);
+            m_lcf_enable[i].set_ledcolor(.6, .6, 1., 1.);
+            m_lcf_enable[i].set_halign(Gtk::ALIGN_FILL);
+            m_lcf_enable[i].set_valign(Gtk::ALIGN_FILL);
+            m_lcf_enable[i].set_fontsize(7);
+            m_lcf_enable[i].set_ledsize(6);
             
             m_high_freq_gain[i].set_label("High");
             m_high_freq_gain[i].set_value_callback(eq_level_text);
@@ -360,12 +376,28 @@ void OMainWnd::create_controls() {
 
             m_MuteEnable[i].set_label("Mute");
             m_MuteEnable[i].set_name("mute-button");
+            m_MuteEnable[i].set_ledcolor(1., 0., 0., 1.);
+            m_MuteEnable[i].set_halign(Gtk::ALIGN_FILL);
+            m_MuteEnable[i].set_valign(Gtk::ALIGN_FILL);
+            m_MuteEnable[i].set_fontsize(7);
+            m_MuteEnable[i].set_ledsize(6);
+            
 
             m_SoloEnable[i].set_label("Solo");
             m_SoloEnable[i].set_name("solo-button");
+            m_SoloEnable[i].set_ledcolor(1., .5, 0., 1.);
+            m_SoloEnable[i].set_halign(Gtk::ALIGN_FILL);
+            m_SoloEnable[i].set_valign(Gtk::ALIGN_FILL);
+            m_SoloEnable[i].set_fontsize(7);
+            m_SoloEnable[i].set_ledsize(6);
 
             m_PhaseEnable[i].set_label("Phase");
             m_PhaseEnable[i].set_name("phase-button");
+            m_PhaseEnable[i].set_ledcolor(0., 1., 1., 1.);
+            m_PhaseEnable[i].set_halign(Gtk::ALIGN_FILL);
+            m_PhaseEnable[i].set_valign(Gtk::ALIGN_FILL);
+            m_PhaseEnable[i].set_fontsize(7);
+            m_PhaseEnable[i].set_ledsize(6);
 
             m_fader[i].set_range(0, 133);
             m_fader[i].set_name("fader");
@@ -394,7 +426,12 @@ void OMainWnd::create_controls() {
     for (int i = 0; i < NUM_CHANNELS / 2; i++) {
         m_link[i].set_label("Link");
         m_link[i].set_name("link-button");
-        m_link[i].signal_toggled().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_ch_tb_changed), i, CTL_LINK));
+        m_link[i].signal_switched.connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_ch_tb_changed), i, CTL_LINK));
+        m_link[i].set_ledcolor(1., 1., 0., 1.);
+        m_link[i].set_ledsize(6);
+        m_link[i].set_fontsize(8);
+        m_link[i].set_align(Gtk::Align::ALIGN_CENTER);
+        m_link[i].set_halign(Gtk::ALIGN_FILL);
         m_grid.attach(m_link[i], i * 2, 3, 2, 1);
     }
 
@@ -497,8 +534,8 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
     alsa_control* ac = 0;
     if (strcmp(info_name, "Master Mute Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_master.m_mute;
+        ac->type = Switch;
+        ac->oswitch = &m_master.m_mute;
     }
     else if (strcmp(info_name, "Master Volume") == 0) {
         ac = new alsa_control;
@@ -507,13 +544,13 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
     }
     else if (strcmp(info_name, "DSP Bypass Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_master.m_true_bypass;
+        ac->type = Switch;
+        ac->oswitch = &m_master.m_true_bypass;
     }
     else if (strcmp(info_name, "Buss Out Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_master.m_comp_to_stereo;
+        ac->type = Switch;
+        ac->oswitch = &m_master.m_comp_to_stereo;
     }
     else if (strcmp(info_name, "Line Out Route") == 0) {
         ac = new alsa_control;
@@ -549,8 +586,8 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
     }
     else if (strcmp(info_name, "Compressor Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_comp_enable[index];
+        ac->type = Switch;
+        ac->oswitch = &m_comp_enable[index];
     }
     else if (strcmp(info_name, "Compressor Threshold Volume") == 0) {
         ac = new alsa_control;
@@ -625,18 +662,18 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
     }
     else if (strcmp(info_name, "EQ Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_eq_enable[index];
+        ac->type = Switch;
+        ac->oswitch = &m_eq_enable[index];
     }
     else if (strcmp(info_name, "LCF Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_lcf_enable[index];
+        ac->type = Switch;
+        ac->oswitch = &m_lcf_enable[index];
     }    
     else if (strcmp(info_name, "Mute Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_MuteEnable[index];
+        ac->type = Switch;
+        ac->oswitch = &m_MuteEnable[index];
     }
     else if (strcmp(info_name, "Pan Left-Right Volume") == 0) {
         ac = new alsa_control;
@@ -645,8 +682,8 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
     }
     else if (strcmp(info_name, "Phase Switch") == 0) {
         ac = new alsa_control;
-        ac->type = ToggleButton;
-        ac->tbwidget = &m_PhaseEnable[index];
+        ac->type = Switch;
+        ac->oswitch = &m_PhaseEnable[index];
     }
     return ac;
 }
@@ -698,9 +735,6 @@ void OMainWnd::on_notification_from_alsa_thread() {
         block_events = true;
         m_block_ui = true;
         switch(widget->type) {
-            case ToggleButton:
-                widget->tbwidget->set_active(cv->value);
-                break;
             case Fader:
                 widget->faderwidget->set_value(alsa->dBToSlider(cv->value) + 1);
                 break;    
@@ -709,6 +743,9 @@ void OMainWnd::on_notification_from_alsa_thread() {
                 break;
             case Dial:
                 widget->dial->set_value(cv->value);
+                break;
+            case Switch:
+                widget->oswitch->set_active(cv->value);
                 break;
         }
         block_events = false;
@@ -1072,19 +1109,16 @@ void OMainWnd::load_values(Glib::ustring filename) {
             if (!strcmp(reader.get_name().c_str(), "mute") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_master.m_mute.set_active(atoi(reader.get_value().c_str()) == 1);
-                m_master.m_mute.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
             if (!strcmp(reader.get_name().c_str(), "bypass") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_master.m_true_bypass.set_active(atoi(reader.get_value().c_str()) == 1);
-                m_master.m_true_bypass.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
             if (!strcmp(reader.get_name().c_str(), "bus_out") && reader.get_node_type() != XML_ENDELEMENT) {
                 reader.read();
                 m_master.m_comp_to_stereo.set_active(atoi(reader.get_value().c_str()) == 1);
-                m_master.m_comp_to_stereo.toggled();
                 usleep(RESET_VALUE_DELAY);
             }
             if (!strcmp(reader.get_name().c_str(), "route") && reader.get_node_type() != XML_ENDELEMENT) {
@@ -1421,7 +1455,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
     
     if (!strcmp(control_name, CTL_NAME_CP_ENABLE)) {
         OSC_STRIP_MSG("/strip/comp/active", n + 1, m_comp_enable[n].get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_comp_enable[n]);
+        alsa->on_switch_control_changed(n, control_name, &m_comp_enable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
             m_comp_enable[n + 1].set_active(m_comp_enable[n].get_active());
@@ -1430,7 +1464,7 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
 
     if (!strcmp(control_name, CTL_NAME_EQ_ENABLE)) {
         OSC_STRIP_MSG("/strip/eq/active", n + 1, m_eq_enable[n].get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_eq_enable[n]);
+        alsa->on_switch_control_changed(n, control_name, &m_eq_enable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
             m_eq_enable[n + 1].set_active(m_eq_enable[n].get_active());
@@ -1439,16 +1473,18 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
     
     if (!strcmp(control_name, CTL_NAME_LCF_ENABLE)) {
         OSC_STRIP_MSG("/strip/eq/lcf", n + 1, m_lcf_enable[n].get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_lcf_enable[n]);
+        alsa->on_switch_control_changed(n, control_name, &m_lcf_enable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
             m_lcf_enable[n + 1].set_active(m_lcf_enable[n].get_active());
         }
+        // disable/enable eq_low_gain, if LCF is set to enabled/disabled 
+        m_low_freq_gain[n].set_sensitive(!m_lcf_enable[n].get_active());
     }
 
     if (!strcmp(control_name, CTL_NAME_MUTE)) {
         OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n].get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_MuteEnable[n]);
+        alsa->on_switch_control_changed(n, control_name, &m_MuteEnable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
             usleep(RESET_VALUE_DELAY);
             OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n].get_active() ? 1 : 0);
@@ -1469,20 +1505,20 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
     }
     if (!strcmp(control_name, CTL_NAME_PHASE)) {
         OSC_STRIP_MSG("/strip/phase", n + 1, m_PhaseEnable[n].get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_PhaseEnable[n]);
+        alsa->on_switch_control_changed(n, control_name, &m_PhaseEnable[n]);
     }
     if (!strcmp(control_name, CTL_NAME_MASTER_MUTE)) {
         OSC_MASTER_MSG("/master/mute", m_master.m_mute.get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_mute);
+        alsa->on_switch_control_changed(n, control_name, &m_master.m_mute);
     }
     if (!strcmp(control_name, CTL_NAME_BYPASS)) {
         OSC_MASTER_MSG("/master/bypass", m_master.m_true_bypass.get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_true_bypass);
+        alsa->on_switch_control_changed(n, control_name, &m_master.m_true_bypass);
     }
 
     if (!strcmp(control_name, CTL_NAME_BUS_OUT)) {
         OSC_MASTER_MSG("/master/busout", m_master.m_comp_to_stereo.get_active() ? 1 : 0);
-        alsa->on_toggle_button_control_changed(n, control_name, &m_master.m_comp_to_stereo);
+        alsa->on_switch_control_changed(n, control_name, &m_master.m_comp_to_stereo);
     }
 
     if (!strcmp(control_name, CTL_NAME_CHANNEL_ACTIVE)) {

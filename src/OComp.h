@@ -25,6 +25,7 @@
 
 #include "OTypes.h"
 #include "ODial.h"
+#include "OSwitch.h"
 #include "OMeter.h"
 #include "OAlsa.h"
 #include "OTypes.h"
@@ -67,7 +68,7 @@ public:
 #endif
     
     
-    Gtk::ToggleButton* m_enable;
+    OSwitch* m_enable;
     ODial* m_threshold;
     ODial* m_gain;
     ODial* m_attack;

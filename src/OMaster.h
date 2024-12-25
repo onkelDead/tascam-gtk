@@ -40,9 +40,9 @@ public:
     OMeter m_meter_right;
     
     Gtk::VScale m_fader;
-    Gtk::ToggleButton m_mute;
-    Gtk::ToggleButton m_true_bypass;
-    Gtk::ToggleButton m_comp_to_stereo;
+    OSwitch m_mute;
+    OSwitch m_true_bypass;
+    OSwitch m_comp_to_stereo;
     
     ORoute* m_route;
     

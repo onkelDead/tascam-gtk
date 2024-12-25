@@ -63,6 +63,7 @@ void ODspLayout::set_view_type(VIEW_TYPE view_type) {
 		}
 	}
 	if (view_type == SINGLE_DSP) {
+                m_eq.set_halign(Gtk::Align::ALIGN_START);
 		m_grid.attach(m_eq, 0, 0, 1, 1);
 		m_grid.attach(m_eq_sep, 1, 0, 1, 1);
 		m_grid.attach(m_comp, 2, 0, 1, 1);

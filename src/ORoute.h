@@ -19,6 +19,7 @@
 
 #include "OTypes.h"
 #include "ODial.h"
+#include "OSwitch.h"
 #include "OAlsa.h"
 
 

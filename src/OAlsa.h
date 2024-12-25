@@ -72,7 +72,7 @@
 #define CTL_NAME_CP_RATIO                   "name='Compressor Ratio'"
 #define CTL_NAME_CP_ENABLE                  "name='Compressor Switch'"
 
-#define RESET_VALUE_DELAY                   1000
+#define RESET_VALUE_DELAY                   200
 
 #define CTL_NAME_CHANNEL_ACTIVE             "channel_active"
 #define CTL_NAME_METER                      "name='Level Meter'"
@@ -124,13 +124,10 @@ public:
     
 //    ODial value change slot
     void on_dial_control_changed (int n, const char* control_name, ODial* control);
-    
-//    ToggleButton set boolean value slot
-    void on_toggle_button_control_changed (int n, const char* control_name, Gtk::ToggleButton* control);    
-    
-//    ToggleButton set boolean value slot
-    void on_active_button_control_changed (int n, const char* control_name, Gtk::ToggleButton* control);    
-    
+
+    //    ToggleButton set boolean value slot
+    void on_switch_control_changed (int n, const char* control_name, OSwitch* control);    
+  
 //    Slot for comboBox change event
     void on_combo_control_changed (int n, const char* control_name, Gtk::ComboBoxText* control);
     

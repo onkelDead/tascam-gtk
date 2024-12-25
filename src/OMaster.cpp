@@ -24,16 +24,31 @@ OMaster::OMaster() : Gtk::VBox() {
 
 
     m_true_bypass.set_label("Mixer True\nBypass");
-    m_true_bypass.set_size_request(-1, 48);
     m_true_bypass.set_name("comp-button");
-
+    m_true_bypass.set_ledcolor(1., 1., 0., 1.);
+    m_true_bypass.set_ledsize(6);
+    m_true_bypass.set_fontsize(8);
+    m_true_bypass.set_size_request(-1, 48);
+//    m_true_bypass.set_align(Gtk::Align::ALIGN_CENTER);
+    m_true_bypass.set_halign(Gtk::ALIGN_FILL);
+    
     m_comp_to_stereo.set_label("Computer out\nto Stereo BUS");
-    m_comp_to_stereo.set_size_request(-1, 48);
     m_comp_to_stereo.set_name("comp-button");
-
+    m_comp_to_stereo.set_ledcolor(1., 1., 0., 1.);
+    m_comp_to_stereo.set_ledsize(6);
+    m_comp_to_stereo.set_fontsize(8);
+    m_comp_to_stereo.set_size_request(-1, 48);
+//    m_comp_to_stereo.set_align(Gtk::Align::ALIGN_CENTER);
+    m_comp_to_stereo.set_halign(Gtk::ALIGN_FILL);
+    
     m_mute.set_label("Mute");
     m_mute.set_name("mute-button");
-
+    m_mute.set_ledcolor(1., 0., 0., 1.);
+    m_mute.set_ledsize(6);
+    m_mute.set_fontsize(8);
+//    m_mute.set_align(Gtk::Align::ALIGN_CENTER);
+    m_mute.set_halign(Gtk::ALIGN_FILL);
+        
     m_mute.set_size_request(-1, 48);
 
     m_fader.set_name("fader");
@@ -85,13 +100,13 @@ void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
     m_fader.set_tooltip_text(l_title);
 
     m_true_bypass.set_active(alsa->getBoolean(CTL_NAME_BYPASS, 0));
-    m_true_bypass.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BYPASS));
+    m_true_bypass.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BYPASS));
 
     m_comp_to_stereo.set_active(alsa->getBoolean(CTL_NAME_BUS_OUT, 0));
-    m_comp_to_stereo.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BUS_OUT));
+    m_comp_to_stereo.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BUS_OUT));
 
     m_mute.set_active(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0));
-    m_mute.signal_toggled().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_MASTER_MUTE));
+    m_mute.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_MASTER_MUTE));
 
     set_view_type(NORMAL);
 
