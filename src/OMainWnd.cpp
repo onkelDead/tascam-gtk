@@ -1251,6 +1251,7 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
         }
     }
     if (!strcmp(path, "/strip/phase"))         m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_PhaseEnable[0]->set_active(OSC_STRIP_B1);
+    if (!strcmp(path, "/strip/reset"))         m_stripLayouts[OSC_STRIP_INDEX].reset(alsa, OSC_STRIP_INDEX);
     
 // EQ    
     if (!strcmp(path, "/strip/eq/active"))         m_eq_enable[OSC_STRIP_INDEX].set_active(OSC_STRIP_B1);
