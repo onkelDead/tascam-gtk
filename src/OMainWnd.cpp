@@ -28,13 +28,8 @@
 #define OSC_STRIP_B0 (argv[0]->i32 != 0)
 #define OSC_STRIP_B1 (argv[1]->i32 != 0)
 
-// #define OSC_LOG_MESSAGE
-#ifdef OSC_LOG_MESSAGE
-#define OSC_STRIP_LOG(p, om) \
-    printf(p);lo_message_pp(om);
-#else
-#define OSC_STRIP_LOG(p, om)
-#endif
+#define STEREO_LEFT_MASK 0x0e
+#define SM_INDEX (m_stripLayouts[OSC_STRIP_INDEX & STEREO_LEFT_MASK].get_channel_type() == STEREO ? OSC_STRIP_INDEX & 0x0e : OSC_STRIP_INDEX)
 
 #define OSC_MASTER_MSG(path, value) \
 {   \
@@ -50,7 +45,6 @@
     lo_message_add_int32(reply, index);   \
     lo_message_add_int32(reply, value);   \
     m_Worker.send_osc_all(path, reply);    \
-    OSC_STRIP_LOG(path, reply) \
     lo_message_free(reply); \
 }
 
@@ -110,6 +104,8 @@ m_WorkerAlsaThread(nullptr) {
     create_controls();
 
     show_all_children(true);
+    
+    l_log_osc = m_config.get_boolean(SETTINGS_OSC_LOG_ALL);
     
     create_worker_threads(); 
     
@@ -840,6 +836,7 @@ void OMainWnd::on_menu_file_osc() {
     
     if (m_OscDialog.GetResult()) {
         m_OscDialog.GetData(&m_config);
+        l_log_osc = m_config.get_boolean(SETTINGS_OSC_LOG_ALL);
     }
 }
 
@@ -1213,13 +1210,9 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
     lo_message_pp(msg);
 #endif
     
+    
 // Master 
-    if (!strcmp(path, "/strip/fader")) {
-        int channel_index = argv[0]->i - 1;
-        float val = argv[1]->i;
-
-        m_stripLayouts[channel_index].m_fader.m_fader->set_value(val);
-    }
+    if (!strcmp(path, "/reset"))                on_menu_file_reset();
     if (!strcmp(path, "/master/fader"))         m_master.m_fader.set_value(OSC_STRIP_I0);
     if (!strcmp(path, "/master/mute"))          m_master.m_mute.set_active(OSC_STRIP_B0);
     if (!strcmp(path, "/master/bypass"))        m_master.m_true_bypass.set_active(OSC_STRIP_B0);
@@ -1242,16 +1235,18 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
     }   
     
 // strip
+    if (!strcmp(path, "/strip/fader"))          m_stripLayouts[SM_INDEX].m_fader.m_fader->set_value((float)OSC_STRIP_I1);
+    
     if (!strcmp(path, "/strip/pan"))            m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_Pan[0]->set_value(OSC_STRIP_I1 + 127);
-    if (!strcmp(path, "/strip/mute"))           m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_MuteEnable->set_active(OSC_STRIP_B1);
+    if (!strcmp(path, "/strip/mute"))           m_stripLayouts[SM_INDEX].m_fader.m_MuteEnable->set_active(OSC_STRIP_B1);
     if (!strcmp(path, "/strip/solo")) {
         if (OSC_STRIP_INDEX == m_solo_channel || m_solo_channel == -1) {
             m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_SoloEnable->set_active(OSC_STRIP_B1);
             m_solo_channel = OSC_STRIP_B1 ? OSC_STRIP_INDEX : -1;
         }
     }
-    if (!strcmp(path, "/strip/phase"))         m_stripLayouts[OSC_STRIP_INDEX].m_fader.m_PhaseEnable[0]->set_active(OSC_STRIP_B1);
-    if (!strcmp(path, "/strip/reset"))         m_stripLayouts[OSC_STRIP_INDEX].reset(alsa, OSC_STRIP_INDEX);
+    if (!strcmp(path, "/strip/phase"))         m_stripLayouts[SM_INDEX].m_fader.m_PhaseEnable[0]->set_active(OSC_STRIP_B1);
+    if (!strcmp(path, "/strip/reset"))          m_stripLayouts[OSC_STRIP_INDEX].reset(alsa, OSC_STRIP_INDEX);
     
 // EQ    
     if (!strcmp(path, "/strip/eq/active"))         m_eq_enable[OSC_STRIP_INDEX].set_active(OSC_STRIP_B1);
@@ -1286,8 +1281,11 @@ void OMainWnd::on_ch_fader_changed(int n, const char* control_name, Gtk::VScale*
     if (!strcmp(control_name, CTL_NAME_FADER)) {
         OSC_STRIP_MSG("/strip/fader", n + 1, control->get_value());
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
-            m_fader[n + 1].set_value(m_fader[n].get_value());
-            OSC_STRIP_MSG("/strip/fader", n + 2, control->get_value());
+            int m = n + ((n & 0x01) ? -1 : 1);
+            block_events = true;
+            m_fader[m].set_value(m_fader[n].get_value());
+            OSC_STRIP_MSG("/strip/fader", m + 1, control->get_value());
+            block_events = false;
         }
     }
     if (!strcmp(control_name, CTL_MASTER)) {
@@ -1487,16 +1485,18 @@ void OMainWnd::on_ch_tb_changed(int n, const char* control_name) {
         OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n].get_active() ? 1 : 0);
         alsa->on_switch_control_changed(n, control_name, &m_MuteEnable[n]);
         if (m_stripLayouts[n].get_channel_type() == STEREO) {
+            block_events = true;
             usleep(RESET_VALUE_DELAY);
-            OSC_STRIP_MSG("/strip/mute", n + 1, m_MuteEnable[n].get_active() ? 1 : 0);
+            OSC_STRIP_MSG("/strip/mute", n + 2, m_MuteEnable[n].get_active() ? 1 : 0);
             m_MuteEnable[n + 1].set_active(m_MuteEnable[n].get_active());
+            block_events = false;
         }
     }
     if (!strcmp(control_name, CTL_NAME_SOLO)) {
         if (m_solo_channel == n || m_solo_channel == -1) {
             OSC_STRIP_MSG("/strip/solo", n + 1, m_SoloEnable[n].get_active() ? 1 : 0);
             if (m_stripLayouts[n].get_channel_type() == STEREO) {
-                OSC_STRIP_MSG("/strip/solo", n + 1, m_SoloEnable[n].get_active() ? 1 : 0);
+                OSC_STRIP_MSG("/strip/solo", n + 2, m_SoloEnable[n].get_active() ? 1 : 0);
             }
             if (m_SoloEnable[n].get_active())
                 set_solo_channel(n);

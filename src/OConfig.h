@@ -25,6 +25,7 @@
 #define SETTINGS_OSC_PORT               "osc-port"
 #define SETTINGS_OSC_NO_METERS          "osc-no-meters"
 #define SETTINGS_OSC_CLIENT_FULL_UPDATE "osc-new-client-full-update"
+#define SETTINGS_OSC_LOG_ALL            "osc-log"
 
 #define CONF_FORMATTER "%s/.config/tascamgtk"
 
@@ -36,6 +37,7 @@ public:
     
     int load_config();
     void create_default();
+    int save_config();
     
     bool get_boolean(const char* path);
     void set_boolean(const char* path, bool val);

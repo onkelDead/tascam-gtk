@@ -165,6 +165,8 @@ public:
 
     void on_ch_lb_changed(int n);
 
+    bool l_log_osc = false;
+
 protected:
     //    void on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error);
     Glib::RefPtr<Gtk::CssProvider> m_refCssProvider;
@@ -241,6 +243,7 @@ private:
     Glib::Dispatcher m_Dispatcher_alsa;
     
     OConfig m_config;
+    
 };
 
 #endif /* OMAINWND_H */

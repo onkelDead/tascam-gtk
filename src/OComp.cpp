@@ -127,6 +127,7 @@ void OComp::set_ref_index(int index, Gtk::Window* wnd) {
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
 	m_enable = &wnd_->m_comp_enable[index];
+        m_enable->signal_switched.clear();
 	m_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CP_ENABLE));
 
 	m_threshold = &wnd_->m_threshold[index];

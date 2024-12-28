@@ -170,13 +170,10 @@ bool ODial::on_button_release_event(GdkEventButton* event) {
 
 bool ODial::on_motion_notify_event(GdkEventMotion* event) {
 	if (m_refGdkWindow && m_in_motion) {
-		m_value += (m_last_y - (int) (event->y));
+		gint new_val = m_value + (m_last_y - (int) (event->y));
 		m_last_y = (int) (event->y);
-		if (m_value < m_min)
-			m_value = m_min;
-		if (m_value > m_max)
-			m_value = m_max;
-		set_value(m_value);
+                
+		set_value(new_val);
 
 		return true;
 	}
@@ -185,12 +182,9 @@ bool ODial::on_motion_notify_event(GdkEventMotion* event) {
 }
 
 bool ODial::on_scroll_event(GdkEventScroll* event) {
-	m_value += (event->direction == GDK_SCROLL_UP ? m_scroll_step : -m_scroll_step);
-	if (m_value < m_min)
-		m_value = m_min;
-	if (m_value > m_max)
-		m_value = m_max;
-	set_value(m_value);
+        gint new_val = m_value + (event->direction == GDK_SCROLL_UP ? m_scroll_step : -m_scroll_step);
+
+        set_value(new_val);
 
 	return true;
 }
@@ -311,23 +305,24 @@ void ODial::draw_text(const Cairo::RefPtr<Cairo::Context>& cr,
 }
 
 void ODial::set_value(gint new_val) {
-	m_value = new_val;
-	if (m_value < 0)
-		m_value = 0;
-	if (m_value > m_max)
-		m_value = m_max;
-	queue_draw();
-	signal_value_changed.emit();
+    if (new_val < m_min)
+        new_val = m_min;
+    if (new_val > m_max)
+        new_val = m_max;
+    if (new_val != m_value) {
+        m_value = new_val;
+        queue_draw();
+        signal_value_changed.emit();
+    }
 }
 
 void ODial::set_default(gint new_val) {
-	m_default = new_val;
-	if (m_default < m_min)
-		m_default = m_min;
-	if (m_default > m_max)
-		m_default = m_max;
-
-	m_value = m_default;
+    if (new_val < m_min)
+        return;
+    if (new_val > m_max)
+        return;    
+    m_default = new_val;
+    m_value = m_default;
 }
 
 void ODial::set_scroll_step(gint new_val) {

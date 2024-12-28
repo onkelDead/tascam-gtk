@@ -21,6 +21,7 @@
 #include <gtkmm.h>
 
 #include "OConfig.h"
+#include "OSwitch.h"
 
 class OOscDialog : public Gtk::Dialog {
 public:
@@ -46,9 +47,13 @@ private:
     Gtk::Label m_lbl_port;
     Gtk::Entry m_osc_port;
     Gtk::Label m_lbl_no_meters;
-    Gtk::CheckButton m_chk_no_meters;
+    OSwitch m_chk_no_meters;
     Gtk::Label m_lbl_full_update;
-    Gtk::CheckButton m_chk_full_update;    
+    OSwitch m_chk_full_update;    
+
+    Gtk::Label m_lbl_log_osc;
+    OSwitch m_chk_log_osc;    
+    
 };
 
 #endif /* OOSCDIALOG_H */

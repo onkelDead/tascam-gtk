@@ -19,6 +19,21 @@
 #include <sstream>
 #include <chrono>
 
+#define OSC_STRIP_LOG_OUT(f, p, om) \
+    { \
+        if (f) { \
+            printf("osc-out: %s", p); \
+            lo_message_pp(om); \
+        } \
+    }
+
+#define OSC_STRIP_LOG_IN(f, p, om) \
+    { \
+        if (f) { \
+            printf("osc-in:  %s", p); \
+            lo_message_pp(om); \
+        } \
+    }
 
 #ifdef HAVE_OSC
 void osc_err_handler(int num, const char *msg, const char *where) {
@@ -40,6 +55,8 @@ int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, l
         }
     }
 
+    OSC_STRIP_LOG_IN(*(worker->l_log_osc), path, data);
+    
     osc_message* msg = new osc_message;
     msg->path = strdup(path);
     msg->data = lo_message_clone(data);
@@ -84,6 +101,7 @@ void OMeterWorker::do_work(OMainWnd* caller) {
 	m_has_stopped = false;
 
 	m_caller = caller;
+        l_log_osc = &(caller->l_log_osc);
 	
 #ifdef HAVE_OSC
     osc_server = lo_server_thread_new_with_proto(caller->GetConfig()->get_string(SETTINGS_OSC_PORT), LO_UDP, osc_err_handler);
@@ -158,9 +176,13 @@ void OMeterWorker::send_osc(int client_index, const char* path, lo_message msg) 
 	lo_send_message_from(lo_address_new_from_url(osc_client[client_index]), osc_server_out, path, msg);
 	
 }
+
+
+
 void OMeterWorker::send_osc_all(const char* path, lo_message msg)  {
 	
     if (one_client) {
+        OSC_STRIP_LOG_OUT(*l_log_osc, path, msg);
         lo_address a = lo_address_new_from_url(one_client);
         lo_send_message(a, path, msg);
     }

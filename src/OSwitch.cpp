@@ -29,6 +29,8 @@ Gtk::Widget() {
     m_fontsize = 10;
     m_ledsize = 8;
     m_active = 0;
+    m_label = 0;
+    m_textwidth = 0;
     set_size_request(80, m_ledsize * 4);
     set_ledcolor(0.6, 0.6, 0.6, 1);
     set_halign(Gtk::ALIGN_FILL);
@@ -51,7 +53,7 @@ void OSwitch::get_preferred_width_vfunc(int& minimum_width, int& natural_width) 
 }
 
 void OSwitch::get_preferred_height_for_width_vfunc(int /* width */,
-		int& minimum_height, int& natural_height) const {
+        int& minimum_height, int& natural_height) const {
 	minimum_height = m_ledsize * 2 + 2;
 	natural_height = minimum_height;
 }
@@ -191,6 +193,8 @@ bool OSwitch::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
             cr->fill_preserve();
 	cr->stroke();
         
+        if (m_label==0)
+            return true;
         cr->set_line_width(1.);
         cr->set_source_rgba(.5, .5, .5, m_active ? .4 : .2);
         cr->move_to(0,0);

@@ -29,7 +29,7 @@ OConfig::OConfig(const OConfig& orig) {
 }
 
 OConfig::~OConfig() {
-    config_write_file(&m_cfg, m_conf_path);
+    save_config();
     config_destroy(&m_cfg);
 }
 
@@ -49,11 +49,17 @@ int OConfig::load_config() {
     return 0;
 }
 
+int OConfig::save_config() {
+    return config_write_file(&m_cfg, m_conf_path);
+}
+
 void OConfig::create_default() {
-    set_boolean(SETTINGS_WINDOW_COMPACT, false);
+    set_boolean(SETTINGS_WINDOW_COMPACT, true);
     set_string(SETTINGS_OSC_PORT, "3135");
     set_boolean(SETTINGS_OSC_NO_METERS, false);
-    set_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE, false);
+    set_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE, true);
+    set_boolean(SETTINGS_OSC_LOG_ALL, false);
+    save_config();
 }
     
 bool OConfig::get_boolean(const char* path) {

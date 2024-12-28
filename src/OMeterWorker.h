@@ -63,6 +63,8 @@ public:
 
     Gtk::Window* m_caller;
 
+    bool *l_log_osc;
+
 private:
     // Synchronizes access to member data.
     mutable std::mutex m_Mutex;
@@ -74,7 +76,6 @@ private:
     bool m_has_stopped;
     double m_fraction_done;
 //    Glib::ustring m_message;
-
 
 };
 

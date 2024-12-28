@@ -211,39 +211,50 @@ void OEq::set_ref_index(int index, Gtk::Window* wnd){
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
 	m_eq_enable = &wnd_->m_eq_enable[index];
+        m_eq_enable->signal_switched.clear();
 	m_eq_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
 	
 	m_lcf_enable = &wnd_->m_lcf_enable[index];
+        m_lcf_enable->signal_switched.clear();
 	m_lcf_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_LCF_ENABLE));
  
 	m_high_freq_gain = &wnd_->m_high_freq_gain[index];
+        m_high_freq_gain->signal_value_changed.clear();
 	m_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_LEVEL));
 	
 	m_high_freq_band = &wnd_->m_high_freq_band[index];
+        m_high_freq_band->signal_value_changed.clear();
 	m_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_FREQ));
 	
 	m_mid_high_freq_gain = &wnd_->m_mid_high_freq_gain[index];
 	m_mid_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_LEVEL));
 	
 	m_mid_high_freq_band = &wnd_->m_mid_high_freq_band[index];
+        m_mid_high_freq_band->signal_value_changed.clear();
 	m_mid_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_FREQ));
 	
 	m_mid_high_freq_width = &wnd_->m_mid_high_freq_width[index];
+        m_mid_high_freq_width->signal_value_changed.clear();
 	m_mid_high_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGHWIDTH_FREQ));
 	
 	m_mid_low_freq_gain = &wnd_->m_mid_low_freq_gain[index];
+        m_mid_low_freq_gain->signal_value_changed.clear();
 	m_mid_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_LEVEL));
 	
 	m_mid_low_freq_band = &wnd_->m_mid_low_freq_band[index];
+        m_mid_low_freq_band->signal_value_changed.clear();
 	m_mid_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_FREQ));
 	
 	m_mid_low_freq_width = &wnd_->m_mid_low_freq_width[index];
+        m_mid_low_freq_width->signal_value_changed.clear();
 	m_mid_low_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOWWIDTH_FREQ));
 	
 	m_low_freq_gain = &wnd_->m_low_freq_gain[index];
+        m_low_freq_gain->signal_value_changed.clear();
 	m_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_LEVEL));
 	
 	m_low_freq_band = &wnd_->m_low_freq_band[index];
+        m_low_freq_band->signal_value_changed.clear();
 	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_FREQ));
        
 }
