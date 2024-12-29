@@ -40,3 +40,7 @@ char* OFader::get_osc_path() {
 int OFader::get_osc_index() {
     return m_osc_index;
 }
+
+void OFader::set_alsa_control_name(const char* alsa_name) {
+    sprintf(m_alsa_name, "%s", alsa_name);
+}

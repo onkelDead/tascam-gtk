@@ -66,6 +66,7 @@ public:
     void osc_init(const char*);
     char* get_osc_path();
     int get_osc_index();
+    char* get_alsa_name() { return 0; }
     
 protected:
 

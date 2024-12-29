@@ -389,6 +389,13 @@ int OAlsa::getIntegers(const char* name, int vals[], int count) {
     return val;
 }
 
+void OAlsa::on_control_changed(OOscControl* control) {
+    char *cname = control->get_alsa_name();
+    if (cname)
+        setInteger(control->get_alsa_name(), control->get_osc_index(), control->get_value());
+    
+}
+
 void OAlsa::on_combo_control_changed(int n, const char* control_name, Gtk::ComboBoxText* control) {
     int val = control->get_active_row_number();
     setInteger(control_name, n, val);

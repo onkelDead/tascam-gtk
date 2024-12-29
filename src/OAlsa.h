@@ -21,6 +21,7 @@
 #include <alsa/asoundlib.h>
 #include <linux/version.h>
 
+#include "OOscControl.h"
 
 // number of input channels
 #define NUM_CHANNELS 16
@@ -130,6 +131,8 @@ public:
   
 //    Slot for comboBox change event
     void on_combo_control_changed (int n, const char* control_name, Gtk::ComboBoxText* control);
+    
+    void on_control_changed(OOscControl*);
     
     int sliderTodB(int pos);
     int dBToSlider(int dB);

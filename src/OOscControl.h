@@ -28,6 +28,8 @@ public:
     virtual void osc_init(const char*, int) = 0;
     virtual char* get_osc_path() = 0;
     virtual int get_osc_index() = 0;
+    virtual char* get_alsa_name() = 0;
+    
 };
 
 #endif /* OOSCCONTROL_H */

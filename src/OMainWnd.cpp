@@ -1334,6 +1334,7 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
 
 void OMainWnd::on_control_changed(OOscControl* control) {
     OSC_STRIP_MSG2(control->get_osc_path(), control->get_value());
+    alsa->on_control_changed(control);
 }
 
 void OMainWnd::on_dsp_enable_changed(int n, const char* control_name) {

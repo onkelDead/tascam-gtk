@@ -35,6 +35,7 @@ public:
     void osc_init(const char*, int);
     char* get_osc_path();
     int get_osc_index();
+    char* get_alsa_name() { return 0; }
 
 private:
     char m_osc_path[64];

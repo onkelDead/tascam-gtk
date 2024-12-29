@@ -38,6 +38,7 @@ public:
     void reset(OAlsa* alsa, int index);
     void save_values(FILE* file);    
     void load_values(Glib::ustring xml);    
+    char* get_alsa_name() { return 0; }
     
     OSwitch* m_MuteEnable;
     OSwitch* m_SoloEnable;
