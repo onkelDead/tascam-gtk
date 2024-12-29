@@ -55,6 +55,7 @@ void ORouting::init(OAlsa* alsa, Gtk::Window* wnd) {
 		m_route[ri].signal_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), &m_route[ri]));
                 m_route[ri].osc_init("/master/route", ri + 1);
                 wnd_->add_osc_control(&m_route[ri]);
+                m_route[ri].set_alsa_control_name(CTL_ROUTE);
 	}
 	add(m_label);
 	add(m_grid);

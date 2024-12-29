@@ -62,12 +62,6 @@ public:
     
     sigc::signal<void> signal_switched;
     
-    void osc_init(const char*, int);
-    void osc_init(const char*);
-    char* get_osc_path();
-    int get_osc_index();
-    char* get_alsa_name() { return 0; }
-    
 protected:
 
     //Overrides:
@@ -103,9 +97,6 @@ private:
 
     double m_b_red, m_b_green, m_b_blue, m_b_alpha;
     VIEW_TYPE m_view_type;
-    
-    char m_osc_path[64];
-    int m_osc_index;
 };
 
 #endif /* OSWITCH_H */

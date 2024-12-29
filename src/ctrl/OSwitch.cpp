@@ -253,23 +253,3 @@ void OSwitch::set_fontsize(int fs) {
 void OSwitch::set_align(Gtk::Align align) {
     m_align = align;
 }
-
-
-void OSwitch::osc_init(const char* path) {
-    sprintf(m_osc_path, "%s", path);
-    m_osc_index = -1;
-}
-
-
-void OSwitch::osc_init(const char* path, int index) {
-    sprintf(m_osc_path, "%s/%d", path, index);
-    m_osc_index = index;
-}
-
-char* OSwitch::get_osc_path() {
-    return m_osc_path;
-}
-
-int OSwitch::get_osc_index() {
-    return m_osc_index;
-}

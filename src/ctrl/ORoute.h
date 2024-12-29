@@ -30,16 +30,8 @@ public:
     
     gint get_value() { return Gtk::ComboBoxText::get_active_row_number(); }
     void set_value(gint val) { Gtk::ComboBoxText::set_active(val); }
-    
-    void osc_init(const char*);
-    void osc_init(const char*, int);
-    char* get_osc_path();
-    int get_osc_index();
-    char* get_alsa_name() { return 0; }
 
 private:
-    char m_osc_path[64];
-    int m_osc_index;
 };
 
 #endif /* OROUTE_H */

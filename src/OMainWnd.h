@@ -240,8 +240,8 @@ private:
     std::map<std::string, OOscControl*> m_osc_control_map;
     
     
-    alsa_control* get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t);
-    std::map<snd_hctl_elem_t*, alsa_control*> m_mixer_elems;
+    OOscControl* get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t);
+    std::map<snd_hctl_elem_t*, OOscControl*> m_mixer_elems;
     
     std::queue<alsa_control*> m_alsa_queue;
     Glib::Dispatcher m_Dispatcher_alsa;

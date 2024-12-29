@@ -77,12 +77,7 @@ public:
 
     virtual void reset();
 
-    void osc_init(const char*);
-    void osc_init(const char*, int);
-    char* get_osc_path();
-    int get_osc_index();
-    
-    char* get_alsa_name() { return 0; }
+
     
 protected:
 
@@ -132,8 +127,6 @@ private:
     double m_b_red, m_b_green, m_b_blue, m_b_alpha;
     VIEW_TYPE m_view_type;
     
-    char m_osc_path[64];
-    int m_osc_index;
 };
 
 #endif /* ODIAL_H */

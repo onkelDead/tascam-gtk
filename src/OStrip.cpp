@@ -114,7 +114,6 @@ void OStrip::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
     m_dB.set_label(l_title);
     m_fader->osc_init("/ch/gain", index + 1);
     m_fader->signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_fader));
-    m_fader->set_alsa_control_name(CTL_NAME_FADER);
     wnd_->add_osc_control(m_fader);
     
     

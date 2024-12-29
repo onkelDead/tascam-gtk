@@ -27,6 +27,7 @@ Glib::ObjectBase("ODial"),
 m_label(0),
 m_map(0),
 m_value_callback(0),
+OOscControl(),
 Gtk::Widget() {
 	set_has_window(true);
 
@@ -357,20 +358,3 @@ void ODial::reset() {
 	set_value(get_default());
 }
 
-void ODial::osc_init(const char* path) {
-    sprintf(m_osc_path, "%s", path);
-    m_osc_index = -1;
-}
-
-void ODial::osc_init(const char* path, int index) {
-    sprintf(m_osc_path, "%s/%d", path, index);
-    m_osc_index = index;
-}
-
-char* ODial::get_osc_path() {
-    return m_osc_path;
-}
-
-int ODial::get_osc_index() {
-    return m_osc_index;
-}

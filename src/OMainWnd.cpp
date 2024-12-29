@@ -281,6 +281,7 @@ void OMainWnd::create_controls() {
             m_comp_enable[i].set_ledsize(6);
             m_comp_enable[i].osc_init("/ch/comp/sw", i + 1);
             add_osc_control(&m_comp_enable[i]);
+            m_comp_enable[i].set_alsa_control_name(CTL_NAME_CP_ENABLE);
             
             m_threshold[i].set_params(0, 32, 32, 1);
             m_threshold[i].set_label("Thresh");
@@ -288,6 +289,7 @@ void OMainWnd::create_controls() {
             m_threshold[i].set_knob_background_color(CREAD_NORMAL);
             m_threshold[i].osc_init("/ch/comp/threshold", i + 1);
             add_osc_control(&m_threshold[i]);
+            m_threshold[i].set_alsa_control_name(CTL_NAME_CP_THRESHOLD);
 
             m_gain[i].set_params(0, 20, 0, 1);
             m_gain[i].set_label("Gain");
@@ -295,6 +297,7 @@ void OMainWnd::create_controls() {
             m_gain[i].set_knob_background_color(CREAD_NORMAL);
             m_gain[i].osc_init("/ch/comp/gain", i + 1);
             add_osc_control(&m_gain[i]);
+            m_gain[i].set_alsa_control_name(CTL_NAME_CP_GAIN);
 
             m_attack[i].set_params(0, 198, 0, 5);
             m_attack[i].set_label("Attack");
@@ -302,6 +305,7 @@ void OMainWnd::create_controls() {
             m_attack[i].set_knob_background_color(CREAD_LIGHT);
             m_attack[i].osc_init("/ch/comp/attack", i + 1);
             add_osc_control(&m_attack[i]);
+            m_attack[i].set_alsa_control_name(CTL_NAME_CP_ATTACK);
 
             m_release[i].set_params(0, 99, 0, 1);
             m_release[i].set_label("Release");
@@ -309,6 +313,7 @@ void OMainWnd::create_controls() {
             m_release[i].set_knob_background_color(CREAD_LIGHT);
             m_release[i].osc_init("/ch/comp/release", i + 1);
             add_osc_control(&m_release[i]);
+            m_release[i].set_alsa_control_name(CTL_NAME_CP_RELEASE);
 
             m_ratio[i].set_params(0, 14, 0, 1);
             m_ratio[i].set_label("Ratio");
@@ -316,6 +321,7 @@ void OMainWnd::create_controls() {
             m_ratio[i].set_knob_background_color(CREAD_NORMAL);
             m_ratio[i].osc_init("/ch/comp/ratio", i + 1);
             add_osc_control(&m_ratio[i]);
+            m_ratio[i].set_alsa_control_name(CTL_NAME_CP_RATIO);
 
             m_reduction[i].setLevel(32768);
             m_reduction[i].set_size_request(10, -1);
@@ -336,6 +342,7 @@ void OMainWnd::create_controls() {
             m_eq_enable[i].set_ledsize(6);
             m_eq_enable[i].osc_init("/ch/eq/sw", i+1);
             add_osc_control(&m_eq_enable[i]);
+            m_eq_enable[i].set_alsa_control_name(CTL_NAME_EQ_ENABLE);
 
             m_lcf_enable[i].set_label("LCF");
             m_lcf_enable[i].set_name("lcf-button");
@@ -348,6 +355,7 @@ void OMainWnd::create_controls() {
             m_lcf_enable[i].set_ledsize(6);
             m_lcf_enable[i].osc_init("/ch/eq/lcf", i+1);
             add_osc_control(&m_lcf_enable[i]);
+            m_lcf_enable[i].set_alsa_control_name(CTL_NAME_LCF_ENABLE);
             
             m_high_freq_gain[i].set_label("High");
             m_high_freq_gain[i].set_value_callback(eq_level_text);
@@ -356,6 +364,7 @@ void OMainWnd::create_controls() {
             m_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_high_freq_gain[i].osc_init("/ch/eq/highgain", i + 1);
             add_osc_control(&m_high_freq_gain[i]);
+            m_high_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_HIGH_LEVEL);
 
             m_high_freq_band[i].set_label("Freq");
             m_high_freq_band[i].set_value_callback(eq_high_freq_text);
@@ -363,13 +372,14 @@ void OMainWnd::create_controls() {
             m_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_high_freq_band[i].osc_init("/ch/eq/highfreq", i + 1);
             add_osc_control(&m_high_freq_band[i]);
-
+            m_high_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_HIGH_FREQ);
             m_mid_high_freq_gain[i].set_label("Mid H");
             m_mid_high_freq_gain[i].set_params(0, 24, 12, 1);
             m_mid_high_freq_gain[i].set_value_callback(eq_level_text);
             m_mid_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_mid_high_freq_gain[i].osc_init("/ch/eq/midhighgain", i + 1);
             add_osc_control(&m_mid_high_freq_gain[i]);
+            m_mid_high_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_MIDHIGH_LEVEL);
 
             m_mid_high_freq_band[i].set_label("Freq");
             m_mid_high_freq_band[i].set_params(0, 63, 27, 1);
@@ -377,6 +387,7 @@ void OMainWnd::create_controls() {
             m_mid_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_mid_high_freq_band[i].osc_init("/ch/eq/midhighfreq", i + 1);
             add_osc_control(&m_mid_high_freq_band[i]);
+            m_mid_high_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_MIDHIGH_FREQ);
 
             m_mid_high_freq_width[i].set_label("Width");
             m_mid_high_freq_width[i].set_value_callback(eq_width_text);
@@ -386,6 +397,7 @@ void OMainWnd::create_controls() {
             m_mid_high_freq_width[i].set_halign(Gtk::ALIGN_CENTER);
             m_mid_high_freq_width[i].osc_init("/ch/eq/midhighwidth", i + 1);
             add_osc_control(&m_mid_high_freq_width[i]);
+            m_mid_high_freq_width[i].set_alsa_control_name(CTL_NAME_EQ_MIDHIGHWIDTH_FREQ);
 
             m_mid_low_freq_gain[i].set_label("Mid L");
             m_mid_low_freq_gain[i].set_params(0, 24, 12, 1);
@@ -393,13 +405,15 @@ void OMainWnd::create_controls() {
             m_mid_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_mid_low_freq_gain[i].osc_init("/ch/eq/midlowgain", i + 1);
             add_osc_control(&m_mid_low_freq_gain[i]);
-
+            m_mid_low_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_MIDLOW_LEVEL);
+            
             m_mid_low_freq_band[i].set_label("Freq");
             m_mid_low_freq_band[i].set_params(0, 63, 14, 1);
             m_mid_low_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
             m_mid_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_mid_low_freq_band[i].osc_init("/ch/eq/midlowfreq", i + 1);
             add_osc_control(&m_mid_low_freq_band[i]);
+            m_mid_low_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_MIDLOW_FREQ);
 
             m_mid_low_freq_width[i].set_label("Width");
             m_mid_low_freq_width[i].set_value_callback(eq_width_text);
@@ -407,6 +421,7 @@ void OMainWnd::create_controls() {
             m_mid_low_freq_width[i].set_knob_background_color(EBLUE_LIGHT);
             m_mid_low_freq_width[i].osc_init("/ch/eq/midlowwidth", i + 1);
             add_osc_control(&m_mid_low_freq_width[i]);
+            m_mid_low_freq_width[i].set_alsa_control_name(CTL_NAME_EQ_MIDLOWWIDTH_FREQ);
 
             m_low_freq_gain[i].set_label("Low");
             m_low_freq_gain[i].set_params(0, 24, 12, 1);
@@ -414,6 +429,7 @@ void OMainWnd::create_controls() {
             m_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_low_freq_gain[i].osc_init("/ch/eq/lowgain", i + 1);
             add_osc_control(&m_low_freq_gain[i]);
+            m_low_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_LOW_LEVEL);
 
             m_low_freq_band[i].set_label("Freq");
             m_low_freq_band[i].set_params(0, 31, 5, 1);
@@ -421,6 +437,7 @@ void OMainWnd::create_controls() {
             m_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_low_freq_band[i].osc_init("/ch/eq/lowfreq", i + 1);
             add_osc_control(&m_low_freq_band[i]);
+            m_low_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_LOW_FREQ);
         }
 
         if (i < NUM_CHANNELS) {
@@ -429,6 +446,7 @@ void OMainWnd::create_controls() {
             m_Pan[i].set_knob_background_color(1., .8, .3, 1.);
             m_Pan[i].osc_init("/ch/pan", i + 1);
             add_osc_control(&m_Pan[i]);
+            m_Pan[i].set_alsa_control_name(CTL_NAME_PAN);
 
             m_MuteEnable[i].set_label("Mute");
             m_MuteEnable[i].set_name("mute-button");
@@ -439,6 +457,7 @@ void OMainWnd::create_controls() {
             m_MuteEnable[i].set_ledsize(6);
             m_MuteEnable[i].osc_init("/ch/mute", i + 1);
             add_osc_control(&m_MuteEnable[i]);
+            m_MuteEnable[i].set_alsa_control_name(CTL_NAME_MUTE);
 
             m_SoloEnable[i].set_label("Solo");
             m_SoloEnable[i].set_name("solo-button");
@@ -450,6 +469,7 @@ void OMainWnd::create_controls() {
             m_SoloEnable[i].osc_init("/ch/solo", i + 1);
             m_SoloEnable[i].signal_switched.connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_toggle_solo), i));
             add_osc_control(&m_SoloEnable[i]);
+            
 
             m_PhaseEnable[i].set_label("Phase");
             m_PhaseEnable[i].set_name("phase-button");
@@ -460,6 +480,7 @@ void OMainWnd::create_controls() {
             m_PhaseEnable[i].set_ledsize(6);
             m_PhaseEnable[i].osc_init("/ch/phase", i + 1);
             add_osc_control(&m_PhaseEnable[i]);
+            m_PhaseEnable[i].set_alsa_control_name(CTL_NAME_PHASE);
 
             m_fader[i].set_range(0, 133);
             m_fader[i].set_name("fader");
@@ -478,6 +499,7 @@ void OMainWnd::create_controls() {
 //            m_fader[i].add_mark(0, Gtk::PositionType::POS_RIGHT, "-inf dB");
             m_fader[i].set_tooltip_text("channel fader");
             m_fader[i].set_vexpand(true);
+            m_fader[i].set_alsa_control_name(CTL_NAME_FADER);
 
             m_stripLayouts[i].init(i, alsa, this);
             m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_mouse_event), i));
@@ -502,9 +524,13 @@ void OMainWnd::create_controls() {
     }
 
     add_osc_control(&m_master.m_comp_to_stereo);
-    add_osc_control(&m_master.m_true_bypass);
-    add_osc_control(&m_master.m_mute);
+    m_master.m_comp_to_stereo.set_alsa_control_name(CTL_NAME_BUS_OUT);
 
+    add_osc_control(&m_master.m_true_bypass);
+    m_master.m_true_bypass.set_alsa_control_name(CTL_NAME_BYPASS);
+    
+    add_osc_control(&m_master.m_mute);
+    m_master.m_mute.set_alsa_control_name(CTL_NAME_MASTER_MUTE);
     
     // create DSP layout
     {
@@ -601,47 +627,47 @@ void OMainWnd::create_worker_threads(){
     }
 }
 
-alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t) {
+OOscControl* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t) {
     alsa_control* ac = 0;
     if (strcmp(info_name, "Master Mute Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_master.m_mute;
+        return &m_master.m_mute;
     }
     else if (strcmp(info_name, "Master Volume") == 0) {
         ac = new alsa_control;
         ac->type = Fader;
-        ac->faderwidget = &m_master.m_fader;        
+        return &m_master.m_fader;        
     }
     else if (strcmp(info_name, "DSP Bypass Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_master.m_true_bypass;
+        return &m_master.m_true_bypass;
     }
     else if (strcmp(info_name, "Buss Out Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_master.m_comp_to_stereo;
+        return &m_master.m_comp_to_stereo;
     }
     else if (strcmp(info_name, "Line Out Route") == 0) {
         ac = new alsa_control;
         ac->type = ComboBox;
-        ac->combo = &m_routing.m_route[index];        
+        return &m_routing.m_route[index];        
     }   
     else if (strcmp(info_name, "Line Volume") == 0) {
         ac = new alsa_control;
         ac->type = Fader;
-        ac->faderwidget = &m_fader[index];
+        return &m_fader[index];
     }   
     else if (strcmp(info_name, "Compressor Attack") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_attack[index];
+        return &m_attack[index];
     }  
     else if (strcmp(info_name, "Compressor Ratio") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_ratio[index];
+        return &m_ratio[index];
     }
     else if (strcmp(info_name, "Compressor Release") == 0) {
         ac = new alsa_control;
@@ -652,18 +678,18 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
         if (t == SND_CTL_ELEM_TYPE_INTEGER) {
             ac = new alsa_control;
             ac->type = Dial;
-            ac->dial = &m_gain[index];
+            return &m_gain[index];
         }
     }
     else if (strcmp(info_name, "Compressor Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_comp_enable[index];
+        return &m_comp_enable[index];
     }
     else if (strcmp(info_name, "Compressor Threshold Volume") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_threshold[index];
+        return &m_threshold[index];
     }
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
     else if (strcmp(info_name, "EQ High Frequency") == 0) {
@@ -672,12 +698,12 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
 #endif
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_high_freq_band[index];
+        return &m_high_freq_band[index];
     }
     else if (strcmp(info_name, "EQ High Volume") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_high_freq_gain[index];
+        return &m_high_freq_gain[index];
     }
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
     else if (strcmp(info_name, "EQ Low Frequency") == 0) {
@@ -686,12 +712,12 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
 #endif
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_low_freq_band[index];
+        return &m_low_freq_band[index];
     }
     else if (strcmp(info_name, "EQ Low Volume") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_low_freq_gain[index];
+        return &m_low_freq_gain[index];
     }    
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
     else if (strcmp(info_name, "EQ MidHigh Frequency") == 0) {
@@ -700,17 +726,17 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
 #endif
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_mid_high_freq_band[index];
+        return &m_mid_high_freq_band[index];
     }
     else if (strcmp(info_name, "EQ MidHigh Volume") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_mid_high_freq_gain[index];
+        return &m_mid_high_freq_gain[index];
     }
     else if (strcmp(info_name, "EQ MidHigh Q") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_mid_high_freq_width[index];
+        return &m_mid_high_freq_width[index];
     }
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,10,0)
     else if (strcmp(info_name, "EQ MidLow Frequency") == 0) {
@@ -719,53 +745,59 @@ alsa_control* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ct
 #endif
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_mid_low_freq_band[index];
+        return &m_mid_low_freq_band[index];
     }
     else if (strcmp(info_name, "EQ MidLow Volume") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_mid_low_freq_gain[index];
+        return &m_mid_low_freq_gain[index];
     }
     else if (strcmp(info_name, "EQ MidLow Q") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_mid_low_freq_width[index];
+        return &m_mid_low_freq_width[index];
     }
     else if (strcmp(info_name, "EQ Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_eq_enable[index];
+        return &m_eq_enable[index];
     }
     else if (strcmp(info_name, "LCF Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_lcf_enable[index];
+        return &m_lcf_enable[index];
     }    
     else if (strcmp(info_name, "Mute Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_MuteEnable[index];
+        return &m_MuteEnable[index];
     }
     else if (strcmp(info_name, "Pan Left-Right Volume") == 0) {
         ac = new alsa_control;
         ac->type = Dial;
-        ac->dial = &m_Pan[index];
+        return &m_Pan[index];
     }
     else if (strcmp(info_name, "Phase Switch") == 0) {
         ac = new alsa_control;
         ac->type = Switch;
-        ac->oswitch = &m_PhaseEnable[index];
+        return &m_PhaseEnable[index];
     }
-    return ac;
+    return NULL;
 }
 
 void OMainWnd::alsa_update_control(snd_hctl_elem_t *helem, int val, unsigned int index) {
-    alsa_control* widget = m_mixer_elems[helem];
+    OOscControl* widget = m_mixer_elems[helem];
     if (widget) {
 
-        widget->value = val;
-        m_alsa_queue.push(widget);
-        m_Dispatcher_alsa.emit();
+        
+    fprintf(stdout, "alsa_update_control %d %d\n", index, val);
+    fflush(stdout);
+        
+    widget->set_value(val);
+    
+//        widget->value = val;
+//        m_alsa_queue.push(widget);
+//        m_Dispatcher_alsa.emit();
     }
 }
 
@@ -791,7 +823,7 @@ void OMainWnd::alsa_add_control(snd_hctl_elem_t *helem) {
     }
     info_name = snd_ctl_elem_info_get_name(info);
     control_index = snd_ctl_elem_value_get_index(control);
-    alsa_control* widget = get_alsa_widget(info_name, control_index, snd_ctl_elem_info_get_type(info));
+    OOscControl* widget = get_alsa_widget(info_name, control_index, snd_ctl_elem_info_get_type(info));
     if (widget) {
         m_mixer_elems[helem] = widget;
     }

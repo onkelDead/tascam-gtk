@@ -263,6 +263,9 @@ void OAlsa::setInteger(const char* name, int channel_index, int value) {
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_t *elem;
 
+    fprintf(stdout, "setInteger %d %d\n", channel_index, value);
+    fflush(stdout);
+    
     char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
     sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
 
@@ -391,8 +394,16 @@ int OAlsa::getIntegers(const char* name, int vals[], int count) {
 
 void OAlsa::on_control_changed(OOscControl* control) {
     char *cname = control->get_alsa_name();
-    if (cname)
-        setInteger(control->get_alsa_name(), control->get_osc_index() - 1, control->get_value());
+    if (cname) {
+        int index = control->get_osc_index();
+        if (index < 0) {
+            index = 0;
+        }
+        else {
+            index --;
+        }
+        setInteger(control->get_alsa_name(), index, control->get_value());
+    }
     
 }
 

@@ -102,6 +102,7 @@ void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
     m_fader.set_tooltip_text(l_title);
     m_fader.osc_init("/master/gain");
     wnd_->add_osc_control(&m_fader);
+    m_fader.set_alsa_control_name(CTL_MASTER);
 
     m_true_bypass.set_value(alsa->getBoolean(CTL_NAME_BYPASS, 0) ? 1 : 0);
     m_true_bypass.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), &m_true_bypass));
