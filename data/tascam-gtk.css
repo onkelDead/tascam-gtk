@@ -48,10 +48,10 @@
     background-image: -gtk-gradient (linear,
         left top,
         left bottom,
-        from (rgb(255,255,80)),
+        from (rgb(255,80,80)),
         color-stop (.5, lighter (rgb(255,255,255))),
-        to (rgb(255,255,80)));
-    color: rgb(55,55,55);
+        to (rgb(255,80,80)));
+    color: rgb(160,0,0);
 }
 #solo-button:checked {
     background-image: -gtk-gradient (linear,
@@ -66,10 +66,10 @@
     background-image: -gtk-gradient (linear,
         left top,
         left bottom,
-        from (rgb(160,255,255)),
-        color-stop (0.5, lighter (rgb(255,255,255))),
-        to (rgb(160,255,255)));
-    color: rgb(55,55,55);
+        from (rgb(0,0,0)),
+        color-stop (0.1, lighter (rgb(255,255,0))),
+        to (rgb(0,0,0)));
+    color: rgb(255,255,55);
 }
 #comp-button:checked {
     background-image: -gtk-gradient (linear,
@@ -87,8 +87,9 @@
         from (rgb(128,145,255)),
         color-stop (0.5, lighter (rgb(145,175,255))),
         to (rgb(128,145,255)));
-    color: rgb(55,55,55);
+    color: rgb(55,55,255);
 }
+
 #lcf-button:checked {
     background-image: -gtk-gradient (linear,
         left top,
@@ -96,7 +97,7 @@
         from (rgb(128,145,255)),
         color-stop (0.5, lighter (rgb(145,175,255))),
         to (rgb(128,145,255)));
-    color: rgb(55,55,55);
+    color: rgb(155,55,255);
 }
 #link-button:checked {
     background-image: -gtk-gradient (linear,

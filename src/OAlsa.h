@@ -89,18 +89,13 @@ public:
     OAlsa(OMainWnd*);
     virtual ~OAlsa();
     
-//      worker thread function    
-    void do_work(OMainWnd* caller);
-    
-    void stop_work();
-    bool has_stopped() const;    
-    
 //     open alsa device
     int open_device();
 
 //     close alsa device
     void close_device();
     
+//     retrieve control element by name
     snd_hctl_elem_t* getElement(const char* name);
     
 //     get control element current value
@@ -120,18 +115,7 @@ public:
     
     int getControlIntegers(snd_hctl_elem_t *elem, int vals[], int count);
     
-    // VScale value change slot
-    void on_range_control_changed (int n, const char* control_name, OFader* control, Gtk::Label* label);
-    
-//    ODial value change slot
-    void on_dial_control_changed (int n, const char* control_name, ODial* control);
-
-    //    ToggleButton set boolean value slot
-    void on_switch_control_changed (int n, const char* control_name, OSwitch* control);    
-  
-//    Slot for comboBox change event
-    void on_combo_control_changed (int n, const char* control_name, Gtk::ComboBoxText* control);
-    
+    // change of control event handler
     void on_control_changed(OOscControl*);
     
     int sliderTodB(int pos);
@@ -152,21 +136,6 @@ private:
     
 //     identify Tascam alsa card number
     int get_alsa_cardnum();
-    
-//     retrieve control element by name
-    snd_hctl_elem_t* get_ctrl_by_elem(const char* name);
-    
-//     create control name including its index
-    char* create_ctrl_elem_name(const char* name, int index, char* result[], size_t size);
-
-    // Synchronizes access to member data.
-    mutable std::mutex m_Mutex;
-
-    // Data used by both GUI thread and worker thread.
-    bool m_shall_stop;
-    bool m_has_stopped;    
-    
-    
 };
 
 #endif /* OALSA_H */

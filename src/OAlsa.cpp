@@ -75,37 +75,7 @@ static int ctl_callback(snd_hctl_t *ctl, unsigned int mask,
     return 0;
 }
 
-//* EQ control element names.
-const char* eq_control_path[] = {
-    "name='9 EQ',index=",
-    "name='81 HighFreq',index=",
-    "name='8 High',index=",
-    "name='71 MHiFreq',index=",
-    "name='72 MHiWidth',index=",
-    "name='7 MHigh',index=",
-    "name='61 MLowFreq',index=",
-    "name='62 MLowWidth',index=",
-    "name='6 MLow',index=",
-    "name='51 LowFreq',index=",
-    "name='5 Low',index=",
-    NULL
-};
-
-//* Compressor control element names.
-const char* comp_control_path[] = {
-    "name='A Comp',index=",
-    "name='B Thresh',index=",
-    "name='C Ratio',index=",
-    "name='D Attack',index=",
-    "name='E Release',index=",
-    "name='F Gain',index=",
-    NULL
-};
-
-OAlsa::OAlsa(OMainWnd* main_wnd) :
-m_Mutex(),
-m_shall_stop(false),
-m_has_stopped(false) {
+OAlsa::OAlsa(OMainWnd* main_wnd) {
     cardnum = -1;
     g_main_wnd = main_wnd;
 }
@@ -209,22 +179,6 @@ void OAlsa::close_device() {
     }
 }
 
-snd_hctl_elem_t* OAlsa::get_ctrl_by_elem(const char* name) {
-    snd_ctl_elem_id_t *id;
-    snd_ctl_elem_id_alloca(&id);
-    snd_hctl_elem_t *elem;
-
-    int err = snd_ctl_ascii_elem_id_parse(id, name);
-    elem = snd_hctl_find_elem(hctl, id);
-    return elem;
-}
-
-char* OAlsa::create_ctrl_elem_name(const char* name, int index, char* result[], size_t size) {
-
-    snprintf(*result, size, "%s,index=%d", name, index);
-    return *result;
-}
-
 int OAlsa::getInteger(const char* name, int channel_index) {
     int val = 0;
     snd_ctl_elem_id_t *id;
@@ -263,9 +217,6 @@ void OAlsa::setInteger(const char* name, int channel_index, int value) {
     snd_ctl_elem_id_alloca(&id);
     snd_hctl_elem_t *elem;
 
-    fprintf(stdout, "setInteger %d %d\n", channel_index, value);
-    fflush(stdout);
-    
     char elem_name[strlen(name) + strlen(CTL_NAME_INDEX_SUFFIX) + 6];
     sprintf(elem_name, CTL_NAME_INDEX_SUFFIX, name, channel_index);
 
@@ -407,32 +358,6 @@ void OAlsa::on_control_changed(OOscControl* control) {
     
 }
 
-void OAlsa::on_combo_control_changed(int n, const char* control_name, Gtk::ComboBoxText* control) {
-    int val = control->get_active_row_number();
-    setInteger(control_name, n, val);
-}
-
-void OAlsa::on_dial_control_changed(int n, const char* control_name, ODial* control) {
-    setInteger(control_name, n, control->get_value());
-}
-
-void OAlsa::on_switch_control_changed(int n, const char* control_name, OSwitch* control) {
-    setBoolean(control_name, n, control->get_value() != 0);
-}
-
-void OAlsa::on_range_control_changed(int n, const char* control_name, OFader* control, Gtk::Label* label) {
-    char l_title[64];
-    int val = control->get_value();
-    int dB = sliderTodB(control->get_value());
-
-    setInteger(control_name, n, dB);
-
-    snprintf(l_title, sizeof (l_title), "%d dB", dB - 127);
-    control->set_tooltip_text(l_title);
-    if (label)
-        label->set_label(l_title);
-}
-
 int OAlsa::sliderTodB(int pos) {
     return 146.2 - 146.3 / (pow(10, pos / 127.));
 }
@@ -440,39 +365,3 @@ int OAlsa::sliderTodB(int pos) {
 int OAlsa::dBToSlider(int dB) {
     return 127 * log10(146.3 / (146.2 - dB));
 }
-
-void OAlsa::stop_work() {
-    std::lock_guard<std::mutex> lock(m_Mutex);
-    m_shall_stop = true;
-}
-
-bool OAlsa::has_stopped() const {
-    std::lock_guard<std::mutex> lock(m_Mutex);
-    return m_has_stopped;
-}
-
-void OAlsa::do_work(OMainWnd* caller) {
-    m_has_stopped = false;
-    m_caller = caller;
-
-    struct pollfd *pollfds = NULL;
-    int nfds = 0, n;
-    GtkWidget *active_widget;
-    unsigned short revents;
-    int key;
-    int err;
-    int res;
-
-    while (!m_shall_stop) {
-        res = snd_hctl_wait(hctl, 1000);
-        if (res >= 0) {
-            res = snd_hctl_handle_events(hctl);
-            m_shall_stop = true;
-        }
-    }
-    free(pollfds);
-
-    m_shall_stop = false;
-    m_has_stopped = true;
-}
-

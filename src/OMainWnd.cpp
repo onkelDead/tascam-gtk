@@ -159,10 +159,6 @@ OMainWnd::~OMainWnd() {
 
     if (alsa) {
         alsa->close_device();
-        alsa->stop_work();
-        //        while (!alsa->has_stopped()) {
-        //            sleep(1);
-        //        }
         delete alsa;
     }
     if (m_menubar)
@@ -617,14 +613,14 @@ void OMainWnd::create_worker_threads(){
         });
     }
     
-    if (m_WorkerAlsaThread) {
-        std::cout << "Can't start a worker thread while another one is running." << std::endl;
-    } else {
-        m_WorkerAlsaThread = new std::thread([this] {
-            alsa->do_work(this);
-            this->hide();
-        });
-    }
+//    if (m_WorkerAlsaThread) {
+//        std::cout << "Can't start a worker thread while another one is running." << std::endl;
+//    } else {
+//        m_WorkerAlsaThread = new std::thread([this] {
+//            alsa->do_work(this);
+//            this->hide();
+//        });
+//    }
 }
 
 OOscControl* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t) {
