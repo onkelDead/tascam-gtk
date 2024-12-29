@@ -26,6 +26,7 @@
 #include "OTypes.h"
 #include "ODial.h"
 #include "OSwitch.h"
+#include "OFader.h"
 #include "OMeter.h"
 #include "OAlsa.h"
 #include "OTypes.h"

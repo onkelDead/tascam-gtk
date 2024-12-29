@@ -24,13 +24,15 @@
 #include "OTypes.h"
 #include "OStripLayout.h"
 #include "ODspLayout.h"
-#include "OMaster.h"
-#include "ORoute.h"
+#include "ORouting.h"
 #include "OAlsa.h"
 #include "OMeterWorker.h"
 #include "OOscDialog.h"
 #include "OConfig.h"
 #include "OSwitch.h"
+#include "OOscControl.h"
+#include "OMaster.h"
+#include "OFader.h"
 
 /**     Class OMainWnd, derived from Gtk::Window.
  *      It's the main UI element of this application.
@@ -53,11 +55,10 @@ enum WIDGET_TYPE {
     Switch
 };
 
-
 typedef struct alsa_control {
     WIDGET_TYPE type;
     OSwitch* oswitch;
-    Gtk::VScale* faderwidget;
+    OFader* faderwidget;
     Gtk::ComboBoxText* combo;
     ODial* dial;
     int value;
@@ -137,10 +138,9 @@ public:
     OSwitch m_PhaseEnable[NUM_CHANNELS + 1];
     OSwitch m_MuteEnable[NUM_CHANNELS + 1];
     OSwitch m_SoloEnable[NUM_CHANNELS + 1];
-    Gtk::VScale m_fader[NUM_CHANNELS + 1];
+    OFader m_fader[NUM_CHANNELS + 1];
     
-
-    ORoute m_route;
+    ORouting m_routing;
 
     void on_menu_file_load();
     void on_menu_file_save();
@@ -157,14 +157,16 @@ public:
     void on_menu_popup_reset(int i);
     virtual bool on_mouse_event(GdkEventButton* event, int channel_index);
 
-    void on_ch_fader_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
-    void on_ch_dial_changed(int n, const char* control_name);
-    void on_ch_tb_changed(int n, const char* control_name);
-    void on_cb_changed(int n, const char* control_name);
+    void on_dsp_enable_changed(int n, const char* control_name);
     void set_dsp_channel(int n, bool enable);
 
     void on_ch_lb_changed(int n);
+    void on_toggle_solo(int index);
 
+    void on_control_changed(OOscControl* control);
+
+    void add_osc_control(OOscControl*);
+    
     bool l_log_osc = false;
 
 protected:
@@ -235,6 +237,8 @@ private:
     void on_osc_dialog_response(int response_id);
     
 
+    std::map<std::string, OOscControl*> m_osc_control_map;
+    
     
     alsa_control* get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t);
     std::map<snd_hctl_elem_t*, alsa_control*> m_mixer_elems;

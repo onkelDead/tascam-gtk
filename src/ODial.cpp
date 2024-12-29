@@ -356,3 +356,21 @@ void ODial::set_knob_background_color(double red, double green, double blue, dou
 void ODial::reset() {
 	set_value(get_default());
 }
+
+void ODial::osc_init(const char* path) {
+    sprintf(m_osc_path, "%s", path);
+    m_osc_index = -1;
+}
+
+void ODial::osc_init(const char* path, int index) {
+    sprintf(m_osc_path, "%s/%d", path, index);
+    m_osc_index = index;
+}
+
+char* ODial::get_osc_path() {
+    return m_osc_path;
+}
+
+int ODial::get_osc_index() {
+    return m_osc_index;
+}

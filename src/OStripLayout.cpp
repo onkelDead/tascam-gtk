@@ -55,7 +55,7 @@ void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 	m_eq.init(index, alsa, wnd);
 	m_fader.init(index, alsa, wnd);
 
-	m_DspEnable.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CHANNEL_ACTIVE));
+	m_DspEnable.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_dsp_enable_changed), index, CTL_NAME_CHANNEL_ACTIVE));
 
 }
 

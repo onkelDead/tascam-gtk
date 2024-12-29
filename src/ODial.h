@@ -21,11 +21,13 @@
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/styleproperty.h>
 
+#include "OOscControl.h"
+
 #include "OTypes.h"
 
 typedef char* (*value_callback)(int val, char* buf, size_t buf_size);
 
-class ODial : public Gtk::Widget {
+class ODial : public Gtk::Widget, public OOscControl {
 public:
     ODial();
     virtual ~ODial();
@@ -75,6 +77,11 @@ public:
 
     virtual void reset();
 
+    void osc_init(const char*);
+    void osc_init(const char*, int);
+    char* get_osc_path();
+    int get_osc_index();
+    
 protected:
 
     //Overrides:
@@ -122,6 +129,9 @@ private:
 
     double m_b_red, m_b_green, m_b_blue, m_b_alpha;
     VIEW_TYPE m_view_type;
+    
+    char m_osc_path[64];
+    int m_osc_index;
 };
 
 #endif /* ODIAL_H */

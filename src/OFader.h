@@ -1,59 +1,45 @@
 /*
-  Copyright 2017 Detlef Urban <onkel@paraair.de>
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
-  Permission to use, copy, modify, and/or distribute this software for any
-  purpose with or without fee is hereby granted, provided that the above
-  copyright notice and this permission notice appear in all copies.
-
-  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+/* 
+ * File:   OFader.h
+ * Author: onkel
+ *
+ * Created on 28. Dezember 2024, 15:11
  */
 
 #ifndef OFADER_H
 #define OFADER_H
 
-#include <iostream>
+#include <gtkmm/widget.h>
+#include <gtkmm/cssprovider.h>
+#include <gtkmm/styleproperty.h>
 
-//#include <lo/lo.h>
+#include "OOscControl.h"
 
 #include "OTypes.h"
-#include "OMeter.h"
-#include "ODial.h"
-#include "OSwitch.h"
-#include "OAlsa.h"
 
-class OFader : public Gtk::VBox {
+class OFader  : public Gtk::VScale, public OOscControl {
 public:
     OFader();
-    OFader(const OFader& orig);
     virtual ~OFader();
-
-    void init(int index, OAlsa* alsa, Gtk::Window* wnd);
     
-    void set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
+    gint get_value() { return (gint) Gtk::VScale::get_value(); }
+    void set_value(gint val) { Gtk::VScale::set_value(val); }
     
-    void reset(OAlsa* alsa, int index);
-    void save_values(FILE* file);    
-    void load_values(Glib::ustring xml);    
     
-    OSwitch* m_MuteEnable;
-    OSwitch* m_SoloEnable;
-    OSwitch* m_PhaseEnable[2];    
-    Gtk::VScale* m_fader;
-    ODial* m_Pan[2];
-    
-    OMeter m_meter[2];
-    Gtk::Label m_dB;
-
-    
+    void osc_init(const char*);
+    void osc_init(const char*, int);
+    char* get_osc_path();
+    int get_osc_index();
 private:
-    VIEW_TYPE m_view_type;
-    Gtk::Grid m_grid;
+
+    char m_osc_path[64];
+    int m_osc_index;
 };
 
 #endif /* OFADER_H */
+

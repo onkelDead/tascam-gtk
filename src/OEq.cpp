@@ -212,55 +212,55 @@ void OEq::set_ref_index(int index, Gtk::Window* wnd){
 
 	m_eq_enable = &wnd_->m_eq_enable[index];
         m_eq_enable->signal_switched.clear();
-	m_eq_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_EQ_ENABLE));
+	m_eq_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_eq_enable));
 	
 	m_lcf_enable = &wnd_->m_lcf_enable[index];
         m_lcf_enable->signal_switched.clear();
-	m_lcf_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_LCF_ENABLE));
+	m_lcf_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_lcf_enable));
  
 	m_high_freq_gain = &wnd_->m_high_freq_gain[index];
         m_high_freq_gain->signal_value_changed.clear();
-	m_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_LEVEL));
+	m_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_high_freq_gain));
 	
 	m_high_freq_band = &wnd_->m_high_freq_band[index];
         m_high_freq_band->signal_value_changed.clear();
-	m_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_HIGH_FREQ));
+	m_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_high_freq_band));
 	
 	m_mid_high_freq_gain = &wnd_->m_mid_high_freq_gain[index];
-	m_mid_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_LEVEL));
+	m_mid_high_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_mid_high_freq_gain));
 	
 	m_mid_high_freq_band = &wnd_->m_mid_high_freq_band[index];
         m_mid_high_freq_band->signal_value_changed.clear();
-	m_mid_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGH_FREQ));
+	m_mid_high_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_mid_high_freq_band));
 	
 	m_mid_high_freq_width = &wnd_->m_mid_high_freq_width[index];
         m_mid_high_freq_width->signal_value_changed.clear();
-	m_mid_high_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDHIGHWIDTH_FREQ));
+	m_mid_high_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_mid_high_freq_width));
 	
 	m_mid_low_freq_gain = &wnd_->m_mid_low_freq_gain[index];
         m_mid_low_freq_gain->signal_value_changed.clear();
-	m_mid_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_LEVEL));
+	m_mid_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_mid_low_freq_gain));
 	
 	m_mid_low_freq_band = &wnd_->m_mid_low_freq_band[index];
         m_mid_low_freq_band->signal_value_changed.clear();
-	m_mid_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOW_FREQ));
+	m_mid_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_mid_low_freq_band));
 	
 	m_mid_low_freq_width = &wnd_->m_mid_low_freq_width[index];
         m_mid_low_freq_width->signal_value_changed.clear();
-	m_mid_low_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_MIDLOWWIDTH_FREQ));
+	m_mid_low_freq_width->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_mid_low_freq_width));
 	
 	m_low_freq_gain = &wnd_->m_low_freq_gain[index];
         m_low_freq_gain->signal_value_changed.clear();
-	m_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_LEVEL));
+	m_low_freq_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_low_freq_gain));
 	
 	m_low_freq_band = &wnd_->m_low_freq_band[index];
         m_low_freq_band->signal_value_changed.clear();
-	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_EQ_LOW_FREQ));
+	m_low_freq_band->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_low_freq_band));
        
 }
 
 void OEq::get_alsa_values(int channel_index, OAlsa* alsa) {
-	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, channel_index));
+	m_eq_enable->set_value(alsa->getBoolean(CTL_NAME_EQ_ENABLE, channel_index));
 	m_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_LEVEL, channel_index));
 	m_high_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_HIGH_FREQ, channel_index));
 	m_mid_high_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_MIDHIGH_LEVEL, channel_index));
@@ -273,10 +273,10 @@ void OEq::get_alsa_values(int channel_index, OAlsa* alsa) {
         int low_gain = alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, channel_index);
         if (low_gain != 255) {
             m_low_freq_gain->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_LEVEL, channel_index));
-            m_lcf_enable->set_active(false);
+            m_lcf_enable->set_value(0);
         }
         else {
-            m_lcf_enable->set_active(true);
+            m_lcf_enable->set_value(1);
         }
 	m_low_freq_band->set_value(alsa->getInteger(CTL_NAME_EQ_LOW_FREQ, channel_index));
 }
@@ -284,7 +284,7 @@ void OEq::get_alsa_values(int channel_index, OAlsa* alsa) {
 void OEq::reset(OAlsa* alsa, int index) {
 
 	alsa->setBoolean(CTL_NAME_EQ_ENABLE, index, 0);
-	m_eq_enable->set_active(alsa->getBoolean(CTL_NAME_EQ_ENABLE, index));
+	m_eq_enable->set_value(alsa->getBoolean(CTL_NAME_EQ_ENABLE, index) ? 1 : 0);
 	usleep(RESET_VALUE_DELAY);
 
 	m_high_freq_gain->reset();
@@ -321,7 +321,7 @@ void OEq::reset(OAlsa* alsa, int index) {
 void OEq::save_values(FILE * file) {
 
 	fprintf(file, "\t\t\t<enable>");
-	fprintf(file, "%d", (int) m_eq_enable->get_active());
+	fprintf(file, "%d", (int) m_eq_enable->get_value());
 	fprintf(file, "</enable>\n");
 
 	fprintf(file, "\t\t\t<high_freq_gain>");
@@ -365,7 +365,7 @@ void OEq::save_values(FILE * file) {
 	fprintf(file, "</low_freq_gain>\n");
         
 	fprintf(file, "\t\t\t<low_lcf>");
-	fprintf(file, "%d", (int) m_lcf_enable->get_active());
+	fprintf(file, "%d", (int) m_lcf_enable->get_value());
 	fprintf(file, "</low_lcf>\n");
 
 }
@@ -378,7 +378,7 @@ void OEq::load_values(Glib::ustring xml) {
 		while (reader.read()) {
 			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != XML_ENDELEMENT) {
 				reader.read();
-				m_eq_enable->set_active(atoi(reader.get_value().c_str()) == 1);
+				m_eq_enable->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
 			if (!strcmp(reader.get_name().c_str(), "high_freq_gain") && reader.get_node_type() != XML_ENDELEMENT) {
@@ -433,7 +433,7 @@ void OEq::load_values(Glib::ustring xml) {
 			}
 			if (!strcmp(reader.get_name().c_str(), "low_lcf") && reader.get_node_type() != XML_ENDELEMENT) {
 				reader.read();
-				m_lcf_enable->set_active(atoi(reader.get_value().c_str()) == 1);
+				m_lcf_enable->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}                        
 

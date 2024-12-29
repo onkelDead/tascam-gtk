@@ -16,7 +16,8 @@
 
 #include <iostream>
 
-#include <gtkmm.h>
+#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm-3.0/gtkmm/widget.h>
 #include <stdbool.h>
 
 #include "config.h"
@@ -128,22 +129,22 @@ void OComp::set_ref_index(int index, Gtk::Window* wnd) {
 
 	m_enable = &wnd_->m_comp_enable[index];
         m_enable->signal_switched.clear();
-	m_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), index, CTL_NAME_CP_ENABLE));
+	m_enable->signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_enable));
 
 	m_threshold = &wnd_->m_threshold[index];
-	m_threshold->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_THRESHOLD));
+	m_threshold->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_threshold));
 
 	m_gain = &wnd_->m_gain[index];
-	m_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_GAIN));
+	m_gain->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_gain));
 
 	m_attack = &wnd_->m_attack[index];
-	m_attack->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_ATTACK));
+	m_attack->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_attack));
 
 	m_release = &wnd_->m_release[index];
-	m_release->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_RELEASE));
+	m_release->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_release));
 
 	m_ratio = &wnd_->m_ratio[index];
-	m_ratio->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_dial_changed), index, CTL_NAME_CP_RATIO));
+	m_ratio->signal_value_changed.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_ratio));
 
 	m_reduction[0] = &wnd_->m_reduction[index];
 	if (!(index % 2) && index < 16)
@@ -174,7 +175,7 @@ void OComp::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 void OComp::get_alsa_values(int index, OAlsa* alsa) {
 	if (index < NUM_CHANNELS) {
-		m_enable->set_active(alsa->getBoolean(CTL_NAME_CP_ENABLE, index));
+		m_enable->set_value(alsa->getBoolean(CTL_NAME_CP_ENABLE, index) ? 1 : 0);
 		m_threshold->set_value(alsa->getInteger(CTL_NAME_CP_THRESHOLD, index));
 		m_gain->set_value(alsa->getInteger(CTL_NAME_CP_GAIN, index));
 		m_attack->set_value(alsa->getInteger(CTL_NAME_CP_ATTACK, index));
@@ -187,7 +188,7 @@ void OComp::get_alsa_values(int index, OAlsa* alsa) {
 void OComp::reset(OAlsa* alsa, int index) {
 
 	alsa->setBoolean(CTL_NAME_CP_ENABLE, index, 0);
-	m_enable->set_active(alsa->getBoolean(CTL_NAME_CP_ENABLE, index));
+	m_enable->set_value(alsa->getBoolean(CTL_NAME_CP_ENABLE, index) ? 1 : 0);
 	usleep(RESET_VALUE_DELAY);
 
 	m_threshold->reset();
@@ -210,7 +211,7 @@ void OComp::reset(OAlsa* alsa, int index) {
 void OComp::save_values(FILE* file) {
 
 	fprintf(file, "\t\t\t<enable>");
-	fprintf(file, "%d", (int) m_enable->get_active());
+	fprintf(file, "%d", (int) m_enable->get_value());
 	fprintf(file, "</enable>\n");
 
 	fprintf(file, "\t\t\t<threshold>");
@@ -243,7 +244,7 @@ void OComp::load_values(Glib::ustring xml) {
 		while (reader.read()) {
 			if (!strcmp(reader.get_name().c_str(), "enable") && reader.get_node_type() != XML_ENDELEMENT) {
 				reader.read();
-				m_enable->set_active(atoi(reader.get_value().c_str()) == 1);
+				m_enable->set_value(atoi(reader.get_value().c_str()));
 				usleep(RESET_VALUE_DELAY);
 			}
 			if (!strcmp(reader.get_name().c_str(), "threshold") && reader.get_node_type() != XML_ENDELEMENT) {

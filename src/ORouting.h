@@ -14,43 +14,35 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
-#ifndef OMASTER_H
-#define OMASTER_H
+#ifndef OROUTING_H
+#define OROUTING_H
 
 #include "OTypes.h"
 #include "ODial.h"
-#include "ORouting.h"
-#include "OAlsa.h"
-#include "OMeter.h"
+#include "OSwitch.h"
+#include "ORoute.h"
 #include "OFader.h"
+#include "OAlsa.h"
 
-class OMaster : public Gtk::VBox  {
+
+class ORouting : public Gtk::VBox {
 public:
-    OMaster();
-    virtual ~OMaster();
-    
+    ORouting();
+    virtual ~ORouting();
+
     void init(OAlsa* alsa, Gtk::Window* wnd);    
-    
+
     void set_view_type(VIEW_TYPE pack);
     
     void reset(OAlsa* alsa);
     
-    OMeter m_meter_left;
-    OMeter m_meter_right;
-    
-    
-    OSwitch m_mute;
-    OSwitch m_true_bypass;
-    OSwitch m_comp_to_stereo;
-    OFader m_fader;
-    
-    ORouting* m_route;
+    ORoute m_route[8];
     
 private:
-    VIEW_TYPE m_view_type;
+    Gtk::Label m_label;
     Gtk::Grid m_grid;
+
 };
 
-#endif /* OMASTER_H */
+#endif /* OROUTING_H */
 

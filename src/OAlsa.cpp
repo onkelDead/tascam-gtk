@@ -399,10 +399,10 @@ void OAlsa::on_dial_control_changed(int n, const char* control_name, ODial* cont
 }
 
 void OAlsa::on_switch_control_changed(int n, const char* control_name, OSwitch* control) {
-    setBoolean(control_name, n, control->get_active());
+    setBoolean(control_name, n, control->get_value() != 0);
 }
 
-void OAlsa::on_range_control_changed(int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label) {
+void OAlsa::on_range_control_changed(int n, const char* control_name, OFader* control, Gtk::Label* label) {
     char l_title[64];
     int val = control->get_value();
     int dB = sliderTodB(control->get_value());

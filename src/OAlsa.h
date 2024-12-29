@@ -120,7 +120,7 @@ public:
     int getControlIntegers(snd_hctl_elem_t *elem, int vals[], int count);
     
     // VScale value change slot
-    void on_range_control_changed (int n, const char* control_name, Gtk::VScale* control, Gtk::Label* label);
+    void on_range_control_changed (int n, const char* control_name, OFader* control, Gtk::Label* label);
     
 //    ODial value change slot
     void on_dial_control_changed (int n, const char* control_name, ODial* control);

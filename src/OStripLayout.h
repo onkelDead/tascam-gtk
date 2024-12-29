@@ -23,7 +23,7 @@
 #include "ODial.h"
 #include "OComp.h"
 #include "OEq.h"
-#include "OFader.h"
+#include "OStrip.h"
 #include "OMeter.h"
 #include "OAlsa.h"
 
@@ -51,7 +51,7 @@ public:
     
     OComp m_comp;
     OEq m_eq;
-    OFader m_fader;
+    OStrip m_fader;
     OSwitch m_DspEnable;
     
 private:

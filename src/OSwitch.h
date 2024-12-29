@@ -20,22 +20,23 @@
 #include <gtkmm/widget.h>
 #include <gtkmm/cssprovider.h>
 #include <gtkmm/styleproperty.h>
-
 #include "OTypes.h"
+
+#include "OOscControl.h"
 
 typedef char* (*value_callback)(int val, char* buf, size_t buf_size);
 
-class OSwitch : public Gtk::Widget {
+class OSwitch : public Gtk::Widget, public OOscControl {
 public:
     OSwitch();
     virtual ~OSwitch();
     
-    virtual gboolean get_active() {
-        return m_active;
+    virtual gint get_value() {
+        return m_active ? 1 : 0;
     }
-    virtual void set_active(gboolean new_val) {
+    virtual void set_value(gint new_val) {
         if (new_val != m_active) {
-            m_active = new_val;
+            m_active = new_val != 0;
             queue_draw();
             signal_switched.emit();
         }
@@ -60,6 +61,11 @@ public:
     virtual void set_align(Gtk::Align align);
     
     sigc::signal<void> signal_switched;
+    
+    void osc_init(const char*, int);
+    void osc_init(const char*);
+    char* get_osc_path();
+    int get_osc_index();
     
 protected:
 
@@ -96,6 +102,9 @@ private:
 
     double m_b_red, m_b_green, m_b_blue, m_b_alpha;
     VIEW_TYPE m_view_type;
+    
+    char m_osc_path[64];
+    int m_osc_index;
 };
 
 #endif /* OSWITCH_H */

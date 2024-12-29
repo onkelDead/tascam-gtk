@@ -14,48 +14,44 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef ODSPLAYOUT_H
-#define ODSPLAYOUT_H
+#ifndef OSTRIP_H
+#define OSTRIP_H
+
+#include <iostream>
 
 #include "OTypes.h"
-#include "ODial.h"
-#include "OComp.h"
-#include "OEq.h"
-#include "OStrip.h"
 #include "OMeter.h"
-#include "ORouting.h"
+#include "ODial.h"
+#include "OSwitch.h"
 #include "OAlsa.h"
 
-class ODspLayout : public Gtk::VBox {
+class OStrip : public Gtk::VBox {
 public:
-    ODspLayout();
-    ODspLayout(const ODspLayout& orig);
-    virtual ~ODspLayout();
-    
+    OStrip();
+    OStrip(const OStrip& orig);
+    virtual ~OStrip();
+
     void init(int index, OAlsa* alsa, Gtk::Window* wnd);
+    
+    void set_view_type(VIEW_TYPE view_type, CHANNEL_TYPE channel_type);
+    
+    void reset(OAlsa* alsa, int index);
+    void save_values(FILE* file);    
+    void load_values(Glib::ustring xml);    
+    
+    OSwitch* m_MuteEnable;
+    OSwitch* m_SoloEnable;
+    OSwitch* m_PhaseEnable[2];    
+    OFader* m_fader;
+    ODial* m_Pan[2];
+    
+    OMeter m_meter[2];
+    Gtk::Label m_dB;
 
-    void set_view_type(VIEW_TYPE i);
-    
-    void set_sensitive(bool val);
-
-    void set_channel_type(CHANNEL_TYPE num_channels);
-    CHANNEL_TYPE get_channel_type() {return m_channel_type;}
-    
-    void set_ref_index(int index, Gtk::Window* wnd);
-    
-    OComp m_comp;
-    OEq m_eq;
-    ORouting* m_route;
     
 private:
-    Gtk::Label m_filler;
+    VIEW_TYPE m_view_type;
     Gtk::Grid m_grid;
-    CHANNEL_TYPE m_channel_type;
-    Gtk::VSeparator m_eq_sep;
-    
-    Gtk::HSeparator m_sep;
-
 };
 
-#endif /* ODSPLAYOUT_H */
-
+#endif /* OSTRIP_H */

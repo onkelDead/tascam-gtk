@@ -111,14 +111,14 @@ bool OOscDialog::GetResult() {
 
 void OOscDialog::SetData(OConfig* config) {
     m_osc_port.set_text(config->get_string(SETTINGS_OSC_PORT));
-    m_chk_no_meters.set_active(config->get_boolean(SETTINGS_OSC_NO_METERS));
-    m_chk_full_update.set_active(config->get_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE));
-    m_chk_log_osc.set_active(config->get_boolean(SETTINGS_OSC_LOG_ALL));
+    m_chk_no_meters.set_value(config->get_boolean(SETTINGS_OSC_NO_METERS));
+    m_chk_full_update.set_value(config->get_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE));
+    m_chk_log_osc.set_value(config->get_boolean(SETTINGS_OSC_LOG_ALL));
 }
 
 void OOscDialog::GetData(OConfig* config) {
     config->set_string(SETTINGS_OSC_PORT, m_osc_port.get_text().c_str());
-    config->set_boolean(SETTINGS_OSC_NO_METERS, m_chk_no_meters.get_active());
-    config->set_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE, m_chk_full_update.get_active());
-    config->set_boolean(SETTINGS_OSC_LOG_ALL, m_chk_log_osc.get_active());
+    config->set_boolean(SETTINGS_OSC_NO_METERS, m_chk_no_meters.get_value());
+    config->set_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE, m_chk_full_update.get_value());
+    config->set_boolean(SETTINGS_OSC_LOG_ALL, m_chk_log_osc.get_value());
 }

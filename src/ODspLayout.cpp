@@ -40,7 +40,7 @@ void ODspLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 	OMainWnd* wnd_ = (OMainWnd*) wnd;
 
-	m_route = &wnd_->m_route;
+	m_route = &wnd_->m_routing;
 	m_comp.init(index, alsa, wnd);
 	m_eq.init(index, alsa, wnd);
 

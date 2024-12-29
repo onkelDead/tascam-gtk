@@ -29,6 +29,7 @@
 #include "OTypes.h"
 #include "ODial.h"
 #include "OSwitch.h"
+#include "OFader.h"
 #include "OAlsa.h"
 
 #define EBLUE_NORMAL .5, .55, 1., 1.

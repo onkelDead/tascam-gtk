@@ -14,7 +14,8 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <gtkmm.h>
+#include <gtkmm-3.0/gtkmm.h>
+#include <gtkmm-3.0/gtkmm/widget.h>
 
 #include "OMaster.h"
 #include "OMainWnd.h"
@@ -31,7 +32,8 @@ OMaster::OMaster() : Gtk::VBox() {
     m_true_bypass.set_size_request(-1, 48);
 //    m_true_bypass.set_align(Gtk::Align::ALIGN_CENTER);
     m_true_bypass.set_halign(Gtk::ALIGN_FILL);
-    
+    m_true_bypass.osc_init("/master/bypass");
+
     m_comp_to_stereo.set_label("Computer out\nto Stereo BUS");
     m_comp_to_stereo.set_name("comp-button");
     m_comp_to_stereo.set_ledcolor(1., 1., 0., 1.);
@@ -40,16 +42,16 @@ OMaster::OMaster() : Gtk::VBox() {
     m_comp_to_stereo.set_size_request(-1, 48);
 //    m_comp_to_stereo.set_align(Gtk::Align::ALIGN_CENTER);
     m_comp_to_stereo.set_halign(Gtk::ALIGN_FILL);
+    m_comp_to_stereo.osc_init("/master/busout");
     
     m_mute.set_label("Mute");
     m_mute.set_name("mute-button");
     m_mute.set_ledcolor(1., 0., 0., 1.);
     m_mute.set_ledsize(6);
     m_mute.set_fontsize(8);
-//    m_mute.set_align(Gtk::Align::ALIGN_CENTER);
     m_mute.set_halign(Gtk::ALIGN_FILL);
-        
     m_mute.set_size_request(-1, 48);
+    m_mute.osc_init("/master/mute");
 
     m_fader.set_name("fader");
     m_fader.set_range(0, 133);
@@ -91,22 +93,24 @@ void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
 
     OMainWnd* wnd_ = (OMainWnd*) wnd;
 
-    m_route = &wnd_->m_route;
+    m_route = &wnd_->m_routing;
 
     val = alsa->getInteger(CTL_MASTER, 0);
     m_fader.set_value(alsa->dBToSlider(val) + 1);
-    m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_fader_changed), 0, CTL_MASTER, &m_fader, (Gtk::Label*) NULL));
+    m_fader.signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), &m_fader));
     snprintf(l_title, sizeof (l_title), "%d dB", val - 127);
     m_fader.set_tooltip_text(l_title);
+    m_fader.osc_init("/master/gain");
+    wnd_->add_osc_control(&m_fader);
 
-    m_true_bypass.set_active(alsa->getBoolean(CTL_NAME_BYPASS, 0));
-    m_true_bypass.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BYPASS));
+    m_true_bypass.set_value(alsa->getBoolean(CTL_NAME_BYPASS, 0) ? 1 : 0);
+    m_true_bypass.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), &m_true_bypass));
 
-    m_comp_to_stereo.set_active(alsa->getBoolean(CTL_NAME_BUS_OUT, 0));
-    m_comp_to_stereo.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_BUS_OUT));
+    m_comp_to_stereo.set_value(alsa->getBoolean(CTL_NAME_BUS_OUT, 0) ? 1 :0);
+    m_comp_to_stereo.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), &m_comp_to_stereo));
 
-    m_mute.set_active(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0));
-    m_mute.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_ch_tb_changed), 0, CTL_NAME_MASTER_MUTE));
+    m_mute.set_value(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0) ? 1 : 0);
+    m_mute.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), &m_mute));
 
     set_view_type(NORMAL);
 
@@ -118,15 +122,15 @@ void OMaster::reset(OAlsa* alsa) {
     usleep(RESET_VALUE_DELAY);
 
     alsa->setBoolean(CTL_NAME_BYPASS, 0, 0);
-    m_true_bypass.set_active(alsa->getBoolean(CTL_NAME_BYPASS, 0));
+    m_true_bypass.set_value(alsa->getBoolean(CTL_NAME_BYPASS, 0) ? 1 : 0);
     usleep(RESET_VALUE_DELAY);
 
     alsa->setBoolean(CTL_NAME_BUS_OUT, 0, 0);
-    m_comp_to_stereo.set_active(alsa->getBoolean(CTL_NAME_BUS_OUT, 0));
+    m_comp_to_stereo.set_value(alsa->getBoolean(CTL_NAME_BUS_OUT, 0) ? 1 : 0);
     usleep(RESET_VALUE_DELAY);
 
     alsa->setBoolean(CTL_NAME_MASTER_MUTE, 0, 0);
-    m_mute.set_active(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0));
+    m_mute.set_value(alsa->getBoolean(CTL_NAME_MASTER_MUTE, 0) ? 1 : 0);
     usleep(RESET_VALUE_DELAY);
 }
 
