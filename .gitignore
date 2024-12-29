@@ -12,7 +12,8 @@ config.h
 config.log
 config.status
 *~
-src/*.o
+*.o
+*.Po
 src/.deps
 src/.dirstamp
 tascamgtk
