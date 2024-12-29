@@ -392,7 +392,7 @@ int OAlsa::getIntegers(const char* name, int vals[], int count) {
 void OAlsa::on_control_changed(OOscControl* control) {
     char *cname = control->get_alsa_name();
     if (cname)
-        setInteger(control->get_alsa_name(), control->get_osc_index(), control->get_value());
+        setInteger(control->get_alsa_name(), control->get_osc_index() - 1, control->get_value());
     
 }
 
