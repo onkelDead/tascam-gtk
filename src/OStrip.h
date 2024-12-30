@@ -40,6 +40,8 @@ public:
     void load_values(Glib::ustring xml);    
     char* get_alsa_name() { return 0; }
     
+    void on_fader_changed(OOscControl*);
+    
     OSwitch* m_MuteEnable;
     OSwitch* m_SoloEnable;
     OSwitch* m_PhaseEnable[2];    

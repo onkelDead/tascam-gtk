@@ -42,17 +42,6 @@
     lo_message_free(reply); \
 }
 
-
-#define OSC_STRIP_MSG1(path, index, value) \
-{ \
-    char xpath[32]; \
-    sprintf(xpath, "%s/%d", path, index);  \
-    lo_message reply = lo_message_new();  \
-    lo_message_add_int32(reply, value);   \
-    m_Worker.send_osc_all(xpath, reply);    \
-    lo_message_free(reply); \
-}
-
 #define OSC_STRIP_MSG(path, index, value) \
 { \
     lo_message reply = lo_message_new();  \
@@ -93,8 +82,7 @@ m_dsp_channel(-1),
 m_block_ui(true),
 m_menubar(nullptr),
 m_WorkerThread(nullptr),
-block_events(0),
-m_WorkerAlsaThread(nullptr) {
+block_events(0) {
 
     bool compact;
 
@@ -612,15 +600,6 @@ void OMainWnd::create_worker_threads(){
             m_Worker.do_work(this);
         });
     }
-    
-//    if (m_WorkerAlsaThread) {
-//        std::cout << "Can't start a worker thread while another one is running." << std::endl;
-//    } else {
-//        m_WorkerAlsaThread = new std::thread([this] {
-//            alsa->do_work(this);
-//            this->hide();
-//        });
-//    }
 }
 
 OOscControl* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t) {
@@ -784,16 +763,7 @@ OOscControl* OMainWnd::get_alsa_widget(const char* info_name, int index, snd_ctl
 void OMainWnd::alsa_update_control(snd_hctl_elem_t *helem, int val, unsigned int index) {
     OOscControl* widget = m_mixer_elems[helem];
     if (widget) {
-
-        
-    fprintf(stdout, "alsa_update_control %d %d\n", index, val);
-    fflush(stdout);
-        
-    widget->set_value(val);
-    
-//        widget->value = val;
-//        m_alsa_queue.push(widget);
-//        m_Dispatcher_alsa.emit();
+        widget->set_value(val);
     }
 }
 
@@ -1252,6 +1222,17 @@ void OMainWnd::notify_osc() {
 }
 
 void OMainWnd::update_osc_client() {
+    
+    for (std::map<std::string, OOscControl*>::iterator it = m_osc_control_map.begin(); it != m_osc_control_map.end(); ++it) {
+        OOscControl* oc = it->second;
+        if (oc->get_osc_index() < 17) {
+            OSC_STRIP_MSG2(oc->get_osc_path(), oc->get_value());
+            usleep(100);
+        }
+    }
+    
+    return; 
+    
     OSC_MASTER_MSG("/master/fader", m_master.m_fader.get_value());
     OSC_MASTER_MSG("/master/bypass", m_master.m_true_bypass.get_value() ? 1 : 0);
     OSC_MASTER_MSG("/master/busout", m_master.m_comp_to_stereo.get_value() ? 1 : 0);
@@ -1319,43 +1300,8 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
         return;
     }
     
-    
 // Master 
     if (!strcmp(path, "/reset"))                on_menu_file_reset();
-    if (!strcmp(path, "/master/fader"))         m_master.m_fader.set_value(OSC_STRIP_I0);
-//    if (!strcmp(path, "/master/mute"))          m_master.m_mute.set_active(OSC_STRIP_B0);
-//    if (!strcmp(path, "/master/bypass"))        m_master.m_true_bypass.set_active(OSC_STRIP_B0);
-//    if (!strcmp(path, "/master/busout"))        m_master.m_comp_to_stereo.set_active(OSC_STRIP_B0);
-
-// Routing
-    if (!strcmp(path, "/master/route")) {
-        int route_index = argv[0]->i - 1;
-        int val = argv[1]->i;
-
-        m_routing.m_route[route_index].set_active(val);
-    }    
-    
-// Link    
-    if (!strcmp(path, "/link")) {
-        int link_index = argv[0]->i - 1;
-        int val = argv[1]->i;
-
-        m_link[link_index].set_value(val);
-    }   
-    
-// strip
-    if (!strncmp(path, "/ch/gain", 8))          m_stripLayouts[SMP_INDEX(9)].m_fader.m_fader->set_value((float)OSC_STRIP_I0);
-    
-    if (!strncmp(path, "/ch/pan", 7))            m_stripLayouts[OSC_STRIP_INDEX1(8)].m_fader.m_Pan[0]->set_value(OSC_STRIP_I0 + 127);
-//    if (!strncmp(path, "/ch/mute", 8))          m_stripLayouts[SMP_INDEX(9)].m_fader.m_MuteEnable->set_active(OSC_STRIP_B0);
-    if (!strncmp(path, "/ch/solo", 8)) {
-        if (OSC_STRIP_INDEX1(9) == m_solo_channel || m_solo_channel == -1) {
-            m_stripLayouts[OSC_STRIP_INDEX1(9)].m_fader.m_SoloEnable->set_value(OSC_STRIP_B0);
-            m_solo_channel = OSC_STRIP_B0 ? OSC_STRIP_INDEX1(9) : -1;
-        }
-    }
-    if (!strncmp(path, "/ch/reset", 9))          m_stripLayouts[OSC_STRIP_INDEX1(10)].reset(alsa, OSC_STRIP_INDEX1(10));
-
 }
 
 #endif
@@ -1491,7 +1437,6 @@ void OMainWnd::on_about_dialog_response(int response_id) {
 OConfig* OMainWnd::GetConfig() {
     return &m_config;
 }
-
 
 void OMainWnd::add_osc_control(OOscControl* osd) {
     m_osc_control_map[osd->get_osc_path()] = osd;

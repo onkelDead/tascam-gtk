@@ -16,8 +16,7 @@
 
 #include <iostream>
 
-#include <gtkmm-3.0/gtkmm.h>
-#include <gtkmm-3.0/gtkmm/widget.h>
+#include <gtkmm.h>
 #include <stdbool.h>
 
 #include "config.h"

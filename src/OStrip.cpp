@@ -14,13 +14,14 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <gtkmm-3.0/gtkmm.h>
-#include <gtkmm-3.0/gtkmm/widget.h>
+#include <gtkmm.h>
 #include <stdbool.h>
 #include "config.h"
 #include "OMainWnd.h"
 
 #include "OStrip.h"
+
+static OMainWnd* wnd_;
 
 OStrip::OStrip() : Gtk::VBox() {
     m_dB.set_name("db-label");
@@ -103,7 +104,7 @@ void OStrip::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
     char l_title[64];
     int val;
 
-    OMainWnd* wnd_ = (OMainWnd*) wnd;
+    wnd_ = (OMainWnd*) wnd;
 
     m_fader = &wnd_->m_fader[index];
     val = alsa->getInteger(CTL_NAME_FADER, index);
@@ -114,6 +115,9 @@ void OStrip::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
     m_dB.set_label(l_title);
     m_fader->osc_init("/ch/gain", index + 1);
     m_fader->signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_control_changed), m_fader));
+    m_fader->signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(this, &OStrip::on_fader_changed), m_fader));
+    
+    
     wnd_->add_osc_control(m_fader);
     
     
@@ -229,4 +233,12 @@ void OStrip::load_values(Glib::ustring xml) {
         std::cerr << "Exception caught: " << e.what() << std::endl;
         return;
     }
+}
+
+void OStrip::on_fader_changed(OOscControl* fader) {
+    char buf[16];
+    int dB = wnd_->alsa->sliderTodB(fader->get_value());
+    snprintf(buf, 16, "%d dB", dB - 127);
+    m_dB.set_label(buf);
+    m_fader->set_tooltip_text(buf);
 }

@@ -225,8 +225,6 @@ private:
     OMeterWorker m_Worker;
     std::thread* m_WorkerThread;
 
-    std::thread* m_WorkerAlsaThread;    
-    
     Gtk::MenuBar* m_menubar;
     void create_menu();
     

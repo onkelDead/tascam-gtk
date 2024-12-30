@@ -14,8 +14,7 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <gtkmm-3.0/gtkmm.h>
-#include <gtkmm-3.0/gtkmm/widget.h>
+#include <gtkmm.h>
 
 #include "OMaster.h"
 #include "OMainWnd.h"
