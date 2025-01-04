@@ -118,8 +118,9 @@ void OStrip::init(int index, OAlsa* alsa, Gtk::Window * wnd) {
     m_fader->signal_value_changed().connect(sigc::bind<>(sigc::mem_fun(this, &OStrip::on_fader_changed), m_fader));
     
     
+#ifdef HAVE_OSC		
     wnd_->add_osc_control(m_fader);
-    
+#endif  
     
     m_Pan[0] = &wnd_->m_Pan[index];
     m_Pan[0]->set_value(alsa->getInteger(CTL_NAME_PAN, index));
@@ -242,3 +243,4 @@ void OStrip::on_fader_changed(OOscControl* fader) {
     m_dB.set_label(buf);
     m_fader->set_tooltip_text(buf);
 }
+

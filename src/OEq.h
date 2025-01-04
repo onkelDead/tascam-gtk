@@ -68,11 +68,6 @@ public:
     
     void save_values(FILE* file);    
     void load_values(Glib::ustring xml);
-
-#ifdef HAVE_OSC
-    int get_parameter_count() { return 10; }
-    void get_parameter_decriptor(int parameter_index, lo_message reply);
-#endif
     
     void set_sensitive(bool val);
     bool get_active() {return m_is_active;}

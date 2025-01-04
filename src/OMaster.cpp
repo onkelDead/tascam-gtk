@@ -100,7 +100,9 @@ void OMaster::init(OAlsa* alsa, Gtk::Window* wnd) {
     snprintf(l_title, sizeof (l_title), "%d dB", val - 127);
     m_fader.set_tooltip_text(l_title);
     m_fader.osc_init("/master/gain");
+#ifdef HAVE_OSC    
     wnd_->add_osc_control(&m_fader);
+#endif    
     m_fader.set_alsa_control_name(CTL_MASTER);
 
     m_true_bypass.set_value(alsa->getBoolean(CTL_NAME_BYPASS, 0) ? 1 : 0);

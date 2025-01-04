@@ -63,12 +63,6 @@ public:
     void save_values(FILE* file);   
     void load_values(Glib::ustring xml);
     
-#ifdef HAVE_OSC    
-    int get_parameter_count() { return 5; }
-    void get_parameter_decriptor(int parameter_index, lo_message reply);
-#endif
-    
-    
     OSwitch* m_enable;
     ODial* m_threshold;
     ODial* m_gain;

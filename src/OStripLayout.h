@@ -51,7 +51,7 @@ public:
     
     OComp m_comp;
     OEq m_eq;
-    OStrip m_fader;
+    OStrip m_strip;
     OSwitch m_DspEnable;
     
 private:

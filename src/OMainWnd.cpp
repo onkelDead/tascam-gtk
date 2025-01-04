@@ -68,6 +68,7 @@
 #define OSC_STRIP_B1
 #define OSC_MASTER_MSG(path, value)
 #define OSC_STRIP_MSG(path, index, value)
+#define OSC_STRIP_MSG2(path, value)
 #endif
 
 
@@ -116,7 +117,9 @@ block_events(0) {
 
     show_all_children(true);
     
+#ifdef HAVE_OSC		
     l_log_osc = m_config.get_boolean(SETTINGS_OSC_LOG_ALL);
+#endif
     
     create_worker_threads(); 
     
@@ -171,10 +174,6 @@ void OMainWnd::create_menu() {
             sigc::mem_fun(this, &OMainWnd::on_menu_file_exit));
     m_refActionGroup->add(Gtk::Action::create("about", Gtk::Stock::ABOUT),
             sigc::mem_fun(this, &OMainWnd::on_menu_file_about));
-#ifdef HAVE_OSC
-    m_refActionGroup->add(Gtk::Action::create("osc", Gtk::Stock::PREFERENCES, "_OSC settings"),
-            sigc::mem_fun(this, &OMainWnd::on_menu_file_osc));
-#endif    
     m_refActionGroup->add(Gtk::Action::create("View", "_View"));
     m_refActionGroup->add(Gtk::Action::create("compact", Gtk::Stock::ZOOM_IN, "_Compact"),
             sigc::mem_fun(this, &OMainWnd::on_menu_view_compact));
@@ -186,6 +185,9 @@ void OMainWnd::create_menu() {
 
     //Layout the actions in a menubar and toolbar:
 #ifdef HAVE_OSC    
+    m_refActionGroup->add(Gtk::Action::create("osc", Gtk::Stock::PREFERENCES, "_OSC settings"),
+            sigc::mem_fun(this, &OMainWnd::on_menu_file_osc));
+
     Glib::ustring ui_info =
             "<ui>"
             "  <menubar name='MenuBar'>"
@@ -264,7 +266,6 @@ void OMainWnd::create_controls() {
             m_comp_enable[i].set_fontsize(7);
             m_comp_enable[i].set_ledsize(6);
             m_comp_enable[i].osc_init("/ch/comp/sw", i + 1);
-            add_osc_control(&m_comp_enable[i]);
             m_comp_enable[i].set_alsa_control_name(CTL_NAME_CP_ENABLE);
             
             m_threshold[i].set_params(0, 32, 32, 1);
@@ -272,7 +273,6 @@ void OMainWnd::create_controls() {
             m_threshold[i].set_value_callback(cp_threshold_text);
             m_threshold[i].set_knob_background_color(CREAD_NORMAL);
             m_threshold[i].osc_init("/ch/comp/threshold", i + 1);
-            add_osc_control(&m_threshold[i]);
             m_threshold[i].set_alsa_control_name(CTL_NAME_CP_THRESHOLD);
 
             m_gain[i].set_params(0, 20, 0, 1);
@@ -280,7 +280,6 @@ void OMainWnd::create_controls() {
             m_gain[i].set_value_callback(cp_gain_text);
             m_gain[i].set_knob_background_color(CREAD_NORMAL);
             m_gain[i].osc_init("/ch/comp/gain", i + 1);
-            add_osc_control(&m_gain[i]);
             m_gain[i].set_alsa_control_name(CTL_NAME_CP_GAIN);
 
             m_attack[i].set_params(0, 198, 0, 5);
@@ -288,7 +287,6 @@ void OMainWnd::create_controls() {
             m_attack[i].set_value_callback(cp_attack_text);
             m_attack[i].set_knob_background_color(CREAD_LIGHT);
             m_attack[i].osc_init("/ch/comp/attack", i + 1);
-            add_osc_control(&m_attack[i]);
             m_attack[i].set_alsa_control_name(CTL_NAME_CP_ATTACK);
 
             m_release[i].set_params(0, 99, 0, 1);
@@ -296,7 +294,6 @@ void OMainWnd::create_controls() {
             m_release[i].set_value_callback(cp_release_text);
             m_release[i].set_knob_background_color(CREAD_LIGHT);
             m_release[i].osc_init("/ch/comp/release", i + 1);
-            add_osc_control(&m_release[i]);
             m_release[i].set_alsa_control_name(CTL_NAME_CP_RELEASE);
 
             m_ratio[i].set_params(0, 14, 0, 1);
@@ -304,7 +301,6 @@ void OMainWnd::create_controls() {
             m_ratio[i].set_map(cp_ration_map);
             m_ratio[i].set_knob_background_color(CREAD_NORMAL);
             m_ratio[i].osc_init("/ch/comp/ratio", i + 1);
-            add_osc_control(&m_ratio[i]);
             m_ratio[i].set_alsa_control_name(CTL_NAME_CP_RATIO);
 
             m_reduction[i].setLevel(32768);
@@ -325,7 +321,6 @@ void OMainWnd::create_controls() {
             m_eq_enable[i].set_fontsize(7);
             m_eq_enable[i].set_ledsize(6);
             m_eq_enable[i].osc_init("/ch/eq/sw", i+1);
-            add_osc_control(&m_eq_enable[i]);
             m_eq_enable[i].set_alsa_control_name(CTL_NAME_EQ_ENABLE);
 
             m_lcf_enable[i].set_label("LCF");
@@ -338,7 +333,6 @@ void OMainWnd::create_controls() {
             m_lcf_enable[i].set_fontsize(7);
             m_lcf_enable[i].set_ledsize(6);
             m_lcf_enable[i].osc_init("/ch/eq/lcf", i+1);
-            add_osc_control(&m_lcf_enable[i]);
             m_lcf_enable[i].set_alsa_control_name(CTL_NAME_LCF_ENABLE);
             
             m_high_freq_gain[i].set_label("High");
@@ -347,7 +341,6 @@ void OMainWnd::create_controls() {
             m_high_freq_gain[i].set_name("eq_high_gain");
             m_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_high_freq_gain[i].osc_init("/ch/eq/highgain", i + 1);
-            add_osc_control(&m_high_freq_gain[i]);
             m_high_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_HIGH_LEVEL);
 
             m_high_freq_band[i].set_label("Freq");
@@ -355,14 +348,12 @@ void OMainWnd::create_controls() {
             m_high_freq_band[i].set_params(0, 31, 15, 1);
             m_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_high_freq_band[i].osc_init("/ch/eq/highfreq", i + 1);
-            add_osc_control(&m_high_freq_band[i]);
             m_high_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_HIGH_FREQ);
             m_mid_high_freq_gain[i].set_label("Mid H");
             m_mid_high_freq_gain[i].set_params(0, 24, 12, 1);
             m_mid_high_freq_gain[i].set_value_callback(eq_level_text);
             m_mid_high_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_mid_high_freq_gain[i].osc_init("/ch/eq/midhighgain", i + 1);
-            add_osc_control(&m_mid_high_freq_gain[i]);
             m_mid_high_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_MIDHIGH_LEVEL);
 
             m_mid_high_freq_band[i].set_label("Freq");
@@ -370,7 +361,6 @@ void OMainWnd::create_controls() {
             m_mid_high_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
             m_mid_high_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_mid_high_freq_band[i].osc_init("/ch/eq/midhighfreq", i + 1);
-            add_osc_control(&m_mid_high_freq_band[i]);
             m_mid_high_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_MIDHIGH_FREQ);
 
             m_mid_high_freq_width[i].set_label("Width");
@@ -380,7 +370,6 @@ void OMainWnd::create_controls() {
             m_mid_high_freq_width[i].set_hexpand(false);
             m_mid_high_freq_width[i].set_halign(Gtk::ALIGN_CENTER);
             m_mid_high_freq_width[i].osc_init("/ch/eq/midhighwidth", i + 1);
-            add_osc_control(&m_mid_high_freq_width[i]);
             m_mid_high_freq_width[i].set_alsa_control_name(CTL_NAME_EQ_MIDHIGHWIDTH_FREQ);
 
             m_mid_low_freq_gain[i].set_label("Mid L");
@@ -388,7 +377,6 @@ void OMainWnd::create_controls() {
             m_mid_low_freq_gain[i].set_value_callback(eq_level_text);
             m_mid_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_mid_low_freq_gain[i].osc_init("/ch/eq/midlowgain", i + 1);
-            add_osc_control(&m_mid_low_freq_gain[i]);
             m_mid_low_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_MIDLOW_LEVEL);
             
             m_mid_low_freq_band[i].set_label("Freq");
@@ -396,7 +384,6 @@ void OMainWnd::create_controls() {
             m_mid_low_freq_band[i].set_value_callback(eq_lowhigh_freq_text);
             m_mid_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_mid_low_freq_band[i].osc_init("/ch/eq/midlowfreq", i + 1);
-            add_osc_control(&m_mid_low_freq_band[i]);
             m_mid_low_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_MIDLOW_FREQ);
 
             m_mid_low_freq_width[i].set_label("Width");
@@ -404,7 +391,6 @@ void OMainWnd::create_controls() {
             m_mid_low_freq_width[i].set_params(0, 6, 2, 1);
             m_mid_low_freq_width[i].set_knob_background_color(EBLUE_LIGHT);
             m_mid_low_freq_width[i].osc_init("/ch/eq/midlowwidth", i + 1);
-            add_osc_control(&m_mid_low_freq_width[i]);
             m_mid_low_freq_width[i].set_alsa_control_name(CTL_NAME_EQ_MIDLOWWIDTH_FREQ);
 
             m_low_freq_gain[i].set_label("Low");
@@ -412,7 +398,6 @@ void OMainWnd::create_controls() {
             m_low_freq_gain[i].set_value_callback(eq_level_text);
             m_low_freq_gain[i].set_knob_background_color(EBLUE_NORMAL);
             m_low_freq_gain[i].osc_init("/ch/eq/lowgain", i + 1);
-            add_osc_control(&m_low_freq_gain[i]);
             m_low_freq_gain[i].set_alsa_control_name(CTL_NAME_EQ_LOW_LEVEL);
 
             m_low_freq_band[i].set_label("Freq");
@@ -420,16 +405,14 @@ void OMainWnd::create_controls() {
             m_low_freq_band[i].set_value_callback(eq_low_freq_text);
             m_low_freq_band[i].set_knob_background_color(EBLUE_LIGHT);
             m_low_freq_band[i].osc_init("/ch/eq/lowfreq", i + 1);
-            add_osc_control(&m_low_freq_band[i]);
             m_low_freq_band[i].set_alsa_control_name(CTL_NAME_EQ_LOW_FREQ);
+	    
         }
-
-        if (i < NUM_CHANNELS) {
+	    if (i < NUM_CHANNELS) {
             m_Pan[i].set_params(0, 254, 127, 5);
             m_Pan[i].set_label("L Pan R");
             m_Pan[i].set_knob_background_color(1., .8, .3, 1.);
             m_Pan[i].osc_init("/ch/pan", i + 1);
-            add_osc_control(&m_Pan[i]);
             m_Pan[i].set_alsa_control_name(CTL_NAME_PAN);
 
             m_MuteEnable[i].set_label("Mute");
@@ -440,7 +423,6 @@ void OMainWnd::create_controls() {
             m_MuteEnable[i].set_fontsize(7);
             m_MuteEnable[i].set_ledsize(6);
             m_MuteEnable[i].osc_init("/ch/mute", i + 1);
-            add_osc_control(&m_MuteEnable[i]);
             m_MuteEnable[i].set_alsa_control_name(CTL_NAME_MUTE);
 
             m_SoloEnable[i].set_label("Solo");
@@ -452,7 +434,6 @@ void OMainWnd::create_controls() {
             m_SoloEnable[i].set_ledsize(6);
             m_SoloEnable[i].osc_init("/ch/solo", i + 1);
             m_SoloEnable[i].signal_switched.connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_toggle_solo), i));
-            add_osc_control(&m_SoloEnable[i]);
             
 
             m_PhaseEnable[i].set_label("Phase");
@@ -463,7 +444,6 @@ void OMainWnd::create_controls() {
             m_PhaseEnable[i].set_fontsize(7);
             m_PhaseEnable[i].set_ledsize(6);
             m_PhaseEnable[i].osc_init("/ch/phase", i + 1);
-            add_osc_control(&m_PhaseEnable[i]);
             m_PhaseEnable[i].set_alsa_control_name(CTL_NAME_PHASE);
 
             m_fader[i].set_range(0, 133);
@@ -489,6 +469,34 @@ void OMainWnd::create_controls() {
             m_stripLayouts[i].m_event_box.signal_button_press_event().connect(sigc::bind<>(sigc::mem_fun(this, &OMainWnd::on_mouse_event), i));
             m_stripLayouts[i].set_view_type(NORMAL);
             m_grid.attach(m_stripLayouts[i], i, 2, 1, 1);
+
+#ifdef HAVE_OSC
+	    // compressor
+            add_osc_control(&m_comp_enable[i]);
+            add_osc_control(&m_threshold[i]);
+            add_osc_control(&m_gain[i]);
+            add_osc_control(&m_attack[i]);
+            add_osc_control(&m_release[i]);
+            add_osc_control(&m_ratio[i]);
+	    // EQ
+            add_osc_control(&m_eq_enable[i]);
+            add_osc_control(&m_lcf_enable[i]);
+            add_osc_control(&m_high_freq_gain[i]);
+            add_osc_control(&m_high_freq_band[i]);
+            add_osc_control(&m_mid_high_freq_gain[i]);
+            add_osc_control(&m_mid_high_freq_band[i]);
+            add_osc_control(&m_mid_high_freq_width[i]);
+            add_osc_control(&m_mid_low_freq_gain[i]);
+            add_osc_control(&m_mid_low_freq_band[i]);
+            add_osc_control(&m_mid_low_freq_width[i]);
+            add_osc_control(&m_low_freq_gain[i]);
+            add_osc_control(&m_low_freq_band[i]);
+	    // strip
+            add_osc_control(&m_Pan[i]);
+            add_osc_control(&m_MuteEnable[i]);
+            add_osc_control(&m_SoloEnable[i]);
+            add_osc_control(&m_PhaseEnable[i]);
+#endif
         }
     }
     for (int i = 0; i < NUM_CHANNELS / 2; i++) {
@@ -503,18 +511,22 @@ void OMainWnd::create_controls() {
         m_link[i].set_align(Gtk::Align::ALIGN_CENTER);
         m_link[i].set_halign(Gtk::ALIGN_FILL);
         m_link[i].osc_init("/link", i + 1);
-        add_osc_control(&m_link[i]);
         m_grid.attach(m_link[i], i * 2, 3, 2, 1);
+
+#if HAVE_OSC	
+        add_osc_control(&m_link[i]);
+#endif	
     }
 
-    add_osc_control(&m_master.m_comp_to_stereo);
     m_master.m_comp_to_stereo.set_alsa_control_name(CTL_NAME_BUS_OUT);
-
-    add_osc_control(&m_master.m_true_bypass);
     m_master.m_true_bypass.set_alsa_control_name(CTL_NAME_BYPASS);
-    
-    add_osc_control(&m_master.m_mute);
     m_master.m_mute.set_alsa_control_name(CTL_NAME_MASTER_MUTE);
+    
+#ifdef HAVE_OSC		
+    add_osc_control(&m_master.m_comp_to_stereo);
+    add_osc_control(&m_master.m_true_bypass);
+    add_osc_control(&m_master.m_mute);
+#endif    
     
     // create DSP layout
     {
@@ -860,7 +872,7 @@ void OMainWnd::on_notification_from_worker_thread() {
     }
     for (int i = 0; i < NUM_CHANNELS; i++) {
         int ch_meter = alsa->sliderTodB(alsa->meters[i] / 32768. * 133.) / 133. * 32768;
-        m_stripLayouts[i].m_fader.m_meter[0].setLevel(ch_meter);
+        m_stripLayouts[i].m_strip.m_meter[0].setLevel(ch_meter);
 
         if (m_comp_enable[i].get_value())
             m_reduction[i].setLevel(alsa->sliderTodB(alsa->meters[i + 18] / 32768. * 133.) / 133. * 32768);
@@ -870,10 +882,10 @@ void OMainWnd::on_notification_from_worker_thread() {
 
         if (m_stripLayouts[i].get_channel_type() == STEREO) {
             ch_meter = alsa->sliderTodB(alsa->meters[i + 1] / 32768. * 133.) / 133. * 32768;
-            m_stripLayouts[i].m_fader.m_meter[1].setLevel(ch_meter);
+            m_stripLayouts[i].m_strip.m_meter[1].setLevel(ch_meter);
         }
         if (!m_config.get_boolean(SETTINGS_OSC_NO_METERS)) {
-            OSC_STRIP_MSG("/strip/meter", i + 1, m_stripLayouts[i].m_fader.m_meter[0].get_level());
+            OSC_STRIP_MSG("/strip/meter", i + 1, m_stripLayouts[i].m_strip.m_meter[0].get_level());
             if (m_stripLayouts[i].m_comp.m_enable->get_value()) {
                 OSC_STRIP_MSG("/strip/comp/red", i + 1, m_stripLayouts[i].m_comp.m_reduction[0]->get_level());
             }
@@ -902,6 +914,7 @@ void OMainWnd::on_menu_file_about() {
     m_Dialog.show();
 }
 
+#if HAVE_OSC
 void OMainWnd::on_menu_file_osc() {
     m_OscDialog.SetData(&m_config);
 
@@ -912,6 +925,7 @@ void OMainWnd::on_menu_file_osc() {
         l_log_osc = m_config.get_boolean(SETTINGS_OSC_LOG_ALL);
     }
 }
+#endif
 
 void OMainWnd::on_menu_file_reset() {
     m_master.reset(alsa);
@@ -1241,11 +1255,11 @@ void OMainWnd::update_osc_client() {
         OSC_STRIP_MSG("/master/route", n + 1, m_routing.m_route[n].get_active_row_number());
     }
     for (int n = 0; n < 16; n++) {
-        OSC_STRIP_MSG("/strip/fader", n + 1, m_stripLayouts[n].m_fader.m_fader->get_value());
-        OSC_STRIP_MSG("/strip/mute", n + 1, m_stripLayouts[n].m_fader.m_MuteEnable->get_value() ? 1 : 0);
-        OSC_STRIP_MSG("/strip/solo", n + 1, m_stripLayouts[n].m_fader.m_SoloEnable->get_value() ? 1 : 0);
-        OSC_STRIP_MSG("/strip/phase", n + 1, m_stripLayouts[n].m_fader.m_PhaseEnable[0]->get_value() ? 1 : 0);
-        OSC_STRIP_MSG("/strip/pan", n + 1, m_stripLayouts[n].m_fader.m_Pan[0]->get_value() - 127);
+        OSC_STRIP_MSG("/strip/fader", n + 1, m_stripLayouts[n].m_strip.m_fader->get_value());
+        OSC_STRIP_MSG("/strip/mute", n + 1, m_stripLayouts[n].m_strip.m_MuteEnable->get_value() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/solo", n + 1, m_stripLayouts[n].m_strip.m_SoloEnable->get_value() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/phase", n + 1, m_stripLayouts[n].m_strip.m_PhaseEnable[0]->get_value() ? 1 : 0);
+        OSC_STRIP_MSG("/strip/pan", n + 1, m_stripLayouts[n].m_strip.m_Pan[0]->get_value() - 127);
         
         OSC_STRIP_MSG("/strip/eq/active", n + 1, m_stripLayouts[n].m_eq.m_eq_enable->get_value() ? 1 : 0);
         OSC_STRIP_MSG("/strip/eq/highfreq", n + 1, m_stripLayouts[n].m_eq.m_high_freq_band->get_value());
@@ -1288,11 +1302,6 @@ void OMainWnd::on_notification_from_osc_thread() {
 void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg) {
     lo_arg** argv = lo_message_get_argv(msg);
     lo_message reply;
-
-#ifdef OSC_LOG_MSG
-    printf("rec:%s", path);
-    lo_message_pp(msg);
-#endif
     
     OOscControl* osc_sw = m_osc_control_map[path];
     if (osc_sw) {
@@ -1304,6 +1313,9 @@ void OMainWnd::on_osc_message(int client_index, const char* path, lo_message msg
     if (!strcmp(path, "/reset"))                on_menu_file_reset();
 }
 
+void OMainWnd::add_osc_control(OOscControl* osd) {
+    m_osc_control_map[osd->get_osc_path()] = osd;
+}
 #endif
 
 void OMainWnd::on_control_changed(OOscControl* control) {
@@ -1436,8 +1448,4 @@ void OMainWnd::on_about_dialog_response(int response_id) {
 
 OConfig* OMainWnd::GetConfig() {
     return &m_config;
-}
-
-void OMainWnd::add_osc_control(OOscControl* osd) {
-    m_osc_control_map[osd->get_osc_path()] = osd;
 }

@@ -53,7 +53,7 @@ void OStripLayout::init(int index, OAlsa* alsa, Gtk::Window* wnd) {
 
 	m_comp.init(index, alsa, wnd);
 	m_eq.init(index, alsa, wnd);
-	m_fader.init(index, alsa, wnd);
+	m_strip.init(index, alsa, wnd);
 
 	m_DspEnable.signal_switched.connect(sigc::bind<>(sigc::mem_fun(wnd_, &OMainWnd::on_dsp_enable_changed), index, CTL_NAME_CHANNEL_ACTIVE));
 
@@ -63,7 +63,7 @@ void OStripLayout::set_view_type(VIEW_TYPE view_type) {
 
 	m_comp.set_view_type(view_type, m_channel_type);
 	m_eq.set_view_type(view_type, m_channel_type);
-	m_fader.set_view_type(view_type, m_channel_type);
+	m_strip.set_view_type(view_type, m_channel_type);
 
 	if (view_type == HIDDEN) {
 		std::vector<Gtk::Widget*> childList = m_grid.get_children();
@@ -81,7 +81,7 @@ void OStripLayout::set_view_type(VIEW_TYPE view_type) {
 		m_grid.attach(m_eq, 0, 5, 1, 1);
 		m_grid.attach(m_eq_sep, 0, 6, 1, 1);
 
-		m_grid.attach(m_fader, 0, 7, 1, 1);
+		m_grid.attach(m_strip, 0, 7, 1, 1);
 
 		if (m_DspEnable.get_parent())
 			m_grid.remove(m_DspEnable);
@@ -94,7 +94,7 @@ void OStripLayout::set_view_type(VIEW_TYPE view_type) {
 		m_grid.attach(m_comp, 0, 3, 1, 1);
 		m_grid.attach(m_eq, 0, 5, 1, 1);
 
-		m_grid.attach(m_fader, 0, 7, 1, 1);
+		m_grid.attach(m_strip, 0, 7, 1, 1);
 		if (!m_DspEnable.get_parent())
 			m_grid.attach(m_DspEnable, 0, 1, 1, 1);
 		m_grid.attach(m_sep, 1, 0, 1, 8);
@@ -110,7 +110,7 @@ void OStripLayout::reset(OAlsa* alsa, int index) {
 
 	m_comp.reset(alsa, index);
 	m_eq.reset(alsa, index);
-	m_fader.reset(alsa, index);
+	m_strip.reset(alsa, index);
         
 }
 
@@ -128,7 +128,7 @@ void OStripLayout::save_values(FILE* file, int indent) {
 	fprintf(file, "\t\t</equalizer>\n");
 
 	fprintf(file, "\t\t<fader>\n");
-	m_fader.save_values(file);
+	m_strip.save_values(file);
 	fprintf(file, "\t\t</fader>\n");
 
 }
@@ -147,7 +147,7 @@ void OStripLayout::load_values(Glib::ustring xml) {
 				m_eq.load_values(reader.read_outer_xml());
 			}
 			if (!strcmp(reader.get_name().c_str(), "fader") && reader.get_node_type() != XML_ENDELEMENT) {
-				m_fader.load_values(reader.read_outer_xml());
+				m_strip.load_values(reader.read_outer_xml());
 			}
 		}
 

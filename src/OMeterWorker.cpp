@@ -35,44 +35,6 @@
         } \
     }
 
-#ifdef HAVE_OSC
-void osc_err_handler(int num, const char *msg, const char *where) {
-    fprintf(stderr, "ARDMIX_ERROR %d: %s at %s\n", num, msg, where);
-}
-
-int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, lo_message data, void *user_data) {
-    int ret;
-    int client_index = -1;
-
-    OMeterWorker* worker = (OMeterWorker*) user_data;
-
-    OMainWnd* wnd = ((OMainWnd*)(worker->m_caller));
-
-    if (worker->one_client == 0) {
-        worker->one_client = lo_address_get_url(lo_message_get_source(data));
-        if (wnd->GetConfig()->get_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE)) {
-            wnd->update_osc_client();
-        }
-    }
-
-    OSC_STRIP_LOG_IN(*(worker->l_log_osc), path, data);
-    
-    osc_message* msg = new osc_message;
-    msg->path = strdup(path);
-    msg->data = lo_message_clone(data);
-    msg->client_index = client_index;
-
-    wnd->oscMutex.lock();
-
-    g_async_queue_push (wnd->m_osc_queue, msg);
-    wnd->notify_osc();
-
-    wnd->oscMutex.unlock();
-	
-    return 0;
-}
-#endif
-
 
 OMeterWorker::OMeterWorker() :
 m_Mutex(),
@@ -94,44 +56,6 @@ void OMeterWorker::stop_work() {
 bool OMeterWorker::has_stopped() const {
 	std::lock_guard<std::mutex> lock(m_Mutex);
 	return m_has_stopped;
-}
-
-
-void OMeterWorker::do_work(OMainWnd* caller) {
-	m_has_stopped = false;
-
-	m_caller = caller;
-        l_log_osc = &(caller->l_log_osc);
-	
-#ifdef HAVE_OSC
-    osc_server = lo_server_thread_new_with_proto(caller->GetConfig()->get_string(SETTINGS_OSC_PORT), LO_UDP, osc_err_handler);
-    if( !osc_server ) {
-        fprintf(stderr, "ERROR: unable to create client port.\n");
-        return;
-    }
-    lo_server_thread_add_method(osc_server, NULL, NULL, osc_handler, this);
-    lo_server_thread_start(osc_server);
-#endif	
-	
- 
-    elem = caller->alsa->getElement(CTL_NAME_METER);
-    
-    for (;;) // do until break
-    {
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
-            if (m_shall_stop) {
-                    break;
-            }
-            caller->alsa->getControlIntegers(elem, caller->alsa->meters, 34);
-            caller->notify();
-    }
-#ifdef HAVE_OSC
-lo_server_thread_free(osc_server);
-#endif	
-
-    m_shall_stop = false;
-    m_has_stopped = true;
-
 }
 
 #ifdef HAVE_OSC
@@ -187,4 +111,78 @@ void OMeterWorker::send_osc_all(const char* path, lo_message msg)  {
         lo_send_message(a, path, msg);
     }
 }
+
+void osc_err_handler(int num, const char *msg, const char *where) {
+    fprintf(stderr, "ARDMIX_ERROR %d: %s at %s\n", num, msg, where);
+}
+
+int osc_handler(const char *path, const char *types, lo_arg ** argv, int argc, lo_message data, void *user_data) {
+    int ret;
+    int client_index = -1;
+
+    OMeterWorker* worker = (OMeterWorker*) user_data;
+
+    OMainWnd* wnd = ((OMainWnd*)(worker->m_caller));
+
+    if (worker->one_client == 0) {
+        worker->one_client = lo_address_get_url(lo_message_get_source(data));
+        if (wnd->GetConfig()->get_boolean(SETTINGS_OSC_CLIENT_FULL_UPDATE)) {
+            wnd->update_osc_client();
+        }
+    }
+
+    OSC_STRIP_LOG_IN(*(worker->l_log_osc), path, data);
+    
+    osc_message* msg = new osc_message;
+    msg->path = strdup(path);
+    msg->data = lo_message_clone(data);
+    msg->client_index = client_index;
+
+    wnd->oscMutex.lock();
+
+    g_async_queue_push (wnd->m_osc_queue, msg);
+    wnd->notify_osc();
+
+    wnd->oscMutex.unlock();
+	
+    return 0;
+}
 #endif
+
+void OMeterWorker::do_work(OMainWnd* caller) {
+	m_has_stopped = false;
+
+	m_caller = caller;
+	
+#ifdef HAVE_OSC
+        l_log_osc = &(caller->l_log_osc);
+    osc_server = lo_server_thread_new_with_proto(caller->GetConfig()->get_string(SETTINGS_OSC_PORT), LO_UDP, osc_err_handler);
+    if( !osc_server ) {
+        fprintf(stderr, "ERROR: unable to create client port.\n");
+        return;
+    }
+    lo_server_thread_add_method(osc_server, NULL, NULL, osc_handler, this);
+    lo_server_thread_start(osc_server);
+#endif	
+	
+ 
+    elem = caller->alsa->getElement(CTL_NAME_METER);
+    
+    for (;;) // do until break
+    {
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            if (m_shall_stop) {
+                    break;
+            }
+            caller->alsa->getControlIntegers(elem, caller->alsa->meters, 34);
+            caller->notify();
+    }
+#ifdef HAVE_OSC
+lo_server_thread_free(osc_server);
+#endif	
+
+    m_shall_stop = false;
+    m_has_stopped = true;
+
+}
+

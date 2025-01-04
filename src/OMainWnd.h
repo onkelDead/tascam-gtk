@@ -59,7 +59,7 @@ typedef struct alsa_control {
     WIDGET_TYPE type;
     OSwitch* oswitch;
     OFader* faderwidget;
-    Gtk::ComboBoxText* combo;
+    ORoute* combo;
     ODial* dial;
     int value;
 } alsa_control;
@@ -102,6 +102,14 @@ public:
     /// dispatcher callback if data from alsa device should be processed
     void on_notification_from_osc_thread();
     void update_osc_client();
+
+    // menu entry
+    void on_menu_file_osc();
+    
+    // add control to osc-map
+    void add_osc_control(OOscControl*);
+    
+    bool l_log_osc = false;    
 #endif
     
     /// handler function called by< the worker thread, if OSC messages are available
@@ -146,7 +154,6 @@ public:
     void on_menu_file_save();
     void on_menu_file_reset();
     void on_menu_file_exit();
-    void on_menu_file_osc();
     void on_menu_file_about();
 
     void on_menu_view_compact();
@@ -164,15 +171,10 @@ public:
     void on_toggle_solo(int index);
 
     void on_control_changed(OOscControl* control);
-
-    void add_osc_control(OOscControl*);
     
-    bool l_log_osc = false;
-
 protected:
     //    void on_parsing_error(const Glib::RefPtr<const Gtk::CssSection>& section, const Glib::Error& error);
     Glib::RefPtr<Gtk::CssProvider> m_refCssProvider;
-
 
 private:
 
@@ -220,6 +222,11 @@ private:
 #ifdef HAVE_OSC    
     Glib::Dispatcher m_Dispatcher_osc;
     void on_osc_message(int client_index, const char* path, lo_message msg);
+
+    OOscDialog m_OscDialog;
+    void on_osc_dialog_response(int response_id);
+    
+    std::map<std::string, OOscControl*> m_osc_control_map;
 #endif
     
     OMeterWorker m_Worker;
@@ -231,13 +238,6 @@ private:
     Gtk::AboutDialog m_Dialog;
     void on_about_dialog_response(int response_id);
 
-    OOscDialog m_OscDialog;
-    void on_osc_dialog_response(int response_id);
-    
-
-    std::map<std::string, OOscControl*> m_osc_control_map;
-    
-    
     OOscControl* get_alsa_widget(const char* info_name, int index, snd_ctl_elem_type_t t);
     std::map<snd_hctl_elem_t*, OOscControl*> m_mixer_elems;
     

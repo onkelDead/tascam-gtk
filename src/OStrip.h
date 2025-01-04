@@ -50,7 +50,6 @@ public:
     
     OMeter m_meter[2];
     Gtk::Label m_dB;
-
     
 private:
     VIEW_TYPE m_view_type;
