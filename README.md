@@ -34,7 +34,11 @@ Basically, on a Debian-based Linux system, requirements should be satified with:
 apt install build-essential autoconf automake autopoint libgtkmm-3.0-dev libxml++2.6-dev liblo-dev
 ```
 
-On a Arch-based Linux system, the packages to install should be `base-devel autoconf automake gtkmm3 libxml++-5.0 liblo`
+### Arch Linux
+
+This program is available in the AUR as the package [`tascam-gtk-git`](https://aur.archlinux.org/packages/tascam-gtk-git).
+
+Should you still want to build and install manually on an Arch-based Linux system, the prerequisites to install are: `base-devel autoconf automake gtkmm3 libxml++-5.0 liblo`.
 
 Once those prerequisites are installed, run:
 ```
